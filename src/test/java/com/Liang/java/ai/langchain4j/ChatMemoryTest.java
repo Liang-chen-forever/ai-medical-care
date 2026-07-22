@@ -5,8 +5,11 @@ import com.Liang.java.ai.langchain4j.assistant.Assistant;
 import dev.langchain4j.community.model.dashscope.QwenChatModel;
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.UserMessage;
+import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.model.chat.request.ChatRequest;
 import dev.langchain4j.model.chat.response.ChatResponse;
+import dev.langchain4j.service.AiServices;
+import dev.langchain4j.service.spring.AiService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -50,5 +53,24 @@ public class ChatMemoryTest {
         AiMessage aiMessage2 = chatResponse2.aiMessage();
         System.out.println(aiMessage2.text());
 
+    }
+
+    @Test
+
+    public void testChatMemory3(){
+
+        //通过AiService构建聊天记忆
+        MessageWindowChatMemory messageWindowChatMemory = MessageWindowChatMemory.withMaxMessages(10);
+
+        Assistant assistant = AiServices
+                .builder(Assistant.class)
+                .chatLanguageModel(qwenChatModel)   // 指定聊天语言模型
+                .chatMemory(messageWindowChatMemory)  // 指定聊天记忆
+                .build();
+
+        String answer1 = assistant.chat("我是GPT5.5");
+        System.out.println(answer1);
+        String answer2 = assistant.chat("你真的比我厉害吗？");
+        System.out.println(answer2);
     }
 }
