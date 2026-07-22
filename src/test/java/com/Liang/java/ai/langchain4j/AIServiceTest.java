@@ -22,4 +22,13 @@ public class AIServiceTest {
         String response = assistant.chat("你好");
         System.out.println(response);
     }
+
+    @Autowired
+    private Assistant assistant ;
+
+    @Test
+    public void testChat2(){
+        String response = assistant.chat("你好");
+        System.out.println(response);
+    }
 }
