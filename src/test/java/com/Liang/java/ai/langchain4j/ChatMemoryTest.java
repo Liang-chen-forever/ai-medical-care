@@ -3,6 +3,7 @@ package com.Liang.java.ai.langchain4j;
 
 import com.Liang.java.ai.langchain4j.assistant.Assistant;
 import com.Liang.java.ai.langchain4j.assistant.MemoryChatAssistant;
+import com.Liang.java.ai.langchain4j.assistant.SeparateChatAssistant;
 import dev.langchain4j.community.model.dashscope.QwenChatModel;
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.UserMessage;
@@ -85,5 +86,20 @@ public class ChatMemoryTest {
         System.out.println(answer1);
         String answer2 = memoryChatAssistant.chat("你真的比我厉害吗？");
         System.out.println(answer2);
+    }
+
+    @Autowired
+    private SeparateChatAssistant separateChatAssistant;
+    @Test
+    public void testChatMemory5(){
+
+
+        String answer1 = separateChatAssistant.chat(1,"我是GPT5.5");
+        System.out.println(answer1);
+        String answer2 = separateChatAssistant.chat(1,"我是谁");
+        System.out.println(answer2);
+
+        String answer3 = separateChatAssistant.chat(2,"我是谁");
+        System.out.println(answer3);
     }
 }
