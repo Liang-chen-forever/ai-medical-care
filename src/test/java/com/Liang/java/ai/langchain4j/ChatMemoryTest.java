@@ -4,7 +4,7 @@ package com.Liang.java.ai.langchain4j;
 import com.Liang.java.ai.langchain4j.assistant.Assistant;
 import com.Liang.java.ai.langchain4j.assistant.MemoryChatAssistant;
 import com.Liang.java.ai.langchain4j.assistant.SeparateChatAssistant;
-import dev.langchain4j.community.model.dashscope.QwenChatModel;
+import dev.langchain4j.model.openai.OpenAiChatModel;
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
@@ -33,7 +33,7 @@ public class ChatMemoryTest {
     }
 
     @Autowired
-    private QwenChatModel qwenChatModel;
+    private OpenAiChatModel openAiChatModel;
 
     @Test
     public void testChatMemory2(){
@@ -43,7 +43,7 @@ public class ChatMemoryTest {
         ChatRequest chatRequest1 = ChatRequest.builder()
                 .messages(userMessage1)
                 .build();
-        ChatResponse chatResponse1 = qwenChatModel.chat(chatRequest1);
+        ChatResponse chatResponse1 = openAiChatModel.chat(chatRequest1);
         AiMessage aiMessage1 = chatResponse1.aiMessage();
         System.out.println(aiMessage1.text());
 
@@ -51,7 +51,7 @@ public class ChatMemoryTest {
         ChatRequest chatRequest2 = ChatRequest.builder()
                 .messages(userMessage1, aiMessage1, userMessage2)
                 .build();
-        ChatResponse chatResponse2 = qwenChatModel.chat(chatRequest2);
+        ChatResponse chatResponse2 = openAiChatModel.chat(chatRequest2);
         AiMessage aiMessage2 = chatResponse2.aiMessage();
         System.out.println(aiMessage2.text());
 
@@ -66,7 +66,7 @@ public class ChatMemoryTest {
 
         Assistant assistant = AiServices
                 .builder(Assistant.class)
-                .chatLanguageModel(qwenChatModel)   // 指定聊天语言模型
+                .chatLanguageModel(openAiChatModel)   // 指定聊天语言模型
                 .chatMemory(messageWindowChatMemory)  // 指定聊天记忆
                 .build();
 
