@@ -4,6 +4,7 @@ package com.Liang.java.ai.langchain4j.bean;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Data;
+import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -16,7 +17,7 @@ public class ChatMessages {
 
     //唯一标识，映射到MongoDB的_id字段
     @Id
-    private Long id;
+    private ObjectId id;
 
 
     //存储当前聊天记录列表到json字符串
