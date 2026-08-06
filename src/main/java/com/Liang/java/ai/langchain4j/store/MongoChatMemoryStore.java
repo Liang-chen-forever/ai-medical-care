@@ -23,7 +23,7 @@ public class MongoChatMemoryStore implements ChatMemoryStore {
 
     @Override
     public List<ChatMessage> getMessages(Object memoryId) {
-        Criteria criteria = Criteria.where("memoryId").is(memoryId);
+        Criteria criteria = Criteria.where("memoryId").is(memoryId.toString());
         Query query = new Query(criteria);
         ChatMessages chatMessages = mongoTemplate.findOne(query, ChatMessages.class);
         if(chatMessages == null){
@@ -34,10 +34,11 @@ public class MongoChatMemoryStore implements ChatMemoryStore {
 
     @Override
     public void updateMessages(Object memoryId, List<ChatMessage> list) {
-        Criteria criteria = Criteria.where("memoryId").is(memoryId);
+        Criteria criteria = Criteria.where("memoryId").is(memoryId.toString());
         Query query = new Query(criteria);
         Update update = new Update();
-        update.push("content", ChatMessageSerializer.messagesToJson(list));
+        update.set("memoryId", memoryId.toString());
+        update.set("content", ChatMessageSerializer.messagesToJson(list));
 
         //修改或新增
         mongoTemplate.upsert(query,update,ChatMessages.class);
@@ -45,7 +46,7 @@ public class MongoChatMemoryStore implements ChatMemoryStore {
 
     @Override
     public void deleteMessages(Object memoryId) {
-        Criteria criteria = Criteria.where("memoryId").is(memoryId);
+        Criteria criteria = Criteria.where("memoryId").is(memoryId.toString());
         Query query = new Query(criteria);
         mongoTemplate.remove(query, ChatMessages.class);
     }
