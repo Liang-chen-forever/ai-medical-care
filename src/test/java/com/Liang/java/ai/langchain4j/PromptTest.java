@@ -2,11 +2,13 @@ package com.Liang.java.ai.langchain4j;
 
 import com.Liang.java.ai.langchain4j.assistant.MemoryChatAssistant;
 import com.Liang.java.ai.langchain4j.assistant.SeparateChatAssistant;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
+@Tag("external")
 public class PromptTest {
 
     @Autowired

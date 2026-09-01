@@ -52,10 +52,11 @@
 
 <script setup>
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-import axios from 'axios'
+import { useRouter, useRoute } from 'vue-router'
+import { login, saveAuth } from '../api/index.js'
 
 const router = useRouter()
+const route = useRoute()
 const form = ref({ username: '', password: '' })
 const loading = ref(false)
 const errorMsg = ref('')
@@ -71,17 +72,13 @@ async function handleLogin() {
   loading.value = true
   errorMsg.value = ''
   try {
-    const res = await axios.post('/api/auth/login', form.value)
-    if (res.data.code === 200) {
-      const user = res.data.data
-      localStorage.setItem('user', JSON.stringify(user))
-      showToast('success', '登录成功')
-      setTimeout(() => router.push('/chat'), 500)
-    } else {
-      errorMsg.value = res.data.message || '登录失败'
-    }
+    const res = await login(form.value.username, form.value.password)
+    saveAuth(res.data)
+    showToast('success', '登录成功')
+    const redirect = typeof route.query.redirect === 'string' ? route.query.redirect : '/chat'
+    setTimeout(() => router.push(redirect), 500)
   } catch (e) {
-    errorMsg.value = e.response?.data?.message || '网络错误，请稍后重试'
+    errorMsg.value = e.message || '网络错误，请稍后重试'
   } finally {
     loading.value = false
   }

@@ -32,6 +32,23 @@ CREATE TABLE IF NOT EXISTS `schedule` (
     `booked_slots` INT DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- 预约表：预约归属以用户 ID 和排班 ID 为准，姓名、身份证和排班信息作为快照保留。
+CREATE TABLE IF NOT EXISTS `appointment` (
+    `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
+    `username` VARCHAR(50) NOT NULL,
+    `id_card` VARCHAR(18) NOT NULL,
+    `department` VARCHAR(100) NOT NULL,
+    `date` VARCHAR(20) NOT NULL,
+    `time` VARCHAR(10) NOT NULL,
+    `doctor_name` VARCHAR(50),
+    `user_id` BIGINT NOT NULL,
+    `schedule_id` BIGINT NOT NULL,
+    `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY `uk_appointment_user_schedule` (`user_id`, `schedule_id`),
+    KEY `idx_appointment_user_id` (`user_id`),
+    KEY `idx_appointment_schedule_id` (`schedule_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 -- 插入医生数据（神经内科）
 INSERT INTO doctor (name, title, department, specialty, description) VALUES
 ('张明远', '主任医师', '神经内科', '脑血管疾病、帕金森病、癫痫的诊断与治疗', '从事神经内科临床工作30余年，擅长脑血管疾病的介入治疗，在帕金森病的早期诊断方面有丰富经验。'),

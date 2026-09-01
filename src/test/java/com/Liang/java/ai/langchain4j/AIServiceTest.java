@@ -5,11 +5,13 @@ import com.Liang.java.ai.langchain4j.assistant.Assistant;
 import dev.langchain4j.community.model.dashscope.QwenChatModel;
 import dev.langchain4j.service.AiServices;
 import dev.langchain4j.service.spring.AiService;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
+@Tag("external")
 public class AIServiceTest {
 
     @Autowired

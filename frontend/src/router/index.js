@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { isAuthenticated } from '../api/index.js'
 
 const routes = [
   { path: '/', redirect: '/chat' },
@@ -18,13 +19,13 @@ const routes = [
     path: '/appointment',
     name: 'Appointment',
     component: () => import('../views/AppointmentView.vue'),
-    meta: { title: '预约挂号' }
+    meta: { title: '预约挂号', requiresAuth: true }
   },
   {
     path: '/my-appointments',
     name: 'MyAppointments',
     component: () => import('../views/MyAppointments.vue'),
-    meta: { title: '我的预约' }
+    meta: { title: '我的预约', requiresAuth: true }
   },
   {
     path: '/login',
@@ -50,6 +51,9 @@ const router = createRouter({
 
 router.beforeEach((to) => {
   document.title = to.meta.title ? `${to.meta.title} - 硅谷小智` : '硅谷小智'
+  if (to.meta.requiresAuth && !isAuthenticated()) {
+    return { name: 'Login', query: { redirect: to.fullPath } }
+  }
 })
 
 export default router

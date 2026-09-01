@@ -67,6 +67,7 @@ import { ref, onMounted, provide } from 'vue'
 import { useRouter } from 'vue-router'
 import Toast from './components/Toast.vue'
 import OnboardingGuide from './components/OnboardingGuide.vue'
+import { clearAuth, getUser } from './api/index.js'
 
 const router = useRouter()
 const user = ref(null)
@@ -80,14 +81,11 @@ function showToast(msg, type = 'success') {
 provide('toast', showToast)
 
 onMounted(() => {
-  const stored = localStorage.getItem('user')
-  if (stored) {
-    try { user.value = JSON.parse(stored) } catch (e) { /* ignore */ }
-  }
+  user.value = getUser()
 })
 
 function handleLogout() {
-  localStorage.removeItem('user')
+  clearAuth()
   user.value = null
   showToast('已退出登录')
   router.push('/login')

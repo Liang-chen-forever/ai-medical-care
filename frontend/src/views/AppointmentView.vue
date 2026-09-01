@@ -21,7 +21,7 @@
         </div>
         <div class="form-group">
           <label>时间</label>
-          <select v-model="form.time" class="form-select">
+          <select v-model="form.period" class="form-select">
             <option value="">请选择</option>
             <option value="上午">上午</option>
             <option value="下午">下午</option>
@@ -42,7 +42,7 @@
     </div>
 
     <div v-else-if="schedules.length > 0" class="card">
-      <div class="card-title">可预约号源 - {{ form.department }} {{ form.date }} {{ form.time }}</div>
+      <div class="card-title">可预约号源 - {{ form.department }} {{ form.date }} {{ form.period }}</div>
       <table class="table">
         <thead>
           <tr>
@@ -92,21 +92,14 @@
             <div class="info-row"><span>日期</span><strong>{{ selectedSchedule?.date }}</strong></div>
             <div class="info-row"><span>时间</span><strong>{{ selectedSchedule?.time }}</strong></div>
           </div>
-          <div class="form-group">
-            <label>姓名 <span class="required">*</span></label>
-            <input v-model="bookForm.username" class="form-input" placeholder="请输入您的姓名" />
-          </div>
-          <div class="form-group">
-            <label>身份证号 <span class="required">*</span></label>
-            <input v-model="bookForm.idCard" class="form-input" placeholder="请输入18位身份证号" maxlength="18" />
-          </div>
+          <p class="booking-note">将使用当前登录账号完成预约</p>
         </div>
         <div class="modal-footer">
           <button class="btn btn-outline" @click="showModal = false">取消</button>
           <button
             class="btn btn-primary"
             @click="submitBooking"
-            :disabled="!bookForm.username || bookForm.idCard.length !== 18 || submitting"
+            :disabled="!selectedSchedule || submitting"
           >
             {{ submitting ? '提交中...' : '确认预约' }}
           </button>
@@ -123,18 +116,24 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
-import { getSchedules, bookAppointment } from '../api/index.js'
+import { useRoute, useRouter } from 'vue-router'
+import {
+  getDepartments,
+  getSchedules,
+  bookAppointment,
+  isAuthenticated
+} from '../api/index.js'
 
 const route = useRoute()
-const departments = ['神经内科', '口腔科']
+const router = useRouter()
+const departments = ref([])
 
 const today = new Date().toISOString().split('T')[0]
 
 const form = ref({
   department: '',
   date: today,
-  time: ''
+  period: ''
 })
 
 const schedules = ref([])
@@ -144,11 +143,10 @@ const searched = ref(false)
 const showModal = ref(false)
 const selectedSchedule = ref(null)
 const submitting = ref(false)
-const bookForm = ref({ username: '', idCard: '' })
 
 const toast = ref({ show: false, type: 'success', message: '' })
 
-const canSearch = computed(() => form.value.department && form.value.date && form.value.time)
+const canSearch = computed(() => form.value.department && form.value.date && form.value.period)
 
 function showToast(type, message) {
   toast.value = { show: true, type, message }
@@ -160,8 +158,8 @@ async function searchSchedules() {
   loading.value = true
   searched.value = true
   try {
-    const res = await getSchedules(form.value.department, form.value.date, form.value.time)
-    schedules.value = res.data
+    const res = await getSchedules(form.value.department, form.value.date, form.value.period)
+    schedules.value = res.data || []
   } catch (e) {
     console.error('查询号源失败:', e)
     schedules.value = []
@@ -172,23 +170,22 @@ async function searchSchedules() {
 }
 
 function showBookForm(schedule) {
+  if (!isAuthenticated()) {
+    router.push({ name: 'Login', query: { redirect: '/appointment' } })
+    return
+  }
   selectedSchedule.value = schedule
-  bookForm.value = { username: '', idCard: '' }
   showModal.value = true
 }
 
 async function submitBooking() {
-  if (!bookForm.value.username || bookForm.value.idCard.length !== 18) return
+  if (!selectedSchedule.value || !isAuthenticated()) {
+    router.push({ name: 'Login', query: { redirect: '/appointment' } })
+    return
+  }
   submitting.value = true
   try {
-    const res = await bookAppointment({
-      username: bookForm.value.username,
-      idCard: bookForm.value.idCard,
-      department: selectedSchedule.value.department,
-      date: selectedSchedule.value.date,
-      time: selectedSchedule.value.time,
-      doctorName: selectedSchedule.value.doctorName
-    })
+    const res = await bookAppointment(selectedSchedule.value.id)
     showToast('success', res._message || '预约成功！')
     showModal.value = false
     await searchSchedules()
@@ -199,10 +196,24 @@ async function submitBooking() {
   }
 }
 
-onMounted(() => {
+async function loadDepartments() {
+  try {
+    const res = await getDepartments()
+    departments.value = res.data || []
+    if (!form.value.department) {
+      form.value.department = departments.value[0] || ''
+    }
+  } catch (e) {
+    console.error('获取科室列表失败:', e)
+    departments.value = []
+  }
+}
+
+onMounted(async () => {
   if (route.query.dept) form.value.department = route.query.dept
   if (route.query.date) form.value.date = route.query.date
-  if (route.query.time) form.value.time = route.query.time
+  if (route.query.period || route.query.time) form.value.period = route.query.period || route.query.time
+  await loadDepartments()
   if (canSearch.value) searchSchedules()
 })
 </script>
@@ -287,6 +298,12 @@ onMounted(() => {
 
 .required {
   color: #ef4444;
+}
+
+.booking-note {
+  margin: 16px 0 0;
+  font-size: 13px;
+  color: #64748b;
 }
 
 .modal-footer {

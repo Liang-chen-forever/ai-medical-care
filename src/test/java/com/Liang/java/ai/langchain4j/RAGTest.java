@@ -6,10 +6,12 @@ import dev.langchain4j.data.document.parser.apache.pdfbox.ApachePdfBoxDocumentPa
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.store.embedding.EmbeddingStoreIngestor;
 import dev.langchain4j.store.embedding.inmemory.InMemoryEmbeddingStore;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
+@Tag("external")
 public class RAGTest {
 
     @Test
@@ -17,14 +19,15 @@ public class RAGTest {
         //使用FileSystemDocumentLoader读取指定目录下的知识库文档
         //并使用默认的文档解析器TextDocumentParser进行解析
 
-        Document document = FileSystemDocumentLoader.loadDocument("D:\\Resume-Projects\\Intelligent-Healthcare-System\\" +
-                "ai-medical-care\\src\\main\\resources\\knowledge\\测试.txt");
+        Document document = FileSystemDocumentLoader.loadDocument(
+                "src/test/resources/knowledge/测试.txt");
         System.out.println(document.text());
     }
 
     @Test
     public void testParsePDF(){
-        Document document = FileSystemDocumentLoader.loadDocument("src/main/resources/knowledge/医院信息.pdf",new ApachePdfBoxDocumentParser());
+        Document document = FileSystemDocumentLoader.loadDocument(
+                "src/test/resources/knowledge/医院信息.pdf", new ApachePdfBoxDocumentParser());
         System.out.println(document.metadata());
         System.out.println(document.text());
     }
@@ -34,7 +37,8 @@ public class RAGTest {
 
         //使用FileSystemDocumentLoader读取指定目录下的知识库文档
         //并使用默认的文档解析器TextDocumentParser进行解析
-        Document document = FileSystemDocumentLoader.loadDocument("src/main/resources/knowledge/人工智能.md");
+        Document document = FileSystemDocumentLoader.loadDocument(
+                "src/test/resources/knowledge/人工智能.md");
 
         //为了简单起见，我们暂时使用基于内存的向量存储
         InMemoryEmbeddingStore<TextSegment> embeddingStore = new InMemoryEmbeddingStore<>();

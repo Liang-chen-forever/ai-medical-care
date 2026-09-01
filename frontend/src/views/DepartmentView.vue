@@ -60,10 +60,10 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { getDoctors } from '../api/index.js'
+import { getDepartments, getDoctors } from '../api/index.js'
 
-const departments = ['神经内科', '口腔科']
-const currentDept = ref('神经内科')
+const departments = ref([])
+const currentDept = ref('')
 const doctors = ref([])
 const loading = ref(false)
 
@@ -85,9 +85,20 @@ async function fetchDoctors() {
   }
 }
 
-onMounted(() => {
-  fetchDoctors()
-})
+async function fetchDepartments() {
+  try {
+    const res = await getDepartments()
+    departments.value = res.data || []
+    currentDept.value = departments.value[0] || ''
+    if (currentDept.value) await fetchDoctors()
+  } catch (e) {
+    console.error('获取科室列表失败:', e)
+    departments.value = []
+    doctors.value = []
+  }
+}
+
+onMounted(fetchDepartments)
 </script>
 
 <style scoped>

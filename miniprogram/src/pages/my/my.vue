@@ -24,7 +24,7 @@
         <text>登录 / 注册</text>
         <text class="menu-arrow">&#x203A;</text>
       </view>
-      <view class="menu-item" @tap="showIdCardInput" v-else>
+      <view class="menu-item" @tap="openAppointments" v-else>
         <text>查看我的预约</text>
         <text class="menu-arrow">&#x203A;</text>
       </view>
@@ -64,38 +64,23 @@
       </view>
     </view>
 
-    <!-- 身份证输入弹窗 -->
-    <view v-if="showIdCard" class="modal-mask" @tap="showIdCard = false">
-      <view class="modal" @tap.stop>
-        <view class="modal-header">
-          <text class="modal-title">查看预约</text>
-          <text class="modal-close" @tap="showIdCard = false">&#x2715;</text>
-        </view>
-        <view class="modal-body">
-          <view class="form-group">
-            <text class="form-label">身份证号</text>
-            <input v-model="idCard" class="form-input" placeholder="请输入18位身份证号" maxlength="18" />
-          </view>
-        </view>
-        <view class="modal-footer">
-          <button class="btn btn-outline btn-sm" @tap="showIdCard = false">取消</button>
-          <button class="btn btn-primary btn-sm" @tap="fetchAppointments" :disabled="idCard.length !== 18">查询</button>
-        </view>
-      </view>
-    </view>
   </view>
 </template>
 
 <script>
-import { getAppointments, cancelAppointment } from '@/api/index.js'
+import {
+  clearAuth,
+  getAppointments,
+  cancelAppointment,
+  getAuth,
+  getUserInfo
+} from '@/api/index.js'
 
 export default {
   data() {
     return {
       userInfo: null,
       showAppointments: false,
-      showIdCard: false,
-      idCard: '',
       appointments: [],
       cancellingId: null
     }
@@ -106,25 +91,26 @@ export default {
     }
   },
   onShow() {
-    const stored = uni.getStorageSync('userInfo')
-    if (stored) {
-      try { this.userInfo = JSON.parse(stored) } catch (e) { this.userInfo = null }
-    }
+    this.userInfo = getUserInfo()
+    if (getAuth()) this.fetchAppointments()
+    else this.appointments = []
   },
   methods: {
-    showIdCardInput() {
-      this.idCard = this.userInfo?.idCard || ''
-      this.appointments = []
-      this.showIdCard = true
+    openAppointments() {
+      if (!getAuth()) {
+        this.goToLogin()
+        return
+      }
+      this.showAppointments = true
+      this.fetchAppointments()
     },
     async fetchAppointments() {
+      if (!getAuth()) return
       try {
-        const res = await getAppointments(this.idCard)
+        const res = await getAppointments()
         this.appointments = res.data || []
-        this.showIdCard = false
-        this.showAppointments = true
       } catch (e) {
-        uni.showToast({ title: '查询失败', icon: 'error' })
+        uni.showToast({ title: e.message || '查询失败', icon: 'error' })
       }
     },
     async handleCancel(appointment) {
@@ -141,8 +127,7 @@ export default {
         await cancelAppointment(appointment.id)
         uni.showToast({ title: '取消成功', icon: 'success' })
         // 刷新列表
-        const refresh = await getAppointments(this.idCard)
-        this.appointments = refresh.data || []
+        await this.fetchAppointments()
       } catch (e) {
         uni.showToast({ title: '取消失败', icon: 'error' })
       } finally {
@@ -156,7 +141,8 @@ export default {
       uni.switchTab({ url: '/pages/chat/chat' })
     },
     handleLogout() {
-      uni.removeStorageSync('userInfo')
+      clearAuth()
+      getApp().globalData.userInfo = null
       this.userInfo = null
       this.appointments = []
       uni.showToast({ title: '已退出登录' })

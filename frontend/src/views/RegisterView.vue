@@ -68,7 +68,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import axios from 'axios'
+import { register } from '../api/index.js'
 
 const router = useRouter()
 const form = ref({ username: '', password: '', idCard: '', phone: '' })
@@ -78,7 +78,7 @@ const toast = ref({ show: false, type: 'success', message: '' })
 
 const canSubmit = computed(() => {
   const idCardValid = validateIdCard(form.value.idCard)
-  return form.value.username && form.value.password.length >= 6 && idCardValid
+  return form.value.username.trim().length >= 3 && form.value.password.length >= 6 && idCardValid
 })
 
 // 中国身份证号校验
@@ -117,15 +117,11 @@ async function handleRegister() {
   loading.value = true
   errorMsg.value = ''
   try {
-    const res = await axios.post('/api/auth/register', form.value)
-    if (res.data.code === 200) {
-      showToast('success', '注册成功，即将跳转登录')
-      setTimeout(() => router.push('/login'), 1000)
-    } else {
-      errorMsg.value = res.data.message || '注册失败'
-    }
+    await register(form.value)
+    showToast('success', '注册成功，即将跳转登录')
+    setTimeout(() => router.push('/login'), 1000)
   } catch (e) {
-    errorMsg.value = e.response?.data?.message || '网络错误，请稍后重试'
+    errorMsg.value = e.message || '网络错误，请稍后重试'
   } finally {
     loading.value = false
   }

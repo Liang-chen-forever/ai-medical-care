@@ -56,19 +56,20 @@
 </template>
 
 <script>
-import { getDoctors } from '@/api/index.js'
+import { getDepartments, getDoctors } from '@/api/index.js'
 
 export default {
   data() {
     return {
-      departments: ['神经内科', '口腔科'],
-      currentDept: '神经内科',
+      departments: [],
+      currentDept: '',
       doctors: [],
       loading: false
     }
   },
-  onLoad() {
-    this.fetchDoctors()
+  async onLoad() {
+    await this.loadDepartments()
+    if (this.currentDept) await this.fetchDoctors()
   },
   methods: {
     async selectDepartment(dept) {
@@ -76,6 +77,7 @@ export default {
       await this.fetchDoctors()
     },
     async fetchDoctors() {
+      if (!this.currentDept) return
       this.loading = true
       try {
         const res = await getDoctors(this.currentDept)
@@ -85,6 +87,17 @@ export default {
         this.doctors = []
       } finally {
         this.loading = false
+      }
+    },
+    async loadDepartments() {
+      try {
+        const res = await getDepartments()
+        this.departments = res.data || []
+        this.currentDept = this.departments[0] || ''
+      } catch (e) {
+        console.error('获取科室列表失败:', e)
+        this.departments = []
+        this.currentDept = ''
       }
     }
   }

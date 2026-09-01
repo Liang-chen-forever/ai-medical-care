@@ -78,13 +78,9 @@ export default {
       this.loading = true
       this.errorMsg = ''
       try {
-        const res = await register(this.form)
-        if (res.code === 200) {
-          uni.showToast({ title: '注册成功', icon: 'success' })
-          setTimeout(() => uni.navigateBack(), 1000)
-        } else {
-          this.errorMsg = res.message || '注册失败'
-        }
+        await register(this.form)
+        uni.showToast({ title: '注册成功', icon: 'success' })
+        setTimeout(() => uni.redirectTo({ url: '/pages/login/login' }), 1000)
       } catch (e) {
         this.errorMsg = e.message || '网络错误，请稍后重试'
       } finally {

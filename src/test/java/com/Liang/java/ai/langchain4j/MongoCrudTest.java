@@ -2,6 +2,7 @@ package com.Liang.java.ai.langchain4j;
 
 
 import com.Liang.java.ai.langchain4j.bean.ChatMessages;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -11,6 +12,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 
 @SpringBootTest(properties = "DASH_SCOPE_API_KEY=test-key")
+@Tag("external")
 public class MongoCrudTest {
     @Autowired
     private MongoTemplate mongoTemplate;

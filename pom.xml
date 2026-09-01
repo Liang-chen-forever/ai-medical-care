@@ -19,6 +19,8 @@
         <langchain4j.version>1.0.0-beta3</langchain4j.version>
         <!-- mybatis-plus版本 -->
         <mybatis-plus.version>3.5.11</mybatis-plus.version>
+        <!-- 默认测试不调用真实模型、向量库或本地演示数据库。 -->
+        <excluded.test.groups>external</excluded.test.groups>
     </properties>
 
 
@@ -28,6 +30,12 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <!-- 显式引入 Bean Validation 实现，启用 @Valid 请求体校验 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
 
         <!-- 编写和运行测试用例 -->
@@ -129,6 +137,29 @@
             <scope>provided</scope>
         </dependency>
 
+        <!-- 安全基础：BCrypt 密码哈希与 JWT 访问令牌 -->
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-crypto</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>0.12.6</version>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <version>0.12.6</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <version>0.12.6</version>
+            <scope>runtime</scope>
+        </dependency>
+
     </dependencies>
 
 
@@ -197,7 +228,24 @@
                     </annotationProcessorPaths>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.5.4</version>
+                <configuration>
+                    <excludedGroups>${excluded.test.groups}</excludedGroups>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>external-integration-tests</id>
+            <properties>
+                <excluded.test.groups>no-default-test-group</excluded.test.groups>
+            </properties>
+        </profile>
+    </profiles>
 
 </project>

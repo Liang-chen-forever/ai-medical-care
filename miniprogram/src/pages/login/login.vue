@@ -35,7 +35,7 @@
 </template>
 
 <script>
-import { login } from '@/api/index.js'
+import { login, saveAuth } from '@/api/index.js'
 
 export default {
   data() {
@@ -52,14 +52,10 @@ export default {
       this.errorMsg = ''
       try {
         const res = await login(this.form.username, this.form.password)
-        if (res.code === 200) {
-          uni.setStorageSync('userInfo', JSON.stringify(res.data))
-          getApp().globalData.userInfo = res.data
-          uni.showToast({ title: '登录成功', icon: 'success' })
-          setTimeout(() => uni.switchTab({ url: '/pages/chat/chat' }), 500)
-        } else {
-          this.errorMsg = res.message || '登录失败'
-        }
+        saveAuth(res.data)
+        getApp().globalData.userInfo = res.data
+        uni.showToast({ title: '登录成功', icon: 'success' })
+        setTimeout(() => uni.switchTab({ url: '/pages/chat/chat' }), 500)
       } catch (e) {
         this.errorMsg = e.message || '网络错误，请稍后重试'
       } finally {

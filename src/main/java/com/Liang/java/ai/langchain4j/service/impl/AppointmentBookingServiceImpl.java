@@ -1,0 +1,88 @@
+package com.Liang.java.ai.langchain4j.service.impl;
+
+import com.Liang.java.ai.langchain4j.common.BusinessException;
+import com.Liang.java.ai.langchain4j.entity.Appointment;
+import com.Liang.java.ai.langchain4j.entity.Schedule;
+import com.Liang.java.ai.langchain4j.entity.User;
+import com.Liang.java.ai.langchain4j.mapper.AppointmentMapper;
+import com.Liang.java.ai.langchain4j.mapper.ScheduleMapper;
+import com.Liang.java.ai.langchain4j.mapper.UserMapper;
+import com.Liang.java.ai.langchain4j.service.AppointmentBookingService;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
+@Service
+public class AppointmentBookingServiceImpl implements AppointmentBookingService {
+
+    private final ScheduleMapper scheduleMapper;
+    private final AppointmentMapper appointmentMapper;
+    private final UserMapper userMapper;
+
+    public AppointmentBookingServiceImpl(ScheduleMapper scheduleMapper,
+                                         AppointmentMapper appointmentMapper,
+                                         UserMapper userMapper) {
+        this.scheduleMapper = scheduleMapper;
+        this.appointmentMapper = appointmentMapper;
+        this.userMapper = userMapper;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Appointment book(Long userId, Long scheduleId) {
+        User user = userMapper.selectById(userId);
+        if (user == null) {
+            throw new BusinessException(HttpStatus.UNAUTHORIZED, 401, "登录状态无效或已过期");
+        }
+        Schedule schedule = scheduleMapper.selectById(scheduleId);
+        if (schedule == null) {
+            throw new BusinessException(HttpStatus.NOT_FOUND, 404, "排班不存在");
+        }
+        if (appointmentMapper.existsByUserIdAndScheduleId(userId, scheduleId)) {
+            throw new BusinessException(HttpStatus.CONFLICT, 409, "请勿重复预约");
+        }
+        if (scheduleMapper.decrementIfAvailable(scheduleId) != 1) {
+            throw new BusinessException(HttpStatus.CONFLICT, 409, "该时段号源已约满");
+        }
+
+        Appointment appointment = new Appointment();
+        appointment.setUserId(userId);
+        appointment.setScheduleId(scheduleId);
+        appointment.setUsername(user.getUsername());
+        appointment.setIdCard(user.getIdCard());
+        appointment.setDoctorName(schedule.getDoctorName());
+        appointment.setDepartment(schedule.getDepartment());
+        appointment.setDate(schedule.getDate());
+        appointment.setTime(schedule.getTime());
+        appointmentMapper.insert(appointment);
+        return appointment;
+    }
+
+    @Override
+    public List<Appointment> listMine(Long userId) {
+        return appointmentMapper.selectList(new LambdaQueryWrapper<Appointment>()
+                .eq(Appointment::getUserId, userId)
+                .orderByDesc(Appointment::getId));
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void cancel(Long userId, Long appointmentId) {
+        Appointment appointment = appointmentMapper.selectById(appointmentId);
+        if (appointment == null) {
+            throw new BusinessException(HttpStatus.NOT_FOUND, 404, "预约不存在");
+        }
+        if (!userId.equals(appointment.getUserId())) {
+            throw new BusinessException(HttpStatus.FORBIDDEN, 403, "无权操作该预约");
+        }
+        if (appointmentMapper.deleteById(appointmentId) != 1) {
+            throw new BusinessException(HttpStatus.CONFLICT, 409, "预约状态异常，请稍后重试");
+        }
+        if (scheduleMapper.incrementIfBooked(appointment.getScheduleId()) != 1) {
+            throw new BusinessException(HttpStatus.CONFLICT, 409, "预约状态异常，请稍后重试");
+        }
+    }
+}

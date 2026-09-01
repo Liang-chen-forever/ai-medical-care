@@ -1,76 +1,135 @@
 import axios from 'axios'
 
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '/').replace(/\/$/, '')
+const AUTH_STORAGE_KEY = 'auth'
+const USER_STORAGE_KEY = 'user'
+
+export function getAuth() {
+  try {
+    const auth = JSON.parse(localStorage.getItem(AUTH_STORAGE_KEY) || 'null')
+    return auth?.accessToken ? auth : null
+  } catch {
+    return null
+  }
+}
+
+export function isAuthenticated() {
+  return Boolean(getAuth())
+}
+
+export function getUser() {
+  try {
+    return JSON.parse(localStorage.getItem(USER_STORAGE_KEY) || 'null')
+  } catch {
+    return null
+  }
+}
+
+export function saveAuth(auth) {
+  localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(auth))
+  localStorage.setItem(USER_STORAGE_KEY, JSON.stringify({
+    userId: auth.userId,
+    username: auth.username,
+    idCard: auth.idCard,
+    phone: auth.phone
+  }))
+}
+
+export function clearAuth() {
+  localStorage.removeItem(AUTH_STORAGE_KEY)
+  localStorage.removeItem(USER_STORAGE_KEY)
+}
+
 const api = axios.create({
-  baseURL: '/',
+  baseURL: API_BASE_URL || '/',
   timeout: 30000,
   headers: { 'Content-Type': 'application/json' }
 })
 
-// 响应拦截器：统一解包 Result 包装
+api.interceptors.request.use((config) => {
+  const auth = getAuth()
+  if (auth?.accessToken) {
+    config.headers.Authorization = `Bearer ${auth.accessToken}`
+  }
+  return config
+})
+
 api.interceptors.response.use(
   (response) => {
     const body = response.data
-    // 后端统一返回 { code, message, data } 格式
     if (body && typeof body.code === 'number') {
       if (body.code === 200) {
         response.data = body.data
         response._message = body.message
         return response
-      } else {
-        return Promise.reject(new Error(body.message || '请求失败'))
       }
+      return Promise.reject(new Error(body.message || '请求失败'))
     }
     return response
   },
   (error) => {
-    const msg = error.response?.data?.message || error.message || '网络错误'
-    return Promise.reject(new Error(msg))
+    if (error.response?.status === 401 || error.response?.data?.code === 401) {
+      clearAuth()
+    }
+    const message = error.response?.data?.message || error.message || '网络错误'
+    error.message = message
+    return Promise.reject(error)
   }
 )
 
-// ========== AI 对话 ==========
+export function login(username, password) {
+  return api.post('/api/v1/auth/login', { username, password })
+}
 
-/** 与 AI 流式聊天（返回 ReadableStream） */
+export function register(data) {
+  return api.post('/api/v1/auth/register', data)
+}
+
 export function chatWithAI(memoryId, userMessage) {
-  return fetch('/xiaozhi/chat', {
+  const auth = getAuth()
+  return fetch(`${API_BASE_URL}/xiaozhi/chat`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      ...(auth?.accessToken ? { Authorization: `Bearer ${auth.accessToken}` } : {})
+    },
     body: JSON.stringify({ memoryId, userMessage })
+  }).then((response) => {
+    if (response.status === 401) {
+      clearAuth()
+      throw new Error('请先登录')
+    }
+    if (!response.ok) {
+      throw new Error('AI 服务暂时不可用')
+    }
+    return response
   })
 }
 
-// ========== 科室与医生 ==========
+export function getDepartments() {
+  return api.get('/api/v1/departments')
+}
 
-/** 获取科室医生列表 */
 export function getDoctors(department) {
-  return api.get('/api/department/doctors', { params: { department } })
+  return api.get(`/api/v1/departments/${encodeURIComponent(department)}/doctors`)
 }
 
-/** 获取科室排班可预约号源 */
-export function getSchedules(department, date, time) {
-  return api.get('/api/department/schedules', { params: { department, date, time } })
+export function getSchedules(department, date, period) {
+  return api.get('/api/v1/schedules', { params: { department, date, period } })
 }
 
-// ========== 预约管理 ==========
-
-/** 查询用户预约 */
-export function getAppointments(idCard) {
-  return api.get('/api/appointment/list', { params: { idCard } })
+export function getAppointments() {
+  return api.get('/api/v1/appointments/me')
 }
 
-/** 预约挂号 */
-export function bookAppointment(data) {
-  return api.post('/api/appointment/book', data)
+export function bookAppointment(scheduleId) {
+  return api.post('/api/v1/appointments', { scheduleId })
 }
 
-/** 取消预约 */
 export function cancelAppointment(id) {
-  return api.delete(`/api/appointment/cancel/${id}`)
+  return api.delete(`/api/v1/appointments/${id}`)
 }
 
-// ========== 知识库 ==========
-
-/** 重新加载知识库 */
 export function reloadKnowledge() {
   return api.post('/api/knowledge/reload')
 }

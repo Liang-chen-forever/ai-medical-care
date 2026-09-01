@@ -1,9 +1,7 @@
 package com.Liang.java.ai.langchain4j.tools;
 
-import com.Liang.java.ai.langchain4j.entity.Appointment;
 import com.Liang.java.ai.langchain4j.entity.Doctor;
 import com.Liang.java.ai.langchain4j.entity.Schedule;
-import com.Liang.java.ai.langchain4j.service.AppointmentService;
 import com.Liang.java.ai.langchain4j.service.DoctorService;
 import com.Liang.java.ai.langchain4j.service.ScheduleService;
 import dev.langchain4j.agent.tool.P;
@@ -17,59 +15,19 @@ import java.util.List;
 public class AppointmentTools {
 
     @Autowired
-    private AppointmentService appointmentService;
-
-    @Autowired
     private DoctorService doctorService;
 
     @Autowired
     private ScheduleService scheduleService;
 
-    @Tool(name = "预约挂号", value = "根据参数,先调用queryAppointment方法查询是否可预约，并直接给用户回答是否可预约，并让用户确认所有预约信息，用户确认后再进行预约.如果用户没有提供具体的医生和姓名，请从向量存储中找到一位医生。注意：同一科室7天内仅允许预约1次。")
-    public String bookAppointment(Appointment appointment) {
-        // 精确重复检查
-        Appointment appointmentDB = appointmentService.getOne(appointment);
-        if (appointmentDB != null) {
-            return "您已在 " + appointment.getDepartment() + " " +
-                    appointment.getDate() + " " + appointment.getTime() + " 有预约，请勿重复预约";
-        }
-
-        // 7天内科室冲突检查
-        List<Appointment> conflicts = appointmentService.checkDepartmentConflict(
-                appointment.getIdCard(), appointment.getDepartment());
-        if (!conflicts.isEmpty()) {
-            Appointment conflict = conflicts.get(0);
-            return "您已在 " + conflict.getDate() + " 预约过【" + appointment.getDepartment() +
-                    "】科室，同一科室7天内仅允许预约1次，请选择其他科室或等待"
-                    + conflict.getDate() + " 7天后重新预约";
-        }
-
-        appointment.setId(null);
-        if (appointmentService.save(appointment)) {
-            return "预约成功,并返回预约详情";
-        } else {
-            return "预约失败";
-        }
+    @Tool(name = "预约挂号", value = "当用户想预约时，引导其在已登录的小程序预约页选择具体排班。不得通过对话收集或写入身份证、姓名等个人信息。")
+    public String bookAppointment() {
+        return "为保护您的个人信息并保证号源一致性，请先登录小程序，在“预约挂号”页选择具体医生和时段后提交预约。";
     }
 
-    @Tool(name = "取消预约", value = "根据用户姓名+身份证号+科室名称查找并取消预约。日期和时间不需要精确提供，系统会自动匹配用户在指定科室的最近预约。")
-    public String cancelAppointment(
-            @P(value = "用户姓名") String username,
-            @P(value = "身份证号") String idCard,
-            @P(value = "科室名称") String department
-    ) {
-        // 按用户+科室查找预约（不依赖AI记忆的日期时间，自动匹配最近一条）
-        Appointment appointmentDB = appointmentService.findByUserAndDepartment(username, idCard, department);
-        if (appointmentDB != null) {
-            if (appointmentService.removeById(appointmentDB.getId())) {
-                return "已成功取消您在 " + appointmentDB.getDepartment() + " " +
-                        appointmentDB.getDate() + " " + appointmentDB.getTime() +
-                        " 的预约（医生：" + appointmentDB.getDoctorName() + "）";
-            } else {
-                return "取消预约失败，请稍后重试";
-            }
-        }
-        return "您没有【" + department + "】科室的预约记录，请确认科室名称是否正确。如需查看所有预约，请告知我帮您查询。";
+    @Tool(name = "取消预约", value = "当用户想取消预约时，引导其在已登录的小程序“我的预约”页取消。不得通过对话收集身份证或执行取消操作。")
+    public String cancelAppointment() {
+        return "请登录小程序并进入“我的预约”，选择对应预约后取消。系统会校验预约归属并自动回补号源。";
     }
 
     @Tool(name = "查询是否有号源", value = "根据科室名称，日期，时间和医生查询是否有号源,如果有则返回号源详情,否则提示用户没有号源")

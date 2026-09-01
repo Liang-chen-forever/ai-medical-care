@@ -5,30 +5,6 @@
       <p>查看和管理您的预约记录</p>
     </div>
 
-    <div class="card">
-      <div class="form-row" style="max-width: 400px;">
-        <div class="form-group" style="flex: 1;">
-          <label>身份证号</label>
-          <input
-            v-model="idCard"
-            class="form-input"
-            placeholder="请输入您的身份证号"
-            maxlength="18"
-            @keydown.enter="fetchAppointments"
-          />
-        </div>
-        <div class="form-group" style="align-self: flex-end;">
-          <button
-            class="btn btn-primary"
-            @click="fetchAppointments"
-            :disabled="idCard.length !== 18 || loading"
-          >
-            查询
-          </button>
-        </div>
-      </div>
-    </div>
-
     <div v-if="loading" class="loading">
       <div class="spinner"></div>
       查询中...
@@ -109,10 +85,9 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { getAppointments, cancelAppointment } from '../api/index.js'
+import { onMounted, ref } from 'vue'
+import { getAppointments, cancelAppointment, isAuthenticated } from '../api/index.js'
 
-const idCard = ref('')
 const appointments = ref([])
 const loading = ref(false)
 const searched = ref(false)
@@ -127,12 +102,12 @@ function showToast(type, message) {
 }
 
 async function fetchAppointments() {
-  if (idCard.value.length !== 18) return
+  if (!isAuthenticated()) return
   loading.value = true
   searched.value = true
   try {
-    const res = await getAppointments(idCard.value)
-    appointments.value = res.data
+    const res = await getAppointments()
+    appointments.value = res.data || []
   } catch (e) {
     console.error('查询预约失败:', e)
     appointments.value = []
@@ -141,6 +116,8 @@ async function fetchAppointments() {
     loading.value = false
   }
 }
+
+onMounted(fetchAppointments)
 
 function handleCancel(appointment) {
   cancelModal.value = { show: true, appointment }

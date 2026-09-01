@@ -22,7 +22,7 @@
       <view class="form-group">
         <text class="form-label">时间</text>
         <picker :range="timeSlots" @change="onTimeChange">
-          <view class="picker-value">{{ form.time || '请选择时间' }}</view>
+          <view class="picker-value">{{ form.period || '请选择时间' }}</view>
         </picker>
       </view>
       <button class="btn btn-primary btn-block" @tap="searchSchedules" :disabled="!canSearch">查询号源</button>
@@ -39,8 +39,8 @@
           <view class="schedule-info">
             <text class="doctor-name">{{ s.doctorName }}</text>
             <text class="schedule-meta">{{ s.department }} | {{ s.date }} {{ s.time }}</text>
-            <text :class="['badge', (s.totalSlots - s.bookedSlots) > 5 ? 'badge-success' : 'badge-warning']">
-              剩余 {{ s.totalSlots - s.bookedSlots }} / {{ s.totalSlots }}
+            <text :class="['badge', (s.totalSlots - (s.bookedSlots || 0)) > 5 ? 'badge-success' : 'badge-warning']">
+              剩余 {{ s.totalSlots - (s.bookedSlots || 0) }} / {{ s.totalSlots }}
             </text>
           </view>
           <button class="btn btn-primary btn-sm" @tap="showBookForm(s)">预约</button>
@@ -67,21 +67,14 @@
             <view class="info-row"><text class="info-label">日期</text><text class="info-value">{{ selectedSchedule?.date }}</text></view>
             <view class="info-row"><text class="info-label">时间</text><text class="info-value">{{ selectedSchedule?.time }}</text></view>
           </view>
-          <view class="form-group">
-            <text class="form-label">姓名 <text style="color:#ef4444">*</text></text>
-            <input v-model="bookForm.username" class="form-input" placeholder="请输入您的姓名" />
-          </view>
-          <view class="form-group">
-            <text class="form-label">身份证号 <text style="color:#ef4444">*</text></text>
-            <input v-model="bookForm.idCard" class="form-input" placeholder="请输入18位身份证号" maxlength="18" />
-          </view>
+          <text class="booking-note">将使用当前登录账号完成预约</text>
         </view>
         <view class="modal-footer">
           <button class="btn btn-outline btn-sm" @tap="showModal = false">取消</button>
           <button
             class="btn btn-primary btn-sm"
             @tap="submitBooking"
-            :disabled="!bookForm.username || bookForm.idCard.length !== 18 || submitting"
+            :disabled="!selectedSchedule || submitting"
           >{{ submitting ? '提交中...' : '确认预约' }}</button>
         </view>
       </view>
@@ -90,35 +83,35 @@
 </template>
 
 <script>
-import { getSchedules, bookAppointment } from '@/api/index.js'
+import { getDepartments, getSchedules, bookAppointment, getAuth } from '@/api/index.js'
 
 export default {
   data() {
     const today = new Date()
     const todayStr = `${today.getFullYear()}-${(today.getMonth()+1).toString().padStart(2,'0')}-${today.getDate().toString().padStart(2,'0')}`
     return {
-      departments: ['神经内科', '口腔科'],
+      departments: [],
       timeSlots: ['上午', '下午'],
       today: todayStr,
-      form: { department: '', date: todayStr, time: '' },
+      form: { department: '', date: todayStr, period: '' },
       schedules: [],
       loading: false,
       searched: false,
       showModal: false,
       selectedSchedule: null,
-      submitting: false,
-      bookForm: { username: '', idCard: '' }
+      submitting: false
     }
   },
   computed: {
     canSearch() {
-      return this.form.department && this.form.date && this.form.time
+      return this.form.department && this.form.date && this.form.period
     }
   },
-  onLoad(options) {
+  async onLoad(options) {
     if (options.dept) this.form.department = options.dept
     if (options.date) this.form.date = options.date
-    if (options.time) this.form.time = options.time
+    if (options.period || options.time) this.form.period = options.period || options.time
+    await this.loadDepartments()
     if (this.canSearch) this.searchSchedules()
   },
   methods: {
@@ -129,14 +122,14 @@ export default {
       this.form.date = e.detail.value
     },
     onTimeChange(e) {
-      this.form.time = this.timeSlots[e.detail.value]
+      this.form.period = this.timeSlots[e.detail.value]
     },
     async searchSchedules() {
       if (!this.canSearch) return
       this.loading = true
       this.searched = true
       try {
-        const res = await getSchedules(this.form.department, this.form.date, this.form.time)
+        const res = await getSchedules(this.form.department, this.form.date, this.form.period)
         this.schedules = res.data || []
       } catch (e) {
         this.schedules = []
@@ -146,22 +139,21 @@ export default {
       }
     },
     showBookForm(schedule) {
+      if (!getAuth()) {
+        uni.navigateTo({ url: '/pages/login/login' })
+        return
+      }
       this.selectedSchedule = schedule
-      this.bookForm = { username: '', idCard: '' }
       this.showModal = true
     },
     async submitBooking() {
-      if (!this.bookForm.username || this.bookForm.idCard.length !== 18) return
+      if (!this.selectedSchedule || !getAuth()) {
+        uni.navigateTo({ url: '/pages/login/login' })
+        return
+      }
       this.submitting = true
       try {
-        await bookAppointment({
-          username: this.bookForm.username,
-          idCard: this.bookForm.idCard,
-          department: this.selectedSchedule.department,
-          date: this.selectedSchedule.date,
-          time: this.selectedSchedule.time,
-          doctorName: this.selectedSchedule.doctorName
-        })
+        await bookAppointment(this.selectedSchedule.id)
         uni.showToast({ title: '预约成功', icon: 'success' })
         this.showModal = false
         this.searchSchedules()
@@ -169,6 +161,16 @@ export default {
         uni.showToast({ title: e.message || '预约失败', icon: 'error' })
       } finally {
         this.submitting = false
+      }
+    },
+    async loadDepartments() {
+      try {
+        const res = await getDepartments()
+        this.departments = res.data || []
+        if (!this.form.department) this.form.department = this.departments[0] || ''
+      } catch (e) {
+        console.error('获取科室列表失败:', e)
+        this.departments = []
       }
     }
   }
@@ -255,6 +257,13 @@ export default {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16rpx;
+}
+
+.booking-note {
+  display: block;
+  margin-top: 20rpx;
+  color: #64748b;
+  font-size: 24rpx;
 }
 
 .info-row {
