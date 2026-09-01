@@ -1,0 +1,7 @@
+{
+  "description": "此文件为本地开发配置，请勿提交到版本库",
+  "setting": {
+    "urlCheck": false,
+    "compileHotReLoad": true
+  }
+}

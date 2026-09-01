@@ -1,7 +1,17 @@
 target/
+.worktrees/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
+
+### Frontend ###
+frontend/node_modules/
+frontend/dist/
+
+### Environment ###
+.env
+.env.local
+secrets.local.txt
 
 ### IntelliJ IDEA ###
 .idea/modules.xml
