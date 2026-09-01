@@ -2,4 +2,14 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.Liang.java.ai.langchain4j.mapper.AppointmentMapper">
 
+    <!-- 查询用户指定科室在7天内的已有预约，用于冲突检测 -->
+    <select id="findRecentByDepartment" resultType="com.Liang.java.ai.langchain4j.entity.Appointment">
+        SELECT *
+        FROM appointment
+        WHERE id_card = #{idCard}
+          AND department = #{department}
+          AND date >= DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 7 DAY), '%Y-%m-%d')
+        ORDER BY date DESC, id DESC
+    </select>
+
 </mapper>

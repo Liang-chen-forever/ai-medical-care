@@ -1,9 +1,27 @@
 target/
+.worktrees/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+### Frontend ###
+frontend/node_modules/
+frontend/dist/
+frontend/nginx-1.20.2/logs/*.log
+frontend/nginx-1.20.2/logs/*.pid
+frontend/nginx-1.20.2/temp/*
+!frontend/nginx-1.20.2/temp/.gitkeep
+miniprogram/node_modules/
+miniprogram/dist/
+miniprogram/package-lock.json
+
+### Environment ###
+.env
+.env.local
+secrets.local.txt
+
 ### IntelliJ IDEA ###
+.idea/workspace.xml
 .idea/modules.xml
 .idea/jarRepositories.xml
 .idea/compiler.xml

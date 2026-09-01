@@ -1,0 +1,60 @@
+package com.Liang.java.ai.langchain4j.service.impl;
+
+import com.Liang.java.ai.langchain4j.common.BusinessException;
+import com.Liang.java.ai.langchain4j.dto.auth.LoginRequest;
+import com.Liang.java.ai.langchain4j.dto.auth.RegisterRequest;
+import com.Liang.java.ai.langchain4j.entity.User;
+import com.Liang.java.ai.langchain4j.mapper.UserMapper;
+import com.Liang.java.ai.langchain4j.service.UserService;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
+@Service
+public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
+
+    private final PasswordEncoder passwordEncoder;
+
+    public UserServiceImpl(UserMapper userMapper, PasswordEncoder passwordEncoder) {
+        this.baseMapper = userMapper;
+        this.passwordEncoder = passwordEncoder;
+    }
+
+    @Override
+    public User authenticate(LoginRequest request) {
+        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(User::getUsername, request.username());
+        User user = baseMapper.selectOne(queryWrapper);
+        if (user == null || !passwordEncoder.matches(request.password(), user.getPassword())) {
+            throw new BusinessException(HttpStatus.UNAUTHORIZED, 401, "用户名或密码错误");
+        }
+        return user;
+    }
+
+    @Override
+    public User register(RegisterRequest request) {
+        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(User::getUsername, request.username());
+        if (baseMapper.selectOne(queryWrapper) != null) {
+            throw new BusinessException(HttpStatus.CONFLICT, 409, "用户名或身份证号已被注册");
+        }
+        queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(User::getIdCard, request.idCard());
+        if (baseMapper.selectOne(queryWrapper) != null) {
+            throw new BusinessException(HttpStatus.CONFLICT, 409, "用户名或身份证号已被注册");
+        }
+        User user = new User();
+        user.setUsername(request.username());
+        user.setPassword(passwordEncoder.encode(request.password()));
+        user.setIdCard(request.idCard());
+        user.setPhone(request.phone());
+        user.setCreateTime(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+        baseMapper.insert(user);
+        return user;
+    }
+}

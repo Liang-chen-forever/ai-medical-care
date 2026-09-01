@@ -1,82 +1,73 @@
 package com.Liang.java.ai.langchain4j.tools;
 
-
-import com.Liang.java.ai.langchain4j.entity.Appointment;
-import com.Liang.java.ai.langchain4j.service.AppointmentService;
+import com.Liang.java.ai.langchain4j.entity.Doctor;
+import com.Liang.java.ai.langchain4j.entity.Schedule;
+import com.Liang.java.ai.langchain4j.service.DoctorService;
+import com.Liang.java.ai.langchain4j.service.ScheduleService;
 import dev.langchain4j.agent.tool.P;
 import dev.langchain4j.agent.tool.Tool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 public class AppointmentTools {
 
     @Autowired
-    private AppointmentService appointmentService;
+    private DoctorService doctorService;
 
-    @Tool(name = "预约挂号", value = "根据参数,先执行工方法queryDepartment查询是否可预约，并直接给用户回答是否可预约，并让用户确认所有预约信息，用户确认后再进行预约.如果用户没有提供具体的医生和姓名，请从向量存储中找到一位医生。")
-    public String bookAppointment(Appointment appointment) {
+    @Autowired
+    private ScheduleService scheduleService;
 
-        //查找数据库中是否包含对应的预约信息
-        Appointment appointmentDB = appointmentService.getOne(appointment);
-
-        if(appointmentDB == null){
-            appointment.setId(null);  //防止大模型幻觉设置了id导致插入失败
-            if(appointmentService.save(appointment)){
-                return "预约成功,并返回预约详情";
-            }else{
-                return "预约失败";
-            }
-        }
-
-        return "您在相同的科室和时间已有预约,请重新选择";
+    @Tool(name = "预约挂号", value = "当用户想预约时，引导其在已登录的小程序预约页选择具体排班。不得通过对话收集或写入身份证、姓名等个人信息。")
+    public String bookAppointment() {
+        return "为保护您的个人信息并保证号源一致性，请先登录小程序，在“预约挂号”页选择具体医生和时段后提交预约。";
     }
 
-    @Tool(name = "取消预约", value = "根据参数,查询预约是否存在,如果存在则取消预约,否则提示用户没有预约")
-    public String cancelAppointment(
-            @P(value = "用户姓名") String username,
-            @P(value = "身份证号") String idCard,
+    @Tool(name = "取消预约", value = "当用户想取消预约时，引导其在已登录的小程序“我的预约”页取消。不得通过对话收集身份证或执行取消操作。")
+    public String cancelAppointment() {
+        return "请登录小程序并进入“我的预约”，选择对应预约后取消。系统会校验预约归属并自动回补号源。";
+    }
+
+    @Tool(name = "查询是否有号源", value = "根据科室名称，日期，时间和医生查询是否有号源,如果有则返回号源详情,否则提示用户没有号源")
+    public String queryAppointment(
             @P(value = "科室名称") String department,
             @P(value = "日期") String date,
-            @P(value = "时间 ,可选值：上午,下午") String time
+            @P(value = "时间 ,可选值：上午,下午") String time,
+            @P(value = "医生名称", required = false) String doctorName
     ) {
-        Appointment appointment = new Appointment();
-        appointment.setUsername(username);
-        appointment.setIdCard(idCard);
-        appointment.setDepartment(department);
-        appointment.setDate(date);
-        appointment.setTime(time);
-
-        Appointment appointmentDB = appointmentService.getOne(appointment);
-        if (appointmentDB != null) {
-            if (appointmentService.removeById(appointmentDB.getId())) {
-                return "取消预约成功";
+        if (doctorName != null && !doctorName.isEmpty()) {
+            List<Doctor> doctors = doctorService.getByDepartment(department);
+            Doctor targetDoctor = doctors.stream()
+                    .filter(d -> d.getName().equals(doctorName))
+                    .findFirst()
+                    .orElse(null);
+            if (targetDoctor == null) {
+                return "未找到该科室的医生: " + doctorName;
+            }
+            Schedule schedule = scheduleService.getByDoctorAndDate(targetDoctor.getId(), date, time);
+            if (schedule == null) {
+                return "医生 " + doctorName + " 在 " + date + " " + time + " 没有排班";
+            }
+            int available = schedule.getTotalSlots() - (schedule.getBookedSlots() != null ? schedule.getBookedSlots() : 0);
+            if (available > 0) {
+                return "医生 " + doctorName + " (" + targetDoctor.getTitle() + ") 在 " + date + " " + time + " 有号源，剩余 " + available + " 个号";
             } else {
-                return "取消预约失败";
+                return "医生 " + doctorName + " 在 " + date + " " + time + " 的号源已约满";
             }
         }
-        return "您没有预约,不能取消";
-    }
 
-    @Tool(name = "查询是否有号源",value = "根据科室名称，日期，时间和医生查询是否有号源,如果有则返回号源详情,否则提示用户没有号源")
-    public boolean queryAppointment(
-            @P(value = "科室名称") String name,
-            @P(value = "日期") String date,
-            @P(value = "时间 ,可选值：上午,下午") String time,
-            @P(value = "医生名称",required = false) String doctorName
-    ){
-        System.out.println("查询是否有号源");
-        System.out.println("科室名称: " + name);
-        System.out.println("日期: " + date);
-        System.out.println("时间: " + time);
-        System.out.println("医生名称: " + doctorName);
-
-        //TODO 维护医生的排班信息;
-        //如果没有指定的医生名字，则根据其他条件查询是否有可以预约的医生（有返回true,无返回false）
-
-        //如果制定了医生名字，则判断医生是否有排班（没有排班返回false）
-        //如果有排班,则判断医生排班时间是否已约满（约满返回false,有空闲时间返回true）
-
-        return true;
+        List<Schedule> schedules = scheduleService.getAvailableSlots(department, date, time);
+        if (schedules.isEmpty()) {
+            return "科室 " + department + " 在 " + date + " " + time + " 没有可预约的号源";
+        }
+        StringBuilder sb = new StringBuilder();
+        sb.append("科室 ").append(department).append(" 在 ").append(date).append(" ").append(time).append(" 有以下可预约医生:\n");
+        for (Schedule s : schedules) {
+            int available = s.getTotalSlots() - (s.getBookedSlots() != null ? s.getBookedSlots() : 0);
+            sb.append("- ").append(s.getDoctorName()).append("，剩余 ").append(available).append(" 个号\n");
+        }
+        return sb.toString();
     }
 }

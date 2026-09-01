@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>硅谷小智 - 离线</title>
+  <style>
+    body { font-family: 'Noto Sans SC', sans-serif; background: #f0f4f8; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
+    .offline { text-align: center; padding: 24px; }
+    .icon { font-size: 64px; margin-bottom: 16px; }
+    h1 { font-size: 22px; color: #1e293b; margin-bottom: 8px; }
+    p { color: #64748b; font-size: 14px; margin-bottom: 24px; }
+    .retry { padding: 10px 24px; background: #2563eb; color: white; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div class="offline">
+    <div class="icon">&#x1F4E1;</div>
+    <h1>当前处于离线状态</h1>
+    <p>请检查网络连接后重试</p>
+    <button class="retry" onclick="location.reload()">重新连接</button>
+  </div>
+</body>
+</html>

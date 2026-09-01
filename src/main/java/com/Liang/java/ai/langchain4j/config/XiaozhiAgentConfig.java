@@ -69,10 +69,10 @@ public class XiaozhiAgentConfig {
                 .embeddingModel(embeddingModel)
                 // 指定要使用的嵌入存储
                 .embeddingStore(embeddingStore)
-                // 设置最大检索结果数量，这里表示最多返回 1 条匹配结果
-                .maxResults(1)
-                // 设置最小得分阈值，只有得分大于等于 0.8 的结果才会被返回
-                .minScore(0.8)
+                // 设置最大检索结果数量，返回最相关的3条知识
+                .maxResults(3)
+                // 设置最小得分阈值，降低阈值以获取更多相关知识
+                .minScore(0.6)
                 // 构建最终的 EmbeddingStoreContentRetriever 实例
                 .build();
     }

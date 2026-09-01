@@ -26,4 +26,8 @@ public class Appointment {
 
     private String doctorName;
 
+    private Long userId;
+
+    private Long scheduleId;
+
 }
