@@ -85,15 +85,15 @@ export function register(data) {
   return api.post('/api/v1/auth/register', data)
 }
 
-export function chatWithAI(memoryId, userMessage) {
+export function chatWithAI(conversationId, userMessage) {
   const auth = getAuth()
-  return fetch(`${API_BASE_URL}/xiaozhi/chat`, {
+  return fetch(`${API_BASE_URL}/api/v1/chat/conversations/${conversationId}/messages`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       ...(auth?.accessToken ? { Authorization: `Bearer ${auth.accessToken}` } : {})
     },
-    body: JSON.stringify({ memoryId, userMessage })
+    body: JSON.stringify({ userMessage })
   }).then((response) => {
     if (response.status === 401) {
       clearAuth()

@@ -19,5 +19,5 @@ import static dev.langchain4j.service.spring.AiServiceWiringMode.EXPLICIT;
 public interface XiaozhiAgent {
 
     @SystemMessage(fromResource = "xiaozhi-prompt-template.txt")
-    Flux<String> chat(@MemoryId Long memoryId, @UserMessage String userMessage, @V("current_date") String currentDate);
+    Flux<String> chat(@MemoryId String memoryId, @UserMessage String userMessage, @V("current_date") String currentDate);
 }

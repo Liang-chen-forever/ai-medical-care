@@ -1,14 +1,9 @@
 package com.Liang.java.ai.langchain4j.bean;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class ChatForm {
-
-    private Long memoryId;
-    private String userMessage;
+public record ChatForm(
+        @NotBlank(message = "消息不能为空")
+        @Size(max = 1000, message = "消息不能超过1000个字符") String userMessage) {
 }

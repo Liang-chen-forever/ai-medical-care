@@ -101,13 +101,13 @@ export function register(data) {
   return post('/api/v1/auth/register', data)
 }
 
-export function chatWithAI(memoryId, userMessage) {
+export function chatWithAI(conversationId, userMessage) {
   return new Promise((resolve, reject) => {
     const auth = getAuth()
     uni.request({
-      url: `${BASE_URL}/xiaozhi/chat`,
+      url: `${BASE_URL}/api/v1/chat/conversations/${conversationId}/messages`,
       method: 'POST',
-      data: { memoryId, userMessage },
+      data: { userMessage },
       responseType: 'text',
       enableChunked: true,
       header: {

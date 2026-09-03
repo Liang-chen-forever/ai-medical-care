@@ -15,7 +15,7 @@ miniprogram/node_modules/
 miniprogram/dist/
 miniprogram/package-lock.json
 
-### Environment ###
+### Environment and local secrets ###
 .env
 .env.local
 secrets.local.txt
