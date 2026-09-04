@@ -16,8 +16,10 @@ Base commit: `c1e359a`
 - `git diff --check`: PASS.
 
 Spec compliance: PASS
-Task quality: APPROVED pending network-enabled focused test execution
+Task quality: NEEDS WORK pending network-enabled focused test execution
 
 ## Concerns
 
 Local Maven dependency resolution is blocked by sandbox network policy. No Task 1-3, service, frontend, or docs files were modified.
+
+Follow-up adds strict rejection of unknown request fields and trims before validation; padded one-character complaints are covered. Focused network-enabled verification remains pending.

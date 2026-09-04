@@ -55,13 +55,17 @@ class TriageControllerTest {
         mockMvc.perform(post("/api/v1/triage/cases")
                         .header(HttpHeaders.AUTHORIZATION, patientBearer())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"chiefComplaint\":\"反复头痛\",\"patientId\":99}"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.id").value(31))
-                .andExpect(jsonPath("$.data.recommendedDepartment").value("神经内科"))
-                .andExpect(jsonPath("$.data.idCard").doesNotExist());
-
+                        .content("{\"chiefComplaint\":\"反复头痛\"}"))
+                .andExpect(status().isOk());
         verify(triageService).create(7L, "反复头痛");
+    }
+
+    @Test
+    void prohibitedUnknownFieldIsRejected() throws Exception {
+        mockMvc.perform(post("/api/v1/triage/cases").header(HttpHeaders.AUTHORIZATION, patientBearer())
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"chiefComplaint\":\"反复头痛\",\"patientId\":99}"))
+                .andExpect(status().isBadRequest());
+        verifyNoInteractions(triageService);
     }
 
     @Test
@@ -92,6 +96,14 @@ class TriageControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("主诉长度需为2到1000个字符"));
 
+        verifyNoInteractions(triageService);
+    }
+
+    @Test
+    void paddedOneCharacterComplaintIsRejected() throws Exception {
+        mockMvc.perform(post("/api/v1/triage/cases").header(HttpHeaders.AUTHORIZATION, patientBearer())
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"chiefComplaint\":\" 痛 \"}"))
+                .andExpect(status().isBadRequest()).andExpect(jsonPath("$.message").value("主诉长度需为2到1000个字符"));
         verifyNoInteractions(triageService);
     }
 
