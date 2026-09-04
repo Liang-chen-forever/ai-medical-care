@@ -132,6 +132,7 @@ class TriageServiceImplTest {
         assertThat(sql).contains("patient_id");
         assertThat(sql).contains("order by created_at desc");
         assertThat(sql).contains("limit 20");
+        assertThat(queryCaptor.getValue().getParamNameValuePairs().values()).contains(7L);
     }
 
     @Test
