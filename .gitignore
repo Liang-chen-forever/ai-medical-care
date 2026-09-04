@@ -20,6 +20,7 @@ miniprogram/package-lock.json
 .env
 .env.local
 secrets.local.txt
+docs/verification/runs/
 
 ### IntelliJ IDEA ###
 .idea/workspace.xml

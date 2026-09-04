@@ -5,12 +5,17 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class MigrationScriptContractTest {
+
+    private static final Path RELEASE_RUNNER = Path.of("scripts", "release-validation.ps1");
+    private static final Path SCHEMA_BASELINE = Path.of("scripts", "release-validation", "schema-baseline.sql");
 
     private static final List<String> MIGRATION_FILES = List.of(
             "db/migration/V2__secure_appointments.sql",
@@ -59,6 +64,57 @@ class MigrationScriptContractTest {
         assertThat(EXPECTED_INDEXES).allSatisfy(index -> assertThat(scripts).contains(index));
     }
 
+    @Test
+    void releaseRunnerGuardsDatabaseCreationAndCleanupWithTheExactValidationPrefix() {
+        String runner = loadProjectFile(RELEASE_RUNNER);
+        String guardInvocation = "Assert-ValidationDatabaseName -DatabaseName $DatabaseName";
+
+        assertThat(runner)
+                .contains("$ValidationDatabasePrefix = 'ai_medical_care_release_validation_'")
+                .contains("[regex]::Escape($ValidationDatabasePrefix)")
+                .contains("function Assert-ValidationDatabaseName")
+                .doesNotContain("guiguxiaozhi", "xiaozhi-index", "langchain4j:vector:xiaozhi:");
+        assertThat(countOccurrences(runner, guardInvocation)).isGreaterThanOrEqualTo(2);
+        assertThat(runner.indexOf(guardInvocation)).isLessThan(runner.indexOf("CREATE DATABASE"));
+        assertThat(runner.lastIndexOf(guardInvocation)).isLessThan(runner.indexOf("DROP DATABASE"));
+    }
+
+    @Test
+    void releaseRunnerAppliesEveryMigrationTwiceAndChecksExpectedIndexes() {
+        String runner = loadProjectFile(RELEASE_RUNNER);
+
+        assertThat(MIGRATION_FILES).allSatisfy(path ->
+                assertThat(runner).contains(Path.of(path).getFileName().toString()));
+        assertThat(runner).contains("for ($Pass = 1; $Pass -le 2; $Pass++)");
+        assertThat(EXPECTED_INDEXES).allSatisfy(index -> assertThat(runner).contains(index));
+    }
+
+    @Test
+    void releaseRunnerFeedsExternalTestsAndWritesIgnoredEvidenceRecords() {
+        String runner = loadProjectFile(RELEASE_RUNNER);
+
+        assertThat(runner)
+                .contains("-Pexternal-integration-tests")
+                .contains("RELEASE_VALIDATION_JDBC_URL =")
+                .contains("RELEASE_VALIDATION_DB_USER =")
+                .contains("RELEASE_VALIDATION_DB_PASSWORD =")
+                .contains("RELEASE_VALIDATION_REDIS_HOST =")
+                .contains("RELEASE_VALIDATION_REDIS_PORT =")
+                .contains("docs/verification/runs/");
+    }
+
+    @Test
+    void releaseBaselineDefinesOnlyTheMinimumLegacyTables() {
+        String baseline = loadProjectFile(SCHEMA_BASELINE);
+
+        assertThat(baseline)
+                .contains("CREATE TABLE `user`")
+                .contains("CREATE TABLE doctor")
+                .contains("CREATE TABLE schedule")
+                .contains("CREATE TABLE appointment")
+                .doesNotContain("guiguxiaozhi");
+    }
+
     private static Map<String, String> loadMigrations(List<String> paths) {
         return paths.stream().collect(java.util.stream.Collectors.toMap(path -> path, MigrationScriptContractTest::loadMigration));
     }
@@ -70,5 +126,18 @@ class MigrationScriptContractTest {
         } catch (IOException exception) {
             throw new AssertionError("Unable to read migration resource " + path, exception);
         }
+    }
+
+    private static String loadProjectFile(Path path) {
+        assertThat(path).as("project file %s", path).exists().isRegularFile();
+        try {
+            return Files.readString(path, StandardCharsets.UTF_8);
+        } catch (IOException exception) {
+            throw new AssertionError("Unable to read project file " + path, exception);
+        }
+    }
+
+    private static int countOccurrences(String value, String expected) {
+        return (value.length() - value.replace(expected, "").length()) / expected.length();
     }
 }
