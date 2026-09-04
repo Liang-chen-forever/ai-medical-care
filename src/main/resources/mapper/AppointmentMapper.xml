@@ -16,7 +16,8 @@
         SELECT a.id, a.schedule_id, a.department, a.date, a.time, a.doctor_name,
                a.status, a.cancel_reason
         FROM appointment a
-        INNER JOIN doctor d ON d.id = a.doctor_id
+        INNER JOIN schedule s ON s.id = a.schedule_id
+        INNER JOIN doctor d ON d.id = s.doctor_id
         WHERE d.user_id = #{doctorUserId}
         <if test="status != null">AND a.status = #{status}</if>
         ORDER BY a.date DESC, a.time ASC, a.id DESC
