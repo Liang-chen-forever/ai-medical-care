@@ -92,7 +92,7 @@ public class TriageServiceImpl implements TriageService {
     @Override
     public List<TriageCaseSummaryResponse> listMine(Long patientId) {
         List<TriageCase> cases = caseMapper.selectList(new QueryWrapper<TriageCase>().eq("patient_id", patientId).orderByDesc("created_at").last("LIMIT 20"));
-        return cases.stream().map(e -> new TriageCaseSummaryResponse(e.getId(), e.getRiskLevel(), e.getStatus(), e.getRecommendedDepartment(), e.getCreatedAt())).toList();
+        return cases.stream().limit(20).map(e -> new TriageCaseSummaryResponse(e.getId(), e.getRiskLevel(), e.getStatus(), e.getRecommendedDepartment(), e.getCreatedAt())).toList();
     }
 
     @Override

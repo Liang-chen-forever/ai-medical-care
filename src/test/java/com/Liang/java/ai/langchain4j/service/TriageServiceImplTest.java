@@ -2,6 +2,7 @@ package com.Liang.java.ai.langchain4j.service;
 
 import com.Liang.java.ai.langchain4j.dto.triage.TriageCaseResponse;
 import com.Liang.java.ai.langchain4j.dto.triage.TriageEvidenceResponse;
+import com.Liang.java.ai.langchain4j.common.BusinessException;
 import com.Liang.java.ai.langchain4j.entity.TriageCase;
 import com.Liang.java.ai.langchain4j.entity.TriageEvidence;
 import com.Liang.java.ai.langchain4j.mapper.TriageCaseMapper;
@@ -16,8 +17,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 import java.util.Optional;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -74,6 +78,75 @@ class TriageServiceImplTest {
         assertThat(response.recommendedDepartment()).isNull();
         assertThat(response.retrievalConfidence()).isNull();
         verifyNoInteractions(evidenceMapper);
+    }
+
+    @Test
+    void emptyRetrieverPersistsNoEvidenceFallback() {
+        when(riskRuleEngine.match("未知不适")).thenReturn(Optional.empty());
+        when(evidenceRetriever.retrieve("未知不适")).thenReturn(List.of());
+        assignId(34L);
+
+        TriageCaseResponse response = service.create(7L, "未知不适");
+
+        assertThat(response.status()).isEqualTo(TriageCaseStatus.FALLBACK);
+        assertThat(response.fallbackReason()).isEqualTo(TriageFallbackReason.NO_EVIDENCE);
+        assertThat(response.recommendedDepartment()).isNull();
+        assertThat(response.evidence()).isEmpty();
+        verifyNoInteractions(evidenceMapper);
+    }
+
+    @Test
+    void invalidEvidencePersistsInvalidEvidenceFallback() {
+        when(riskRuleEngine.match("模糊症状")).thenReturn(Optional.empty());
+        when(evidenceRetriever.retrieve("模糊症状")).thenReturn(List.of(
+                new RetrievedEvidence("doc", "chunk", null, "2026.09", "摘录", 0.95)));
+        assignId(35L);
+
+        TriageCaseResponse response = service.create(7L, "模糊症状");
+
+        assertThat(response.status()).isEqualTo(TriageCaseStatus.FALLBACK);
+        assertThat(response.fallbackReason()).isEqualTo(TriageFallbackReason.INVALID_EVIDENCE);
+        assertThat(response.recommendedDepartment()).isNull();
+        verifyNoInteractions(evidenceMapper);
+    }
+
+    @Test
+    void listMineScopesPatientNewestFirstAndLimitsToTwenty() {
+        List<TriageCase> rows = new ArrayList<>();
+        for (int i = 0; i < 25; i++) {
+            TriageCase row = new TriageCase(); row.setId((long) (25 - i)); row.setPatientId(7L);
+            row.setRiskLevel(TriageRiskLevel.UNKNOWN); row.setStatus(TriageCaseStatus.FALLBACK);
+            row.setCreatedAt(LocalDateTime.now().minusMinutes(i)); rows.add(row);
+        }
+        when(caseMapper.selectList(any())).thenReturn(rows);
+
+        var result = service.listMine(7L);
+
+        assertThat(result).hasSize(20);
+        assertThat(result).extracting(r -> r.id()).containsExactlyElementsOf(rows.stream().limit(20).map(TriageCase::getId).toList());
+        verify(caseMapper).selectList(any());
+    }
+
+    @Test
+    void getMineDistinguishesAbsentWrongOwnerAndCorrectOwner() {
+        when(caseMapper.selectById(99L)).thenReturn(null);
+        assertThatThrownBy(() -> service.getMine(7L, 99L)).isInstanceOf(BusinessException.class)
+                .satisfies(ex -> assertThat(((BusinessException) ex).getStatus().value()).isEqualTo(404));
+
+        TriageCase other = new TriageCase(); other.setId(100L); other.setPatientId(8L);
+        other.setRiskLevel(TriageRiskLevel.ROUTINE); other.setStatus(TriageCaseStatus.EVIDENCE_BACKED);
+        when(caseMapper.selectById(100L)).thenReturn(other);
+        assertThatThrownBy(() -> service.getMine(7L, 100L)).isInstanceOf(BusinessException.class)
+                .satisfies(ex -> assertThat(((BusinessException) ex).getStatus().value()).isEqualTo(403));
+
+        TriageCase mine = new TriageCase(); mine.setId(101L); mine.setPatientId(7L);
+        mine.setRiskLevel(TriageRiskLevel.ROUTINE); mine.setStatus(TriageCaseStatus.EVIDENCE_BACKED);
+        mine.setCreatedAt(LocalDateTime.now());
+        when(caseMapper.selectById(101L)).thenReturn(mine);
+        when(evidenceMapper.selectList(any())).thenReturn(List.of());
+        TriageCaseResponse response = service.getMine(7L, 101L);
+        assertThat(response.id()).isEqualTo(101L);
+        assertThat(response.evidence()).isEmpty();
     }
 
     private void assignId(long id) {
