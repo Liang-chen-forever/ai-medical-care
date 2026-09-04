@@ -131,13 +131,14 @@ class TriageServiceImplTest {
         ArgumentCaptor<QueryWrapper<TriageCase>> queryCaptor = ArgumentCaptor.forClass(QueryWrapper.class);
         verify(caseMapper).selectList(queryCaptor.capture());
         QueryWrapper<TriageCase> captured = queryCaptor.getValue();
-        String sql = captured.getSqlSegment().toLowerCase();
-        Matcher patientPredicate = Pattern.compile("patient_id\\s*=\\s*#\\{ew\\.paramnamevaluepairs\\.([a-z0-9_]+)\\}").matcher(sql);
+        String sql = captured.getSqlSegment();
+        Matcher patientPredicate = Pattern.compile("patient_id\\s*=\\s*#\\{ew\\.paramNameValuePairs\\.([A-Za-z0-9_]+)\\}", Pattern.CASE_INSENSITIVE).matcher(sql);
         assertThat(patientPredicate.find()).as("patient equality predicate should bind a named parameter").isTrue();
         String patientParameterKey = patientPredicate.group(1);
         assertThat(captured.getParamNameValuePairs().get(patientParameterKey)).isEqualTo(7L);
-        assertThat(sql).contains("order by created_at desc");
-        assertThat(sql).contains("limit 20");
+        String normalizedSql = sql.toLowerCase();
+        assertThat(normalizedSql).contains("order by created_at desc");
+        assertThat(normalizedSql).contains("limit 20");
     }
 
     @Test
