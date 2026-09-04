@@ -150,6 +150,3 @@ export function completeDoctorAppointment(id) {
   return api.post(`/api/v1/doctor/appointments/${id}/complete`)
 }
 
-export function reloadKnowledge() {
-  return api.post('/api/knowledge/reload')
-}
