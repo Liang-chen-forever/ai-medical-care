@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import redis.clients.jedis.JedisPooled;
+import redis.clients.jedis.exceptions.JedisDataException;
 
 import java.util.List;
 
@@ -28,14 +29,16 @@ class KnowledgeRedisExternalIntegrationTest {
                 ExternalValidationEnvironment.newRedisResourceNames();
         ExternalValidationEnvironment.requireSafeRedisResources(names);
 
-        RedisEmbeddingStore store = RedisEmbeddingStore.builder()
-                .host(ExternalValidationEnvironment.requireRedisHost())
-                .port(ExternalValidationEnvironment.requireRedisPort())
-                .indexName(names.indexName())
-                .prefix(names.prefix())
-                .dimension(8)
-                .build();
+        RedisEmbeddingStore store = null;
+        Throwable primaryFailure = null;
         try {
+            store = RedisEmbeddingStore.builder()
+                    .host(ExternalValidationEnvironment.requireRedisHost())
+                    .port(ExternalValidationEnvironment.requireRedisPort())
+                    .indexName(names.indexName())
+                    .prefix(names.prefix())
+                    .dimension(8)
+                    .build();
             EmbeddingModel localModel = new DeterministicEightDimensionModel();
             KnowledgeSeedLoader loader = new KnowledgeSeedLoader(new KnowledgeSeedCatalog(), store, localModel);
 
@@ -49,16 +52,59 @@ class KnowledgeRedisExternalIntegrationTest {
             assertThat(seed.metadata().getString(KnowledgeSeedCatalog.DOCUMENT_ID))
                     .isIn("hospital-overview", "department-overview", "neurology-overview", "dentistry-overview");
             assertThat(seed.metadata().getString(KnowledgeSeedCatalog.KNOWLEDGE_VERSION)).isEqualTo("2026.09");
+        } catch (Throwable failure) {
+            primaryFailure = failure;
+            throwUnchecked(failure);
+            return;
         } finally {
-            ExternalValidationEnvironment.requireSafeRedisResources(names);
-            try (JedisPooled redis = new JedisPooled(
-                    ExternalValidationEnvironment.requireRedisHost(),
-                    ExternalValidationEnvironment.requireRedisPort())) {
-                redis.ftDropIndexDD(names.indexName());
-            } finally {
-                store.close();
+            Throwable cleanupFailure = null;
+            try {
+                if (store != null) {
+                    store.close();
+                }
+            } catch (Throwable exception) {
+                cleanupFailure = exception;
+            }
+            try {
+                ExternalValidationEnvironment.requireSafeRedisResources(names);
+                try (JedisPooled redis = new JedisPooled(
+                        ExternalValidationEnvironment.requireRedisHost(),
+                        ExternalValidationEnvironment.requireRedisPort())) {
+                    try {
+                        redis.ftDropIndexDD(names.indexName());
+                    } catch (JedisDataException exception) {
+                        if (!isMissingIndex(exception)) {
+                            throw exception;
+                        }
+                    }
+                }
+            } catch (Throwable exception) {
+                if (cleanupFailure == null) {
+                    cleanupFailure = exception;
+                } else {
+                    cleanupFailure.addSuppressed(exception);
+                }
+            }
+            if (primaryFailure != null && cleanupFailure != null) {
+                primaryFailure.addSuppressed(cleanupFailure);
+            } else if (cleanupFailure != null) {
+                throwUnchecked(cleanupFailure);
             }
         }
+    }
+
+    private static boolean isMissingIndex(JedisDataException exception) {
+        String message = exception.getMessage();
+        return message != null && message.toLowerCase().contains("unknown index");
+    }
+
+    private static void throwUnchecked(Throwable exception) {
+        KnowledgeRedisExternalIntegrationTest.<RuntimeException>rethrow(exception);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <E extends Throwable> void rethrow(Throwable exception) throws E {
+        throw (E) exception;
     }
 
     private static final class DeterministicEightDimensionModel implements EmbeddingModel {
