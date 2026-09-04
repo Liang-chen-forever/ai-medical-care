@@ -3,6 +3,7 @@ import axios from 'axios'
 const API_BASE_URL = (import.meta.env?.VITE_API_BASE_URL || '/').replace(/\/$/, '')
 const AUTH_STORAGE_KEY = 'auth'
 const USER_STORAGE_KEY = 'user'
+const TOKEN_HEADER = 'authentication'
 
 export function getAuth() {
   try {
@@ -50,7 +51,7 @@ export const api = axios.create({
 api.interceptors.request.use((config) => {
   const auth = getAuth()
   if (auth?.accessToken) {
-    config.headers.Authorization = `Bearer ${auth.accessToken}`
+    config.headers[TOKEN_HEADER] = auth.accessToken
   }
   return config
 })
@@ -92,7 +93,7 @@ export function chatWithAI(conversationId, userMessage) {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      ...(auth?.accessToken ? { Authorization: `Bearer ${auth.accessToken}` } : {})
+      ...(auth?.accessToken ? { [TOKEN_HEADER]: auth.accessToken } : {})
     },
     body: JSON.stringify({ userMessage })
   }).then((response) => {

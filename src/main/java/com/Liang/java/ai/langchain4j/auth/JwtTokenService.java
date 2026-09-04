@@ -18,17 +18,17 @@ import java.util.Date;
 public class JwtTokenService {
 
     private final SecretKey signingKey;
-    private final long expirationSeconds;
+    private final long expirationMillis;
 
-    public JwtTokenService(String secret, long expirationSeconds) {
+    public JwtTokenService(String secret, long expirationMillis) {
         if (secret == null || secret.length() < 32) {
             throw new IllegalArgumentException("JWT 密钥至少需要 32 个字符");
         }
-        if (expirationSeconds <= 0) {
+        if (expirationMillis <= 0) {
             throw new IllegalArgumentException("JWT 有效期必须大于 0");
         }
         this.signingKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
-        this.expirationSeconds = expirationSeconds;
+        this.expirationMillis = expirationMillis;
     }
 
     public String createToken(UserPrincipal principal) {
@@ -38,7 +38,7 @@ public class JwtTokenService {
                 .claim("username", principal.username())
                 .claim("role", principal.role().name())
                 .issuedAt(Date.from(now))
-                .expiration(Date.from(now.plusSeconds(expirationSeconds)))
+                .expiration(Date.from(now.plusMillis(expirationMillis)))
                 .signWith(signingKey)
                 .compact();
     }

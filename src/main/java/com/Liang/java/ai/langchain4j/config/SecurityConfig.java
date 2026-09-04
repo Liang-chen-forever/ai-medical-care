@@ -17,6 +17,6 @@ public class SecurityConfig {
 
     @Bean
     public JwtTokenService jwtTokenService(JwtProperties properties) {
-        return new JwtTokenService(properties.getSecret(), properties.getExpirationSeconds());
+        return new JwtTokenService(properties.getUserSecretKey(), properties.getUserTtl());
     }
 }

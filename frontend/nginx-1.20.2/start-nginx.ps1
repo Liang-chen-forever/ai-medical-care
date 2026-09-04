@@ -7,16 +7,11 @@ $nginxHome = (Resolve-Path (Join-Path $PSScriptRoot '.')).Path
 $configPath = Join-Path $nginxHome 'conf/nginx.conf'
 
 if (-not $NginxExe) {
-    $candidates = @(
-        (Join-Path $nginxHome 'nginx.exe'),
-        'D:\Resume-Projects\Sky-Delivery\frontend\nginx-1.20.2\nginx.exe'
-    )
-
-    $NginxExe = $candidates | Where-Object { Test-Path $_ } | Select-Object -First 1
+    $NginxExe = Join-Path $nginxHome 'nginx.exe'
 }
 
 if (-not $NginxExe -or -not (Test-Path $NginxExe)) {
-    throw '未找到 nginx.exe。请将 Nginx 解压到 frontend/nginx-1.20.2，或使用 -NginxExe 指定 nginx.exe 路径。'
+    throw '未找到 frontend/nginx-1.20.2/nginx.exe。请将 Nginx 解压到该目录。'
 }
 
 if (-not (Test-Path (Join-Path (Split-Path $nginxHome -Parent) 'dist'))) {

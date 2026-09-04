@@ -1,9 +1,10 @@
 package com.Liang.java.ai.langchain4j.auth;
 
-import org.junit.jupiter.api.Test;
 import com.Liang.java.ai.langchain4j.common.BusinessException;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 
 import java.nio.charset.StandardCharsets;
@@ -47,6 +48,20 @@ class JwtTokenServiceTest {
                 .compact();
 
         assertInvalidRoleToken(tokenService, token);
+    }
+
+    @Test
+    void treatsExpirationAsMilliseconds() {
+        JwtTokenService tokenService = new JwtTokenService(SECRET, 7200000);
+        String token = tokenService.createToken(new UserPrincipal(7L, "alice", UserRole.PATIENT));
+        Claims claims = Jwts.parser()
+                .verifyWith(Keys.hmacShaKeyFor(SECRET.getBytes(StandardCharsets.UTF_8)))
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+
+        assertThat(claims.getExpiration().getTime() - claims.getIssuedAt().getTime())
+                .isEqualTo(7200000L);
     }
 
     private void assertInvalidRoleToken(JwtTokenService tokenService, String token) {

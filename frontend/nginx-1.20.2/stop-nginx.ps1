@@ -6,16 +6,11 @@ $ErrorActionPreference = 'Stop'
 $nginxHome = (Resolve-Path (Join-Path $PSScriptRoot '.')).Path
 
 if (-not $NginxExe) {
-    $candidates = @(
-        (Join-Path $nginxHome 'nginx.exe'),
-        'D:\Resume-Projects\Sky-Delivery\frontend\nginx-1.20.2\nginx.exe'
-    )
-
-    $NginxExe = $candidates | Where-Object { Test-Path $_ } | Select-Object -First 1
+    $NginxExe = Join-Path $nginxHome 'nginx.exe'
 }
 
 if (-not $NginxExe -or -not (Test-Path $NginxExe)) {
-    throw '未找到 nginx.exe。请使用与启动时相同的 -NginxExe 路径。'
+    throw '未找到 frontend/nginx-1.20.2/nginx.exe。'
 }
 
 & $NginxExe -p "$nginxHome/" -c 'conf/nginx.conf' -s quit

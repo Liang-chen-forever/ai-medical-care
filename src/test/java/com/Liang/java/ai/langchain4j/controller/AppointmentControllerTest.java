@@ -25,6 +25,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -54,6 +56,18 @@ class AppointmentControllerTest {
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.code").value(401))
                 .andExpect(jsonPath("$.message").value("请先登录"));
+    }
+
+    @Test
+    void acceptsUserTokenFromAuthenticationHeader() throws Exception {
+        when(appointmentBookingService.listMine(7L)).thenReturn(List.of());
+
+        mockMvc.perform(get("/api/v1/appointments/me")
+                        .header("authentication", bearerForUser7().substring(7)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200));
+
+        verify(appointmentBookingService).listMine(7L);
     }
 
     @Test

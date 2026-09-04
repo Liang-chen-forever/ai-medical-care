@@ -1,4 +1,5 @@
 const BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:5137').replace(/\/$/, '')
+const TOKEN_HEADER = 'authentication'
 
 function readStorage(key) {
   const stored = uni.getStorageSync(key)
@@ -59,7 +60,7 @@ function request(url, method = 'GET', data = null) {
       data,
       header: {
         'Content-Type': 'application/json',
-        ...(auth?.accessToken ? { Authorization: `Bearer ${auth.accessToken}` } : {})
+        ...(auth?.accessToken ? { [TOKEN_HEADER]: auth.accessToken } : {})
       },
       success(res) {
         const body = res.data
@@ -112,7 +113,7 @@ export function chatWithAI(conversationId, userMessage) {
       enableChunked: true,
       header: {
         'Content-Type': 'application/json',
-        ...(auth?.accessToken ? { Authorization: `Bearer ${auth.accessToken}` } : {})
+        ...(auth?.accessToken ? { [TOKEN_HEADER]: auth.accessToken } : {})
       },
       success(res) {
         if (res.statusCode === 401) {

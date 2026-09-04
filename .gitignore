@@ -7,6 +7,7 @@ target/
 ### Frontend ###
 frontend/node_modules/
 frontend/dist/
+frontend/nginx-1.20.2/nginx.exe
 frontend/nginx-1.20.2/logs/*.log
 frontend/nginx-1.20.2/logs/*.pid
 frontend/nginx-1.20.2/temp/*

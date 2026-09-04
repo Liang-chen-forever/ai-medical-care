@@ -12,18 +12,28 @@ import org.springframework.web.servlet.HandlerInterceptor;
 public class LoginRequiredInterceptor implements HandlerInterceptor {
 
     private final JwtTokenService jwtTokenService;
+    private final JwtProperties jwtProperties;
 
-    public LoginRequiredInterceptor(JwtTokenService jwtTokenService) {
+    public LoginRequiredInterceptor(JwtTokenService jwtTokenService, JwtProperties jwtProperties) {
         this.jwtTokenService = jwtTokenService;
+        this.jwtProperties = jwtProperties;
     }
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
-        String header = request.getHeader(HttpHeaders.AUTHORIZATION);
-        if (header == null || !header.startsWith("Bearer ")) {
+        String token = request.getHeader(jwtProperties.getUserTokenName());
+        if (token == null || token.isBlank()) {
+            String authorization = request.getHeader(HttpHeaders.AUTHORIZATION);
+            if (authorization != null && authorization.startsWith("Bearer ")) {
+                token = authorization.substring(7).trim();
+            }
+        } else if (token.startsWith("Bearer ")) {
+            token = token.substring(7).trim();
+        }
+        if (token == null || token.isBlank()) {
             throw new BusinessException(HttpStatus.UNAUTHORIZED, 401, "请先登录");
         }
-        request.setAttribute(CurrentUser.REQUEST_ATTRIBUTE, jwtTokenService.parseToken(header.substring(7)));
+        request.setAttribute(CurrentUser.REQUEST_ATTRIBUTE, jwtTokenService.parseToken(token));
         return true;
     }
 }

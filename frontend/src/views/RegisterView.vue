@@ -33,6 +33,7 @@
             placeholder="请输入18位身份证号"
             maxlength="18"
           />
+          <p v-if="idCardError" class="field-error">{{ idCardError }}</p>
         </div>
         <div class="form-group">
           <label>手机号</label>
@@ -69,6 +70,7 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { register } from '../api/index.js'
+import { getIdCardValidationMessage } from '../utils/idCard.js'
 
 const router = useRouter()
 const form = ref({ username: '', password: '', idCard: '', phone: '' })
@@ -76,36 +78,17 @@ const loading = ref(false)
 const errorMsg = ref('')
 const toast = ref({ show: false, type: 'success', message: '' })
 
-const canSubmit = computed(() => {
-  const idCardValid = validateIdCard(form.value.idCard)
-  return form.value.username.trim().length >= 3 && form.value.password.length >= 6 && idCardValid
+const idCardError = computed(() => {
+  if (!form.value.idCard) return ''
+  return getIdCardValidationMessage(form.value.idCard)
 })
 
-// 中国身份证号校验
-function validateIdCard(idCard) {
-  if (!idCard || idCard.length !== 18) return false
-  const body = idCard.substring(0, 17).toUpperCase()
-  const checkDigit = idCard.substring(17, 18).toUpperCase()
-  if (!/^\d{17}$/.test(body)) return false
-
-  // 加权因子
-  const weight = [7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2]
-  const checkCode = ['1', '0', 'X', '9', '8', '7', '6', '5', '4', '3', '2']
-
-  let sum = 0
-  for (let i = 0; i < 17; i++) {
-    sum += parseInt(body.charAt(i)) * weight[i]
-  }
-  if (checkCode[sum % 11] !== checkDigit) return false
-
-  // 出生日期校验
-  const year = parseInt(body.substring(6, 10))
-  const month = parseInt(body.substring(10, 12))
-  const day = parseInt(body.substring(12, 14))
-  if (year < 1900 || year > 2100 || month < 1 || month > 12 || day < 1 || day > 31) return false
-
-  return true
-}
+const canSubmit = computed(() => {
+  return form.value.username.trim().length >= 3
+    && form.value.password.length >= 6
+    && Boolean(form.value.idCard)
+    && !idCardError.value
+})
 
 function showToast(type, message) {
   toast.value = { show: true, type, message }
@@ -173,6 +156,12 @@ async function handleRegister() {
 
 .required {
   color: #ef4444;
+}
+
+.field-error {
+  margin: 6px 0 0;
+  color: #dc2626;
+  font-size: 12px;
 }
 
 .error-msg {

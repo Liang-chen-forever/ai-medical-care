@@ -24,9 +24,12 @@ public class CorsConfig {
         }
         config.addAllowedHeader("Content-Type");
         config.addAllowedHeader("Authorization");
+        config.addAllowedHeader("authentication");
         config.addAllowedMethod("GET");
         config.addAllowedMethod("POST");
+        config.addAllowedMethod("PUT");
         config.addAllowedMethod("DELETE");
+        config.addAllowedMethod("OPTIONS");
         config.setAllowCredentials(true);
         config.setMaxAge(3600L);
 
