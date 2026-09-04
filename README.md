@@ -2,6 +2,8 @@
 
 面向在线医疗服务场景的 Java 全栈项目：提供 AI 问诊、科室和医生查询、排班查询，以及经过登录鉴权的预约和取消预约流程。Web 端使用 Vue 3，微信小程序使用 uni-app，后端使用 Spring Boot、MyBatis-Plus、MySQL、MongoDB、Redis 和 LangChain4j。
 
+智能分诊流程：患者主诉 -> 高风险规则 -> 带版本的检索证据 -> 分诊卡 / 人工选科降级。分诊仅提供非诊断性指导；高风险规则命中时跳过检索和模型调用。证据阈值 0.72 表示检索相关性，不是医疗置信度。V2-V5 MySQL 迁移完成并经线上数据库验证是发布前置条件。知识重载为 ADMIN-only `POST /api/v1/admin/knowledge/reload`；公开 `/api/knowledge/reload` 已移除。
+
 ## 项目结构
 
 ```text
