@@ -67,7 +67,6 @@
 - Create: `src/main/java/com/Liang/java/ai/langchain4j/dto/knowledge/KnowledgeReloadResponse.java`
 - Modify: `src/main/java/com/Liang/java/ai/langchain4j/config/KnowledgeBaseInitializer.java`
 - Modify: `src/main/java/com/Liang/java/ai/langchain4j/controller/KnowledgeController.java`
-- Modify: `src/main/java/com/Liang/java/ai/langchain4j/config/WebMvcConfig.java`
 - Create: `src/test/java/com/Liang/java/ai/langchain4j/knowledge/KnowledgeSeedCatalogTest.java`
 - Create: `src/test/java/com/Liang/java/ai/langchain4j/controller/KnowledgeControllerTest.java`
 
