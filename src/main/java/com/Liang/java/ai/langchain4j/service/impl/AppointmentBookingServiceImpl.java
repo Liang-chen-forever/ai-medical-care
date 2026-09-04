@@ -1,10 +1,13 @@
 package com.Liang.java.ai.langchain4j.service.impl;
 
+import com.Liang.java.ai.langchain4j.appointment.AppointmentStatus;
 import com.Liang.java.ai.langchain4j.common.BusinessException;
 import com.Liang.java.ai.langchain4j.entity.Appointment;
+import com.Liang.java.ai.langchain4j.entity.Doctor;
 import com.Liang.java.ai.langchain4j.entity.Schedule;
 import com.Liang.java.ai.langchain4j.entity.User;
 import com.Liang.java.ai.langchain4j.mapper.AppointmentMapper;
+import com.Liang.java.ai.langchain4j.mapper.DoctorMapper;
 import com.Liang.java.ai.langchain4j.mapper.ScheduleMapper;
 import com.Liang.java.ai.langchain4j.mapper.UserMapper;
 import com.Liang.java.ai.langchain4j.service.AppointmentBookingService;
@@ -20,13 +23,16 @@ public class AppointmentBookingServiceImpl implements AppointmentBookingService 
 
     private final ScheduleMapper scheduleMapper;
     private final AppointmentMapper appointmentMapper;
+    private final DoctorMapper doctorMapper;
     private final UserMapper userMapper;
 
     public AppointmentBookingServiceImpl(ScheduleMapper scheduleMapper,
                                          AppointmentMapper appointmentMapper,
+                                         DoctorMapper doctorMapper,
                                          UserMapper userMapper) {
         this.scheduleMapper = scheduleMapper;
         this.appointmentMapper = appointmentMapper;
+        this.doctorMapper = doctorMapper;
         this.userMapper = userMapper;
     }
 
@@ -51,6 +57,8 @@ public class AppointmentBookingServiceImpl implements AppointmentBookingService 
         Appointment appointment = new Appointment();
         appointment.setUserId(userId);
         appointment.setScheduleId(scheduleId);
+        appointment.setDoctorId(schedule.getDoctorId());
+        appointment.setStatus(AppointmentStatus.PENDING);
         appointment.setUsername(user.getUsername());
         appointment.setIdCard(user.getIdCard());
         appointment.setDoctorName(schedule.getDoctorName());
@@ -78,11 +86,92 @@ public class AppointmentBookingServiceImpl implements AppointmentBookingService 
         if (!userId.equals(appointment.getUserId())) {
             throw new BusinessException(HttpStatus.FORBIDDEN, 403, "无权操作该预约");
         }
-        if (appointmentMapper.deleteById(appointmentId) != 1) {
-            throw new BusinessException(HttpStatus.CONFLICT, 409, "预约状态异常，请稍后重试");
+        if (!isCancellable(appointment.getStatus())) {
+            throw stateChanged();
+        }
+        if (appointmentMapper.transitionStatus(appointmentId, appointment.getStatus(), AppointmentStatus.CANCELLED,
+                userId, null) != 1) {
+            throw stateChanged();
         }
         if (scheduleMapper.incrementIfBooked(appointment.getScheduleId()) != 1) {
             throw new BusinessException(HttpStatus.CONFLICT, 409, "预约状态异常，请稍后重试");
         }
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void confirmByDoctor(Long doctorUserId, Long appointmentId) {
+        Appointment appointment = findOwnedAppointment(doctorUserId, appointmentId);
+        if (appointment.getStatus() != AppointmentStatus.PENDING) {
+            throw stateChanged();
+        }
+        if (appointmentMapper.transitionStatus(appointmentId, AppointmentStatus.PENDING,
+                AppointmentStatus.CONFIRMED, doctorUserId, null) != 1) {
+            throw stateChanged();
+        }
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void rejectByDoctor(Long doctorUserId, Long appointmentId, String reason) {
+        Appointment appointment = findOwnedAppointment(doctorUserId, appointmentId);
+        if (!isRejectable(appointment.getStatus())) {
+            throw stateChanged();
+        }
+        if (appointmentMapper.transitionStatus(appointmentId, appointment.getStatus(), AppointmentStatus.REJECTED,
+                doctorUserId, reason) != 1) {
+            throw stateChanged();
+        }
+        restoreCapacity(appointment.getScheduleId());
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void completeByDoctor(Long doctorUserId, Long appointmentId) {
+        Appointment appointment = findOwnedAppointment(doctorUserId, appointmentId);
+        if (appointment.getStatus() != AppointmentStatus.CONFIRMED) {
+            throw stateChanged();
+        }
+        if (appointmentMapper.transitionStatus(appointmentId, AppointmentStatus.CONFIRMED,
+                AppointmentStatus.COMPLETED, doctorUserId, null) != 1) {
+            throw stateChanged();
+        }
+    }
+
+    private Appointment findOwnedAppointment(Long doctorUserId, Long appointmentId) {
+        Doctor doctor = doctorMapper.findByUserId(doctorUserId);
+        if (doctor == null) {
+            throw new BusinessException(HttpStatus.FORBIDDEN, 403, "无权操作该预约");
+        }
+        Appointment appointment = appointmentMapper.selectById(appointmentId);
+        if (appointment == null) {
+            throw new BusinessException(HttpStatus.NOT_FOUND, 404, "预约不存在");
+        }
+        Schedule schedule = scheduleMapper.selectById(appointment.getScheduleId());
+        if (schedule == null) {
+            throw new BusinessException(HttpStatus.NOT_FOUND, 404, "排班不存在");
+        }
+        if (!doctor.getId().equals(schedule.getDoctorId())) {
+            throw new BusinessException(HttpStatus.FORBIDDEN, 403, "无权操作该预约");
+        }
+        return appointment;
+    }
+
+    private boolean isCancellable(AppointmentStatus status) {
+        return status == AppointmentStatus.PENDING || status == AppointmentStatus.CONFIRMED;
+    }
+
+    private boolean isRejectable(AppointmentStatus status) {
+        return status == AppointmentStatus.PENDING || status == AppointmentStatus.CONFIRMED;
+    }
+
+    private void restoreCapacity(Long scheduleId) {
+        if (scheduleMapper.incrementIfBooked(scheduleId) != 1) {
+            throw new BusinessException(HttpStatus.CONFLICT, 409, "预约状态异常，请稍后重试");
+        }
+    }
+
+    private BusinessException stateChanged() {
+        return new BusinessException(HttpStatus.CONFLICT, 409, "预约状态已变更，请刷新后重试");
     }
 }

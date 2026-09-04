@@ -56,10 +56,17 @@ CREATE TABLE IF NOT EXISTS `appointment` (
     `doctor_name` VARCHAR(50),
     `user_id` BIGINT NOT NULL,
     `schedule_id` BIGINT NOT NULL,
+    `doctor_id` BIGINT NOT NULL,
+    `status` VARCHAR(16) NOT NULL DEFAULT 'PENDING',
+    `cancel_reason` VARCHAR(200),
+    `handled_by` BIGINT,
+    `handled_at` DATETIME,
     `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP,
     UNIQUE KEY `uk_appointment_user_schedule` (`user_id`, `schedule_id`),
     KEY `idx_appointment_user_id` (`user_id`),
-    KEY `idx_appointment_schedule_id` (`schedule_id`)
+    KEY `idx_appointment_schedule_id` (`schedule_id`),
+    KEY `idx_appointment_doctor_status` (`doctor_id`, `status`),
+    KEY `idx_appointment_user_status` (`user_id`, `status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- 插入医生数据（神经内科）

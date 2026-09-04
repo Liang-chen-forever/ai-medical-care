@@ -14,4 +14,10 @@ public interface AppointmentBookingService {
     List<Appointment> listMine(Long userId);
 
     void cancel(Long userId, Long appointmentId);
+
+    void confirmByDoctor(Long doctorUserId, Long appointmentId);
+
+    void rejectByDoctor(Long doctorUserId, Long appointmentId, String reason);
+
+    void completeByDoctor(Long doctorUserId, Long appointmentId);
 }
