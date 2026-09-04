@@ -29,4 +29,7 @@ public interface AppointmentMapper extends BaseMapper<Appointment> {
     int transitionStatus(@Param("id") Long id, @Param("from") AppointmentStatus from,
                          @Param("to") AppointmentStatus to, @Param("handledBy") Long handledBy,
                          @Param("reason") String reason);
+
+    List<Appointment> findForDoctor(@Param("doctorUserId") Long doctorUserId,
+                                    @Param("status") AppointmentStatus status);
 }

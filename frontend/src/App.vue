@@ -14,6 +14,7 @@
         <router-link to="/department">科室医生</router-link>
         <router-link to="/appointment">预约挂号</router-link>
         <router-link to="/my-appointments">我的预约</router-link>
+        <router-link v-if="user?.role === 'DOCTOR'" to="/doctor/appointments">医生工作台</router-link>
       </div>
       <div class="navbar-user">
         <template v-if="user">
@@ -52,6 +53,10 @@
         <span class="tab-icon">&#x1F4CB;</span>
         <span>我的预约</span>
       </router-link>
+      <router-link v-if="user?.role === 'DOCTOR'" to="/doctor/appointments" class="tab-bar-item" active-class="active">
+        <span class="tab-icon">&#x2695;</span>
+        <span>工作台</span>
+      </router-link>
     </nav>
 
     <!-- 全局 Toast -->
@@ -63,7 +68,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, provide } from 'vue'
+import { ref, onMounted, provide, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import Toast from './components/Toast.vue'
 import OnboardingGuide from './components/OnboardingGuide.vue'
@@ -81,6 +86,10 @@ function showToast(msg, type = 'success') {
 provide('toast', showToast)
 
 onMounted(() => {
+  user.value = getUser()
+})
+
+watch(() => router.currentRoute.value.fullPath, () => {
   user.value = getUser()
 })
 

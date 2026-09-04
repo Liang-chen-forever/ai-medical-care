@@ -36,6 +36,15 @@ ai-medical-care/
 - `GET /api/v1/appointments/me`
 - `DELETE /api/v1/appointments/{id}`
 
+医生工作台接口只接受带有 `DOCTOR` 角色的 JWT：
+
+- `GET /api/v1/doctor/appointments?status=PENDING`
+- `POST /api/v1/doctor/appointments/{id}/confirm`
+- `POST /api/v1/doctor/appointments/{id}/reject`，请求体为 `{ "reason": "..." }`
+- `POST /api/v1/doctor/appointments/{id}/complete`
+
+角色为 `PATIENT`、`DOCTOR`、`ADMIN`。角色与用户 ID 都来自 JWT，客户端不能提交医生、患者或角色 ID；Web 端仅为 `DOCTOR` 显示“医生工作台”。预约状态按 `PENDING -> CONFIRMED -> COMPLETED` 流转，患者仅能取消 `PENDING`/`CONFIRMED`，医生可拒绝 `PENDING`/`CONFIRMED`；取消或拒绝只回补一次号源。
+
 登录和注册接口分别为 `POST /api/v1/auth/login`、`POST /api/v1/auth/register`。密码以 BCrypt 哈希保存，后端以 JWT 确定当前用户；预约创建和取消使用事务及 MySQL 条件更新保证号源不会超卖。
 
 ## 后端启动
@@ -50,7 +59,7 @@ ai-medical-care/
 mvn spring-boot:run
 ```
 
-已有旧库时，先备份数据并执行 `src/main/resources/db/migration/V2__secure_appointments.sql`，再按实际业务回填历史预约的用户和排班归属；该脚本可重复执行，旧预约的归属字段会暂时保持为空。不要在已有数据的库中重复执行初始化脚本。
+已有旧库时，先备份数据，按 `V2__secure_appointments.sql`、`V3__roles_and_doctor_accounts.sql`、`V4__appointment_lifecycle.sql` 的顺序执行迁移。V3 增加用户角色和医生账号映射，不会为旧医生创建登录账号；V4 将旧预约标记为 `LEGACY`，不进入新工作流。不要在已有数据的库中重复执行初始化脚本。
 
 如需构建带 RediSearch 的 Redis 镜像，在项目根目录执行 `docker build -f deploy/redis/Dockerfile -t ai-medical-care-redis .`。
 

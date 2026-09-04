@@ -1,6 +1,8 @@
 package com.Liang.java.ai.langchain4j.service;
 
 import com.Liang.java.ai.langchain4j.entity.Appointment;
+import com.Liang.java.ai.langchain4j.appointment.AppointmentStatus;
+import com.Liang.java.ai.langchain4j.dto.doctor.DoctorAppointmentResponse;
 
 import java.util.List;
 
@@ -20,4 +22,6 @@ public interface AppointmentBookingService {
     void rejectByDoctor(Long doctorUserId, Long appointmentId, String reason);
 
     void completeByDoctor(Long doctorUserId, Long appointmentId);
+
+    List<DoctorAppointmentResponse> listForDoctor(Long doctorUserId, AppointmentStatus status);
 }

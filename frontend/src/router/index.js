@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { isAuthenticated } from '../api/index.js'
+import { isAuthenticated, getUser } from '../api/index.js'
 
 const routes = [
   { path: '/', redirect: '/chat' },
@@ -8,6 +8,12 @@ const routes = [
     name: 'Chat',
     component: () => import('../views/ChatView.vue'),
     meta: { title: 'AI 智能问诊' }
+  },
+  {
+    path: '/doctor/appointments',
+    name: 'DoctorAppointments',
+    component: () => import('../views/DoctorAppointments.vue'),
+    meta: { title: '医生工作台', requiresAuth: true, role: 'DOCTOR' }
   },
   {
     path: '/department',
@@ -53,6 +59,9 @@ router.beforeEach((to) => {
   document.title = to.meta.title ? `${to.meta.title} - 硅谷小智` : '硅谷小智'
   if (to.meta.requiresAuth && !isAuthenticated()) {
     return { name: 'Login', query: { redirect: to.fullPath } }
+  }
+  if (to.meta.role && getUser()?.role !== to.meta.role) {
+    return isAuthenticated() ? { name: 'Chat' } : { name: 'Login', query: { redirect: to.fullPath } }
   }
 })
 

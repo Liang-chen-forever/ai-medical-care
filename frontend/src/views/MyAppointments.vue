@@ -20,6 +20,7 @@
             <th>医生</th>
             <th>日期</th>
             <th>时间</th>
+            <th>状态</th>
             <th>操作</th>
           </tr>
         </thead>
@@ -31,8 +32,10 @@
             <td>{{ a.doctorName || '--' }}</td>
             <td>{{ a.date }}</td>
             <td>{{ a.time }}</td>
+            <td><span class="badge" :class="`status-${String(a.status || '').toLowerCase()}`">{{ statusLabel(a.status) }}</span></td>
             <td>
               <button
+                v-if="isCancellable(a.status)"
                 class="btn btn-danger btn-sm"
                 @click="handleCancel(a)"
                 :disabled="cancellingId === a.id"
@@ -120,7 +123,16 @@ async function fetchAppointments() {
 onMounted(fetchAppointments)
 
 function handleCancel(appointment) {
+  if (!isCancellable(appointment.status)) return
   cancelModal.value = { show: true, appointment }
+}
+
+function isCancellable(status) {
+  return status === 'PENDING' || status === 'CONFIRMED'
+}
+
+function statusLabel(status) {
+  return ({ PENDING: '待确认', CONFIRMED: '已确认', COMPLETED: '已完成', CANCELLED: '已取消', REJECTED: '已拒绝', EXPIRED: '已过期', LEGACY: '历史记录' })[status] || status || '未知'
 }
 
 async function confirmCancel() {

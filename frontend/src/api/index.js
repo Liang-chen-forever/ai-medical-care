@@ -30,6 +30,7 @@ export function saveAuth(auth) {
   localStorage.setItem(USER_STORAGE_KEY, JSON.stringify({
     userId: auth.userId,
     username: auth.username,
+    role: auth.role,
     idCard: auth.idCard,
     phone: auth.phone
   }))
@@ -40,7 +41,7 @@ export function clearAuth() {
   localStorage.removeItem(USER_STORAGE_KEY)
 }
 
-const api = axios.create({
+export const api = axios.create({
   baseURL: API_BASE_URL || '/',
   timeout: 30000,
   headers: { 'Content-Type': 'application/json' }
@@ -128,6 +129,22 @@ export function bookAppointment(scheduleId) {
 
 export function cancelAppointment(id) {
   return api.delete(`/api/v1/appointments/${id}`)
+}
+
+export function getDoctorAppointments(status) {
+  return api.get('/api/v1/doctor/appointments', status ? { params: { status } } : undefined)
+}
+
+export function confirmDoctorAppointment(id) {
+  return api.post(`/api/v1/doctor/appointments/${id}/confirm`)
+}
+
+export function rejectDoctorAppointment(id, reason) {
+  return api.post(`/api/v1/doctor/appointments/${id}/reject`, { reason })
+}
+
+export function completeDoctorAppointment(id) {
+  return api.post(`/api/v1/doctor/appointments/${id}/complete`)
 }
 
 export function reloadKnowledge() {

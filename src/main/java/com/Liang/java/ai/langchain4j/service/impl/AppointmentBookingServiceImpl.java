@@ -6,6 +6,7 @@ import com.Liang.java.ai.langchain4j.entity.Appointment;
 import com.Liang.java.ai.langchain4j.entity.Doctor;
 import com.Liang.java.ai.langchain4j.entity.Schedule;
 import com.Liang.java.ai.langchain4j.entity.User;
+import com.Liang.java.ai.langchain4j.dto.doctor.DoctorAppointmentResponse;
 import com.Liang.java.ai.langchain4j.mapper.AppointmentMapper;
 import com.Liang.java.ai.langchain4j.mapper.DoctorMapper;
 import com.Liang.java.ai.langchain4j.mapper.ScheduleMapper;
@@ -136,6 +137,14 @@ public class AppointmentBookingServiceImpl implements AppointmentBookingService 
                 AppointmentStatus.COMPLETED, doctorUserId, null) != 1) {
             throw stateChanged();
         }
+    }
+
+    @Override
+    public List<DoctorAppointmentResponse> listForDoctor(Long doctorUserId, AppointmentStatus status) {
+        return appointmentMapper.findForDoctor(doctorUserId, status).stream()
+                .map(a -> new DoctorAppointmentResponse(a.getId(), a.getScheduleId(), a.getDepartment(),
+                        a.getDate(), a.getTime(), a.getDoctorName(), a.getStatus(), a.getCancelReason()))
+                .toList();
     }
 
     private Appointment findOwnedAppointment(Long doctorUserId, Long appointmentId) {
