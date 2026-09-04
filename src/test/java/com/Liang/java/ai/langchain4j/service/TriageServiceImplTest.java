@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.Optional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -128,11 +130,14 @@ class TriageServiceImplTest {
         assertThat(result).extracting(r -> r.id()).containsExactlyElementsOf(rows.stream().limit(20).map(TriageCase::getId).toList());
         ArgumentCaptor<QueryWrapper<TriageCase>> queryCaptor = ArgumentCaptor.forClass(QueryWrapper.class);
         verify(caseMapper).selectList(queryCaptor.capture());
-        String sql = queryCaptor.getValue().getSqlSegment().toLowerCase();
-        assertThat(sql).contains("patient_id");
+        QueryWrapper<TriageCase> captured = queryCaptor.getValue();
+        String sql = captured.getSqlSegment().toLowerCase();
+        Matcher patientPredicate = Pattern.compile("patient_id\\s*=\\s*#\\{ew\\.paramnamevaluepairs\\.([a-z0-9_]+)\\}").matcher(sql);
+        assertThat(patientPredicate.find()).as("patient equality predicate should bind a named parameter").isTrue();
+        String patientParameterKey = patientPredicate.group(1);
+        assertThat(captured.getParamNameValuePairs().get(patientParameterKey)).isEqualTo(7L);
         assertThat(sql).contains("order by created_at desc");
         assertThat(sql).contains("limit 20");
-        assertThat(queryCaptor.getValue().getParamNameValuePairs().values()).contains(7L);
     }
 
     @Test
