@@ -2,6 +2,7 @@ package com.Liang.java.ai.langchain4j.config;
 
 import com.Liang.java.ai.langchain4j.auth.LoginRequiredInterceptor;
 import com.Liang.java.ai.langchain4j.auth.LoginUserArgumentResolver;
+import com.Liang.java.ai.langchain4j.auth.RoleRequiredInterceptor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -14,17 +15,22 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     private final LoginRequiredInterceptor loginRequiredInterceptor;
     private final LoginUserArgumentResolver loginUserArgumentResolver;
+    private final RoleRequiredInterceptor roleRequiredInterceptor;
 
     public WebMvcConfig(LoginRequiredInterceptor loginRequiredInterceptor,
-                        LoginUserArgumentResolver loginUserArgumentResolver) {
+                        LoginUserArgumentResolver loginUserArgumentResolver,
+                        RoleRequiredInterceptor roleRequiredInterceptor) {
         this.loginRequiredInterceptor = loginRequiredInterceptor;
         this.loginUserArgumentResolver = loginUserArgumentResolver;
+        this.roleRequiredInterceptor = roleRequiredInterceptor;
     }
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(loginRequiredInterceptor)
-                .addPathPatterns("/api/v1/appointments/**", "/api/v1/chat/**");
+                .addPathPatterns("/api/v1/appointments/**", "/api/v1/chat/**", "/api/v1/doctor/**", "/api/v1/admin/**");
+        registry.addInterceptor(roleRequiredInterceptor)
+                .addPathPatterns("/api/v1/doctor/**", "/api/v1/admin/**");
     }
 
     @Override

@@ -36,6 +36,7 @@ public class JwtTokenService {
         return Jwts.builder()
                 .subject(String.valueOf(principal.userId()))
                 .claim("username", principal.username())
+                .claim("role", principal.role().name())
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(now.plusSeconds(expirationSeconds)))
                 .signWith(signingKey)
@@ -49,7 +50,12 @@ public class JwtTokenService {
                     .build()
                     .parseSignedClaims(token)
                     .getPayload();
-            return new UserPrincipal(Long.valueOf(claims.getSubject()), claims.get("username", String.class));
+            String role = claims.get("role", String.class);
+            if (role == null) {
+                throw new IllegalArgumentException("JWT role claim is required");
+            }
+            return new UserPrincipal(Long.valueOf(claims.getSubject()), claims.get("username", String.class),
+                    UserRole.valueOf(role));
         } catch (JwtException | IllegalArgumentException exception) {
             throw new BusinessException(HttpStatus.UNAUTHORIZED, 401, "登录状态无效或已过期");
         }

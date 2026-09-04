@@ -1,6 +1,7 @@
 package com.Liang.java.ai.langchain4j.service.impl;
 
 import com.Liang.java.ai.langchain4j.common.BusinessException;
+import com.Liang.java.ai.langchain4j.auth.UserRole;
 import com.Liang.java.ai.langchain4j.dto.auth.LoginRequest;
 import com.Liang.java.ai.langchain4j.dto.auth.RegisterRequest;
 import com.Liang.java.ai.langchain4j.entity.User;
@@ -53,6 +54,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         user.setPassword(passwordEncoder.encode(request.password()));
         user.setIdCard(request.idCard());
         user.setPhone(request.phone());
+        user.setRole(UserRole.PATIENT);
         user.setCreateTime(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
         baseMapper.insert(user);
         return user;

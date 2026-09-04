@@ -4,7 +4,9 @@ import com.Liang.java.ai.langchain4j.assistant.XiaozhiAgent;
 import com.Liang.java.ai.langchain4j.auth.JwtTokenService;
 import com.Liang.java.ai.langchain4j.auth.LoginRequiredInterceptor;
 import com.Liang.java.ai.langchain4j.auth.LoginUserArgumentResolver;
+import com.Liang.java.ai.langchain4j.auth.RoleRequiredInterceptor;
 import com.Liang.java.ai.langchain4j.auth.UserPrincipal;
+import com.Liang.java.ai.langchain4j.auth.UserRole;
 import com.Liang.java.ai.langchain4j.common.GlobalExceptionHandler;
 import com.Liang.java.ai.langchain4j.config.WebMvcConfig;
 import org.junit.jupiter.api.Test;
@@ -29,7 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(controllers = XiaozhiController.class)
 @Import({GlobalExceptionHandler.class, WebMvcConfig.class, LoginRequiredInterceptor.class,
-        LoginUserArgumentResolver.class, XiaozhiControllerTest.JwtTestConfig.class})
+        LoginUserArgumentResolver.class, RoleRequiredInterceptor.class, XiaozhiControllerTest.JwtTestConfig.class})
 class XiaozhiControllerTest {
 
     @Autowired
@@ -65,7 +67,7 @@ class XiaozhiControllerTest {
     }
 
     private String bearerForUser7() {
-        return "Bearer " + jwtTokenService.createToken(new UserPrincipal(7L, "alice"));
+        return "Bearer " + jwtTokenService.createToken(new UserPrincipal(7L, "alice", UserRole.PATIENT));
     }
 
     @TestConfiguration

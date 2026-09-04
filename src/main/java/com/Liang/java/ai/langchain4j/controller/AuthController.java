@@ -30,11 +30,12 @@ public class AuthController {
     @PostMapping("/login")
     public ApiResponse<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
         User user = userService.authenticate(request);
-        String token = jwtTokenService.createToken(new UserPrincipal(user.getId(), user.getUsername()));
+        String token = jwtTokenService.createToken(new UserPrincipal(user.getId(), user.getUsername(), user.getRole()));
         return ApiResponse.success(new AuthResponse(
                 token,
                 user.getId(),
                 user.getUsername(),
+                user.getRole(),
                 user.getIdCard(),
                 user.getPhone()
         ));
