@@ -8,7 +8,7 @@ import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.output.Response;
 import dev.langchain4j.store.embedding.EmbeddingSearchRequest;
-import dev.langchain4j.store.embedding.EmbeddingStore;
+import dev.langchain4j.store.embedding.EmbeddingMatch;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -40,10 +40,15 @@ class KnowledgeRedisExternalIntegrationTest {
             KnowledgeSeedLoader loader = new KnowledgeSeedLoader(new KnowledgeSeedCatalog(), store, localModel);
 
             assertThat(loader.reload().documentsLoaded()).isPositive();
-            assertThat(store.search(EmbeddingSearchRequest.builder()
+            List<EmbeddingMatch<TextSegment>> matches = store.search(EmbeddingSearchRequest.builder()
                     .queryEmbedding(Embedding.from(new float[]{1F, 0F, 0F, 0F, 0F, 0F, 0F, 0F}))
                     .maxResults(1)
-                    .build()).matches()).isNotEmpty();
+                    .build()).matches();
+            assertThat(matches).isNotEmpty();
+            TextSegment seed = matches.get(0).embedded();
+            assertThat(seed.metadata().getString(KnowledgeSeedCatalog.DOCUMENT_ID))
+                    .isIn("hospital-overview", "department-overview", "neurology-overview", "dentistry-overview");
+            assertThat(seed.metadata().getString(KnowledgeSeedCatalog.KNOWLEDGE_VERSION)).isEqualTo("2026.09");
         } finally {
             ExternalValidationEnvironment.requireSafeRedisResources(names);
             try (JedisPooled redis = new JedisPooled(

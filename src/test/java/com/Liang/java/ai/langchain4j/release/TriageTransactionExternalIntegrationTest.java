@@ -2,7 +2,6 @@ package com.Liang.java.ai.langchain4j.release;
 
 import com.Liang.java.ai.langchain4j.service.TriageService;
 import com.Liang.java.ai.langchain4j.store.MongoChatMemoryStore;
-import com.Liang.java.ai.langchain4j.triage.TriageEvidenceRetriever;
 import dev.langchain4j.data.document.Metadata;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.rag.content.Content;
@@ -18,8 +17,6 @@ import org.junit.jupiter.api.Assumptions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -39,7 +36,9 @@ import static org.mockito.Mockito.when;
 })
 class TriageTransactionExternalIntegrationTest {
 
-    private static final String TRIGGER = "release_validation_reject_evidence";
+    private String triggerName;
+    private int baselineCaseCount;
+    private int baselineEvidenceCount;
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -57,30 +56,32 @@ class TriageTransactionExternalIntegrationTest {
 
     @DynamicPropertySource
     static void releaseValidationProperties(DynamicPropertyRegistry registry) {
-        if (ExternalValidationEnvironment.isConfigured()) {
-            registry.add("spring.datasource.url", ExternalValidationEnvironment::requireValidationJdbcUrl);
-            registry.add("spring.datasource.username", ExternalValidationEnvironment::requireDbUser);
-            registry.add("spring.datasource.password", ExternalValidationEnvironment::requireDbPassword);
-        }
+        registry.add("spring.datasource.url", () -> ExternalValidationEnvironment.isConfigured()
+                ? ExternalValidationEnvironment.requireValidationJdbcUrl()
+                : ExternalValidationEnvironment.SAFE_VALIDATION_JDBC_URL);
+        registry.add("spring.datasource.username", () -> ExternalValidationEnvironment.isConfigured()
+                ? ExternalValidationEnvironment.requireDbUser() : "release_validation");
+        registry.add("spring.datasource.password", () -> ExternalValidationEnvironment.isConfigured()
+                ? ExternalValidationEnvironment.requireDbPassword() : "release_validation");
     }
 
     @BeforeEach
     void installRejectingTrigger() {
         Assumptions.assumeTrue(ExternalValidationEnvironment.isConfigured());
-        jdbcTemplate.execute("DROP TRIGGER IF EXISTS " + TRIGGER);
-        jdbcTemplate.execute("CREATE TRIGGER " + TRIGGER
+        triggerName = ExternalValidationEnvironment.newValidationTriggerName();
+        ExternalValidationEnvironment.requireSafeValidationName(triggerName);
+        jdbcTemplate.execute("CREATE TRIGGER " + triggerName
                 + " BEFORE INSERT ON triage_evidence FOR EACH ROW "
                 + "SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'release validation evidence rejection'");
-        jdbcTemplate.update("DELETE FROM triage_evidence");
-        jdbcTemplate.update("DELETE FROM triage_case");
+        baselineCaseCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM triage_case", Integer.class);
+        baselineEvidenceCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM triage_evidence", Integer.class);
     }
 
     @AfterEach
     void removeRejectingTrigger() {
         if (ExternalValidationEnvironment.isConfigured()) {
-            jdbcTemplate.execute("DROP TRIGGER IF EXISTS " + TRIGGER);
-            jdbcTemplate.update("DELETE FROM triage_evidence");
-            jdbcTemplate.update("DELETE FROM triage_case");
+            ExternalValidationEnvironment.requireSafeValidationName(triggerName);
+            jdbcTemplate.execute("DROP TRIGGER IF EXISTS " + triggerName);
         }
     }
 
@@ -96,8 +97,9 @@ class TriageTransactionExternalIntegrationTest {
         assertThatThrownBy(() -> triageService.create(9001L, "反复头痛"))
                 .isInstanceOf(RuntimeException.class);
 
-        assertThat(jdbcTemplate.queryForObject(
-                "SELECT COUNT(*) FROM triage_case WHERE patient_id = 9001", Integer.class)).isZero();
-        assertThat(jdbcTemplate.queryForObject("SELECT COUNT(*) FROM triage_evidence", Integer.class)).isZero();
+        assertThat(jdbcTemplate.queryForObject("SELECT COUNT(*) FROM triage_case", Integer.class))
+                .isEqualTo(baselineCaseCount);
+        assertThat(jdbcTemplate.queryForObject("SELECT COUNT(*) FROM triage_evidence", Integer.class))
+                .isEqualTo(baselineEvidenceCount);
     }
 }

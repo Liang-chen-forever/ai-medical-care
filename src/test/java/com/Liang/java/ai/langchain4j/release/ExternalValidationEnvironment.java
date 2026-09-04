@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 final class ExternalValidationEnvironment {
 
     static final String VALIDATION_PREFIX = "ai_medical_care_release_validation_";
+    static final String SAFE_VALIDATION_JDBC_URL = "jdbc:mysql://192.0.2.1:3306/ai_medical_care_release_validation_unconfigured?connectTimeout=100&socketTimeout=100";
     private static final Pattern JDBC_DATABASE = Pattern.compile("^jdbc:[^:]+://[^/]+/([^?;]+)", Pattern.CASE_INSENSITIVE);
 
     private ExternalValidationEnvironment() {
@@ -67,12 +68,24 @@ final class ExternalValidationEnvironment {
                 VALIDATION_PREFIX + "vector:" + suffix + ":");
     }
 
+    static String newValidationTriggerName() {
+        return VALIDATION_PREFIX + "trigger_" + UUID.randomUUID().toString().replace("-", "");
+    }
+
+    static void requireSafeValidationName(String name) {
+        if (name == null || !name.startsWith(VALIDATION_PREFIX) || name.length() == VALIDATION_PREFIX.length()) {
+            throw new IllegalStateException("refusing to operate on a non-validation resource");
+        }
+    }
+
     static void requireSafeRedisResources(RedisResourceNames names) {
-        if (names == null
-                || !names.indexName().startsWith(VALIDATION_PREFIX)
-                || !names.prefix().startsWith(VALIDATION_PREFIX)
-                || names.indexName().equals("xiaozhi-index")
-                || names.prefix().equals("langchain4j:vector:xiaozhi:")) {
+        if (names == null || names.indexName() == null || names.prefix() == null) {
+            throw new IllegalStateException("refusing to operate on a non-validation Redis resource");
+        }
+        try {
+            requireSafeValidationName(names.indexName());
+            requireSafeValidationName(names.prefix());
+        } catch (IllegalStateException exception) {
             throw new IllegalStateException("refusing to operate on a non-validation Redis resource");
         }
     }

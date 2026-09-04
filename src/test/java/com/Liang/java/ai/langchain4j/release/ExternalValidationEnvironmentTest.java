@@ -26,4 +26,16 @@ class ExternalValidationEnvironmentTest {
         assertThat(names.indexName()).startsWith(ExternalValidationEnvironment.VALIDATION_PREFIX);
         assertThat(names.prefix()).startsWith(ExternalValidationEnvironment.VALIDATION_PREFIX);
     }
+
+    @Test
+    void rejectsMalformedOrUnsafeRedisNamesIncludingNullFields() {
+        assertThatThrownBy(() -> ExternalValidationEnvironment.requireSafeRedisResources(
+                new ExternalValidationEnvironment.RedisResourceNames(null, "valid")))
+                .isInstanceOf(IllegalStateException.class);
+        assertThatThrownBy(() -> ExternalValidationEnvironment.requireSafeRedisResources(
+                new ExternalValidationEnvironment.RedisResourceNames("xiaozhi-index", "langchain4j:vector:xiaozhi:")))
+                .isInstanceOf(IllegalStateException.class);
+        assertThatThrownBy(() -> ExternalValidationEnvironment.requireSafeValidationName("release_validation_trigger"))
+                .isInstanceOf(IllegalStateException.class);
+    }
 }
