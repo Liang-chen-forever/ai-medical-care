@@ -52,7 +52,7 @@ ai-medical-care/
 前置条件：JDK 17、Maven、MySQL 8、MongoDB、Redis。服务默认端口为 `5137`。
 
 1. 创建数据库 `guiguxiaozhi`，首次运行执行 `src/main/resources/db/init-data.sql`。
-2. 复制 `secrets.example.txt` 为 `secrets.local.txt`，填写本机的 `DASH_SCOPE_API_KEY`、`MYSQL_PASSWORD` 与至少 32 位的 `JWT_SECRET`。该文件已被 Git 忽略，不能提交。
+2. 复制 `secrets.example.txt` 为 `secrets.local.txt`，填写本机的 `DASH_SCOPE_API_KEY`、`MYSQL_PASSWORD` 与至少 32 位的 `JWT_USER_SECRET_KEY`、`JWT_ADMIN_SECRET_KEY`。该文件已被 Git 忽略，不能提交。
 3. 启动依赖服务后执行：
 
 ```powershell

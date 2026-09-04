@@ -8,22 +8,25 @@
         <option value="COMPLETED">已完成</option><option value="REJECTED">已拒绝</option><option value="CANCELLED">已取消</option>
       </select>
     </div>
+    <p v-if="errorMessage" class="error-msg" role="alert">{{ errorMessage }}</p>
     <div v-if="loading" class="loading">查询中...</div>
-    <table v-else class="table">
-      <thead><tr><th>日期</th><th>时间</th><th>科室</th><th>医生</th><th>状态</th><th>操作</th></tr></thead>
-      <tbody>
-        <tr v-for="a in appointments" :key="a.id">
-          <td>{{ a.date }}</td><td>{{ a.time }}</td><td>{{ a.department }}</td><td>{{ a.doctorName }}</td>
-          <td>{{ statusLabel(a.status) }}</td>
-          <td class="actions">
-            <button v-if="a.status === 'PENDING'" class="btn btn-primary btn-sm" :disabled="busyId === a.id" aria-label="确认预约" title="确认预约" @click="act(a, 'confirm')">确认</button>
-            <button v-if="a.status === 'PENDING' || a.status === 'CONFIRMED'" class="btn btn-danger btn-sm" :disabled="busyId === a.id" aria-label="拒绝预约" title="拒绝预约" @click="reject(a)">拒绝</button>
-            <button v-if="a.status === 'CONFIRMED'" class="btn btn-outline btn-sm" :disabled="busyId === a.id" aria-label="完成预约" title="完成预约" @click="act(a, 'complete')">完成</button>
-          </td>
-        </tr>
-        <tr v-if="!appointments.length"><td colspan="6" class="empty-state">暂无预约</td></tr>
-      </tbody>
-    </table>
+    <div v-else class="table-wrapper">
+      <table class="table">
+        <thead><tr><th>日期</th><th>时间</th><th>科室</th><th>医生</th><th>状态</th><th>操作</th></tr></thead>
+        <tbody>
+          <tr v-for="a in appointments" :key="a.id">
+            <td>{{ a.date }}</td><td>{{ a.time }}</td><td>{{ a.department }}</td><td>{{ a.doctorName }}</td>
+            <td>{{ statusLabel(a.status) }}</td>
+            <td class="actions">
+              <button v-if="a.status === 'PENDING'" class="btn btn-primary icon-action" :disabled="busyId === a.id" aria-label="确认预约" title="确认预约" @click="act(a, 'confirm')">&#10003;</button>
+              <button v-if="a.status === 'PENDING' || a.status === 'CONFIRMED'" class="btn btn-danger icon-action" :disabled="busyId === a.id" aria-label="拒绝预约" title="拒绝预约" @click="reject(a)">&#10005;</button>
+              <button v-if="a.status === 'CONFIRMED'" class="btn btn-outline icon-action" :disabled="busyId === a.id" aria-label="完成预约" title="完成预约" @click="act(a, 'complete')">&#10004;</button>
+            </td>
+          </tr>
+          <tr v-if="!appointments.length"><td colspan="6" class="empty-state">暂无预约</td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </template>
 
@@ -35,21 +38,40 @@ const appointments = ref([])
 const filter = ref('')
 const loading = ref(false)
 const busyId = ref(null)
+const errorMessage = ref('')
 const statusLabel = (status) => ({ PENDING: '待确认', CONFIRMED: '已确认', COMPLETED: '已完成', CANCELLED: '已取消', REJECTED: '已拒绝', EXPIRED: '已过期', LEGACY: '历史记录' })[status] || status || '未知'
 
 async function load() {
   loading.value = true
-  try { const res = await getDoctorAppointments(filter.value || undefined); appointments.value = res.data || [] } finally { loading.value = false }
+  errorMessage.value = ''
+  try {
+    const res = await getDoctorAppointments(filter.value || undefined)
+    appointments.value = res.data || []
+  } catch (error) {
+    errorMessage.value = error.message || '查询预约失败，请稍后重试'
+  } finally { loading.value = false }
 }
 async function act(a, type) {
   busyId.value = a.id
-  try { await (type === 'confirm' ? confirmDoctorAppointment(a.id) : completeDoctorAppointment(a.id)); await load() } finally { busyId.value = null }
+  errorMessage.value = ''
+  try {
+    await (type === 'confirm' ? confirmDoctorAppointment(a.id) : completeDoctorAppointment(a.id))
+    await load()
+  } catch (error) {
+    errorMessage.value = error.message || '操作失败，请稍后重试'
+  } finally { busyId.value = null }
 }
 async function reject(a) {
   const reason = window.prompt('请输入拒绝原因（1-200字）', '')
   if (reason === null || !reason.trim() || reason.trim().length > 200) return
   busyId.value = a.id
-  try { await rejectDoctorAppointment(a.id, reason.trim()); await load() } finally { busyId.value = null }
+  errorMessage.value = ''
+  try {
+    await rejectDoctorAppointment(a.id, reason.trim())
+    await load()
+  } catch (error) {
+    errorMessage.value = error.message || '操作失败，请稍后重试'
+  } finally { busyId.value = null }
 }
 onMounted(load)
 </script>
@@ -58,4 +80,6 @@ onMounted(load)
 .toolbar { display:flex; gap:10px; align-items:center; margin-bottom:16px; }
 .toolbar select { padding:8px 10px; border:1px solid #cbd5e1; border-radius:6px; }
 .actions { display:flex; gap:6px; }
+.icon-action { width:32px; height:32px; padding:0; display:inline-flex; align-items:center; justify-content:center; }
+.error-msg { margin:0 0 12px; color:#b91c1c; font-size:14px; }
 </style>
