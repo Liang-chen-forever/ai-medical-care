@@ -11,4 +11,6 @@ Commit: pending
 Spec compliance: PASS
 Task quality: APPROVED
 
-Concerns: README and tech docs still require the specified triage documentation updates.
+Concerns: none; README and technical docs now include all required triage safety, release, and authorization statements.
+
+Follow-up documentation commit adds the required end-to-end flow, non-diagnostic/high-risk boundaries, 0.72 relevance clarification, MySQL V2-V5 release prerequisite, ADMIN-only reload endpoint, and removal of public reload references. Verified with `rg` searches across both documents.
