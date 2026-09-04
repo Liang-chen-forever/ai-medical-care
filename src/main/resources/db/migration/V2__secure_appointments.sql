@@ -4,7 +4,6 @@
 -- 脚本可重复执行：旧预约的 user_id/schedule_id 保持 NULL，不删除历史数据；
 -- 新预约由后端写入完整归属字段。
 
-USE guiguxiaozhi;
 SET NAMES utf8mb4;
 
 SET @has_user_id = (
