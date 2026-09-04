@@ -52,6 +52,8 @@ Task quality: APPROVED (regression coverage expanded in follow-up commit)
 - TDD red-state output is unavailable because the inherited production draft already existed before controller verification. The independent task review must decide whether the focused behavior coverage and green result are sufficient or whether additional tests are required.
 - Maven retains pre-existing source-17, deprecated test API, dynamic ByteBuddy-agent and duplicate-classpath warnings; none are introduced by Task 3.
 
+Follow-up: Knowledge resources now load from classpath streams, loader response derives catalog version, and policy tests cover the exact 0.72 threshold and deterministic equal-score ordering. Focused Maven verification was blocked by sandbox Maven Central networking (`Permission denied: getsockopt`).
+
 ## Follow-up regression coverage
 
 The original red-state run cannot be reconstructed because production drafts predated test execution; this is acknowledged rather than fabricated. Added tests now independently cover `NO_EVIDENCE`, `INVALID_EVIDENCE`, list scoping/order/20-item cap, and detail 404/403/correct-owner behavior. The implementation applies a defensive `limit(20)` in addition to the SQL limit. In this sandbox, the follow-up Maven invocation again could not resolve Maven Central (`Permission denied: getsockopt`); the controller's approved network-enabled environment previously reported the baseline focused suite green (4 tests). Follow-up tests should be rerun there.

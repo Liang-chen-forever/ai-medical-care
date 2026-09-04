@@ -24,6 +24,6 @@ public class KnowledgeSeedLoader {
         List<Document> documents = catalog.loadDocuments();
         embeddingStore.removeAll();
         EmbeddingStoreIngestor.ingest(documents, embeddingStore);
-        return new KnowledgeReloadResponse(documents.size(), "2026.09");
+        return new KnowledgeReloadResponse(documents.size(), catalog.currentVersion());
     }
 }

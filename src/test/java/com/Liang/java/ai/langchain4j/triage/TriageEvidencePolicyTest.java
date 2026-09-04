@@ -22,6 +22,14 @@ class TriageEvidencePolicyTest {
         assertThat(policy.recommend(valid)).isEqualTo(new TriageRecommendation("神经内科", 0.91, "2026.09"));
     }
 
+    @Test void scoreAtExactThresholdIsEligible() {
+        assertThat(policy.validAndRanked(List.of(evidence("d", "c", "口腔科", "2026.09", 0.72)))).hasSize(1);
+    }
+    @Test void equalScoresAreOrderedByChunkId() {
+        assertThat(policy.validAndRanked(List.of(evidence("d", "z", "口腔科", "2026.09", 0.8), evidence("d", "a", "口腔科", "2026.09", 0.8))))
+                .extracting(RetrievedEvidence::chunkId).containsExactly("a", "z");
+    }
+
     private RetrievedEvidence evidence(String documentId, String chunkId, String department,
                                        String version, double score) {
         return new RetrievedEvidence(documentId, chunkId, department, version, "受限摘录", score);
