@@ -56,6 +56,9 @@ function Invoke-ChildProcess {
         [void]$startInfo.ArgumentList.Add($FilePath)
     }
     foreach ($argument in $Arguments) { [void]$startInfo.ArgumentList.Add($argument) }
+    $sensitiveEnvironmentPattern = '(?i)(password|secret|token|api[_-]?key|jwt)'
+    $inheritedSensitiveNames = @($startInfo.Environment.Keys | Where-Object { $_ -match $sensitiveEnvironmentPattern })
+    foreach ($name in $inheritedSensitiveNames) { [void]$startInfo.Environment.Remove($name) }
     foreach ($entry in $Environment.GetEnumerator()) {
         $startInfo.Environment[$entry.Key] = [string]$entry.Value
     }
@@ -63,15 +66,17 @@ function Invoke-ChildProcess {
     $process = [System.Diagnostics.Process]::new()
     $process.StartInfo = $startInfo
     [void]$process.Start()
+    $stdoutTask = $process.StandardOutput.ReadToEndAsync()
+    $stderrTask = $process.StandardError.ReadToEndAsync()
     if ($null -ne $InputText) {
         $process.StandardInput.Write($InputText)
         $process.StandardInput.Close()
     }
-    $stdout = $process.StandardOutput.ReadToEnd()
-    $stderr = $process.StandardError.ReadToEnd()
     $process.WaitForExit()
+    $stdout = $stdoutTask.GetAwaiter().GetResult()
+    $null = $stderrTask.GetAwaiter().GetResult()
     if ($process.ExitCode -ne 0) {
-        throw "Child process failed with exit code $($process.ExitCode): $FilePath $($Arguments -join ' ')`n$stderr"
+        throw "Child process failed with exit code $($process.ExitCode): $FilePath"
     }
     return $stdout.Trim()
 }
@@ -96,6 +101,7 @@ $MavenEnvironment = @{
     RELEASE_VALIDATION_REDIS_PORT = $RedisPort
 }
 $DatabaseCreated = $false
+$DatabaseCreateAttempted = $false
 $DatabaseDropped = $false
 $Status = 'PASS'
 $FailureMessage = $null
@@ -110,13 +116,15 @@ function Invoke-MySqlSql {
 
 function Get-SanitizedFailureMessage {
     param([Parameter(Mandatory)][string]$Message)
-    if ([string]::IsNullOrEmpty($DbPassword)) { return $Message }
-    return $Message.Replace($DbPassword, '[REDACTED]')
+    $sanitized = if ([string]::IsNullOrEmpty($DbPassword)) { $Message } else { $Message.Replace($DbPassword, '[REDACTED]') }
+    if ($sanitized.Length -gt 1000) { return $sanitized.Substring(0, 1000) + '...' }
+    return $sanitized
 }
 
 try {
     Assert-ValidationDatabaseName -DatabaseName $DatabaseName
     $createSql = 'CREATE DATABASE `' + $DatabaseName + '` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;'
+    $DatabaseCreateAttempted = $true
     Invoke-MySqlSql -Sql $createSql | Out-Null
     $DatabaseCreated = $true
 
@@ -162,10 +170,10 @@ catch {
     $FailureMessage = Get-SanitizedFailureMessage -Message $_.Exception.Message
 }
 finally {
-    if ($DatabaseCreated) {
+    if ($DatabaseCreateAttempted) {
         try {
             Assert-ValidationDatabaseName -DatabaseName $DatabaseName
-            $dropSql = 'DROP DATABASE `' + $DatabaseName + '`;'
+            $dropSql = 'DROP DATABASE IF EXISTS `' + $DatabaseName + '`;'
             Invoke-MySqlSql -Sql $dropSql | Out-Null
             $DatabaseDropped = $true
         }

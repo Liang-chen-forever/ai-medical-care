@@ -25,6 +25,10 @@ class ExternalValidationEnvironmentTest {
 
         assertThat(names.indexName()).startsWith(ExternalValidationEnvironment.VALIDATION_PREFIX);
         assertThat(names.prefix()).startsWith(ExternalValidationEnvironment.VALIDATION_PREFIX);
+        assertThat(names.indexName())
+                .matches("ai_medical_care_release_validation_index_[0-9a-f]{32}");
+        assertThat(names.prefix())
+                .matches("ai_medical_care_release_validation_vector:[0-9a-f]{32}:");
     }
 
     @Test

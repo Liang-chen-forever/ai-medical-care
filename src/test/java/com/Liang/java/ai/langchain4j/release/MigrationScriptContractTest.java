@@ -72,11 +72,27 @@ class MigrationScriptContractTest {
         assertThat(runner)
                 .contains("$ValidationDatabasePrefix = 'ai_medical_care_release_validation_'")
                 .contains("[regex]::Escape($ValidationDatabasePrefix)")
+                .contains("$DatabaseName = $ValidationDatabasePrefix + $RunId")
                 .contains("function Assert-ValidationDatabaseName")
                 .doesNotContain("guiguxiaozhi", "xiaozhi-index", "langchain4j:vector:xiaozhi:");
         assertThat(countOccurrences(runner, guardInvocation)).isGreaterThanOrEqualTo(2);
         assertThat(runner.indexOf(guardInvocation)).isLessThan(runner.indexOf("CREATE DATABASE"));
-        assertThat(runner.lastIndexOf(guardInvocation)).isLessThan(runner.indexOf("DROP DATABASE"));
+        assertThat(runner.lastIndexOf(guardInvocation)).isLessThan(runner.indexOf("DROP DATABASE IF EXISTS"));
+        assertThat(runner).contains("$ValidationDatabasePattern = '^' + [regex]::Escape($ValidationDatabasePrefix) + '\\d{8}_\\d{6}_[0-9a-f]{8}$'");
+    }
+
+    @Test
+    void releaseRunnerCleansUpAfterEveryCreateAttemptWithAValidatedDrop() {
+        String runner = loadProjectFile(RELEASE_RUNNER);
+
+        assertThat(runner)
+                .contains("$DatabaseCreateAttempted = $false")
+                .contains("$DatabaseCreateAttempted = $true")
+                .contains("DROP DATABASE IF EXISTS");
+        assertThat(runner.indexOf("$DatabaseCreateAttempted = $true"))
+                .isLessThan(runner.indexOf("Invoke-MySqlSql -Sql $createSql"));
+        assertThat(runner.indexOf("if ($DatabaseCreateAttempted)"))
+                .isLessThan(runner.lastIndexOf("DROP DATABASE IF EXISTS"));
     }
 
     @Test
@@ -101,6 +117,21 @@ class MigrationScriptContractTest {
                 .contains("RELEASE_VALIDATION_REDIS_HOST =")
                 .contains("RELEASE_VALIDATION_REDIS_PORT =")
                 .contains("docs/verification/runs/");
+    }
+
+    @Test
+    void releaseRunnerDrainsChildStreamsConcurrentlyAndNeverEmitsRawSecrets() {
+        String runner = loadProjectFile(RELEASE_RUNNER);
+
+        assertThat(runner)
+                .contains("ReadToEndAsync()")
+                .contains("GetAwaiter().GetResult()")
+                .contains("Get-SanitizedFailureMessage")
+                .contains("$startInfo.Environment.Remove")
+                .doesNotContain("`n$stderr", "+ $stderr", "`n$stdout");
+        assertThat(runner.indexOf("ReadToEndAsync()"))
+                .isLessThan(runner.indexOf("WaitForExit()"));
+        assertThat(runner).contains("$Message.Replace($DbPassword, '[REDACTED]')");
     }
 
     @Test
