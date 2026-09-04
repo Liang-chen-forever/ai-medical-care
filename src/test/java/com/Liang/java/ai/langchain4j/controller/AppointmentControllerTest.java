@@ -35,7 +35,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(controllers = {AppointmentController.class, AppointmentControllerTest.DoctorRouteController.class})
 @Import({GlobalExceptionHandler.class, WebMvcConfig.class, LoginRequiredInterceptor.class,
-        LoginUserArgumentResolver.class, RoleRequiredInterceptor.class, AppointmentControllerTest.JwtTestConfig.class})
+        LoginUserArgumentResolver.class, RoleRequiredInterceptor.class, AppointmentControllerTest.JwtTestConfig.class,
+        AppointmentControllerTest.DoctorRouteTestConfig.class})
 class AppointmentControllerTest {
 
     @Autowired
@@ -115,6 +116,15 @@ class AppointmentControllerTest {
         @Bean
         JwtTokenService jwtTokenService() {
             return new JwtTokenService("01234567890123456789012345678901", 3600);
+        }
+    }
+
+    @TestConfiguration
+    static class DoctorRouteTestConfig {
+
+        @Bean
+        DoctorRouteController doctorRouteController() {
+            return new DoctorRouteController();
         }
     }
 
