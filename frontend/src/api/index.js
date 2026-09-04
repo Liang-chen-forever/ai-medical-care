@@ -134,6 +134,9 @@ export function cancelAppointment(id) {
 export function getDoctorAppointments(status) {
   return api.get('/api/v1/doctor/appointments', status ? { params: { status } } : undefined)
 }
+export function createTriageCase(chiefComplaint) { return api.post('/api/v1/triage/cases', { chiefComplaint }) }
+export function getTriageCases() { return api.get('/api/v1/triage/cases') }
+export function getTriageCase(id) { return api.get(`/api/v1/triage/cases/${id}`) }
 
 export function confirmDoctorAppointment(id) {
   return api.post(`/api/v1/doctor/appointments/${id}/confirm`)

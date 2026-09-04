@@ -15,6 +15,7 @@
         <router-link to="/appointment">预约挂号</router-link>
         <router-link to="/my-appointments">我的预约</router-link>
         <router-link v-if="user?.role === 'DOCTOR'" to="/doctor/appointments">医生工作台</router-link>
+        <router-link v-if="user?.role === 'PATIENT'" to="/triage">智能分诊</router-link>
       </div>
       <div class="navbar-user">
         <template v-if="user">
@@ -57,6 +58,7 @@
         <span class="tab-icon">&#x2695;</span>
         <span>工作台</span>
       </router-link>
+      <router-link v-if="user?.role === 'PATIENT'" to="/triage" class="tab-bar-item" active-class="active"><span class="tab-icon">🩺</span><span>智能分诊</span></router-link>
     </nav>
 
     <!-- 全局 Toast -->

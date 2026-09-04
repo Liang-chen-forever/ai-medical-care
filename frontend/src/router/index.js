@@ -1,8 +1,13 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { isAuthenticated, getUser } from '../api/index.js'
+import { routeAccess } from '../utils/routeAccess.js'
 
 const routes = [
   { path: '/', redirect: '/chat' },
+  {
+    path: '/triage', name: 'Triage', component: () => import('../views/TriageView.vue'),
+    meta: { title: '智能分诊', requiresAuth: true, role: 'PATIENT' }
+  },
   {
     path: '/chat',
     name: 'Chat',
@@ -57,12 +62,8 @@ const router = createRouter({
 
 router.beforeEach((to) => {
   document.title = to.meta.title ? `${to.meta.title} - 硅谷小智` : '硅谷小智'
-  if (to.meta.requiresAuth && !isAuthenticated()) {
-    return { name: 'Login', query: { redirect: to.fullPath } }
-  }
-  if (to.meta.role && getUser()?.role !== to.meta.role) {
-    return isAuthenticated() ? { name: 'Chat' } : { name: 'Login', query: { redirect: to.fullPath } }
-  }
+  const decision = routeAccess(to.meta, isAuthenticated(), getUser()?.role)
+  if (decision) return decision.name === 'Login' ? { ...decision, query: { redirect: to.fullPath } } : decision
 })
 
 export default router

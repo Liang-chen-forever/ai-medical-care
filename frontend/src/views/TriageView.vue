@@ -1,0 +1,8 @@
+<template><div class="triage-page"><h1>智能分诊</h1><textarea v-model="complaint" maxlength="1000" placeholder="请描述您的症状"></textarea><button :disabled="!complaint.trim() || pending" @click="submit">{{ pending ? '提交中…' : '开始分诊' }}</button><p v-if="error">{{ error }}</p><section v-if="result"><h2>{{ result.status }}</h2><p v-if="result.status === 'EMERGENCY_BLOCKED'">{{ result.emergencyInstruction }}</p><p>{{ result.disclaimer }}</p><p v-if="result.status === 'EVIDENCE_BACKED'">{{ result.recommendedDepartment }} · {{ result.careTiming }}</p><button v-if="result.status === 'EVIDENCE_BACKED'" @click="goAppointment">预约挂号</button><button v-if="result.status === 'FALLBACK'" @click="router.push('/department')">查看科室</button><ul v-if="result.status === 'EVIDENCE_BACKED'"><li v-for="item in result.evidence" :key="item.chunkId">{{ item.excerpt }}</li></ul></section></div></template>
+<script setup>
+import { ref } from 'vue'; import { useRouter } from 'vue-router'; import { createTriageCase } from '../api/index.js'
+const router=useRouter(), complaint=ref(''), pending=ref(false), result=ref(null), error=ref('')
+async function submit(){ pending.value=true; error.value=''; try { result.value=(await createTriageCase(complaint.value.trim())).data } catch(e){ error.value=e.message } finally { pending.value=false } }
+function goAppointment(){ router.push({name:'Appointment',query:{dept:result.value.recommendedDepartment}}) }
+</script>
+<style scoped>textarea{display:block;width:100%;min-height:120px}.triage-page{max-width:720px;margin:2rem auto}.triage-page button{margin:.5rem}.triage-page p,.triage-page li{white-space:pre-wrap}</style>

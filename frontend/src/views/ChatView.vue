@@ -29,7 +29,7 @@
             {{ msg.role === 'user' ? '我' : '医' }}
           </div>
           <div class="bubble-content">
-            <div class="bubble-text" v-html="renderMarkdown(msg.content)"></div>
+            <div class="bubble-text">{{ msg.content }}</div>
             <div class="bubble-time">{{ msg.time }}</div>
           </div>
         </div>
@@ -37,7 +37,7 @@
         <div v-if="streaming" class="chat-bubble assistant">
           <div class="bubble-avatar">医</div>
           <div class="bubble-content">
-            <div class="bubble-text" v-html="renderMarkdown(streamingText)"></div>
+            <div class="bubble-text">{{ streamingText }}</div>
             <div class="typing-indicator">
               <span></span><span></span><span></span>
             </div>
@@ -106,16 +106,6 @@ function scrollToBottom() {
 function formatTime() {
   const now = new Date()
   return `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`
-}
-
-function renderMarkdown(text) {
-  if (!text) return ''
-  // 简单 markdown 渲染
-  return text
-    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\n\n/g, '<br/><br/>')
-    .replace(/\n/g, '<br/>')
-    .replace(/- (.+)/g, '&bull; $1')
 }
 
 async function sendMessage(text) {
@@ -288,6 +278,7 @@ onMounted(() => {
 }
 
 .bubble-text {
+  white-space: pre-wrap;
   padding: 12px 16px;
   border-radius: 14px;
   font-size: 14px;
