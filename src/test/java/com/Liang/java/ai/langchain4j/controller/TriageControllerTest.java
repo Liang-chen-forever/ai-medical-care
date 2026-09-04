@@ -108,6 +108,16 @@ class TriageControllerTest {
     }
 
     @Test
+    void nonObjectBodiesAreRejected() throws Exception {
+        for (String body : List.of("[]", "null", "\"痛\"")) {
+            mockMvc.perform(post("/api/v1/triage/cases").header(HttpHeaders.AUTHORIZATION, patientBearer())
+                            .contentType(MediaType.APPLICATION_JSON).content(body))
+                    .andExpect(status().isBadRequest());
+        }
+        verifyNoInteractions(triageService);
+    }
+
+    @Test
     void patientListsOnlyCasesForAuthenticatedIdentity() throws Exception {
         when(triageService.listMine(7L)).thenReturn(List.of(
                 new TriageCaseSummaryResponse(31L, TriageRiskLevel.ROUTINE,

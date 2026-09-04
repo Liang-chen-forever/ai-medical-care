@@ -15,7 +15,7 @@ Base commit: `c1e359a`
 - Focused `mvn -Dtest=TriageControllerTest,RoleRequiredInterceptorTest test`: pending approved network-enabled execution.
 - `git diff --check`: PASS.
 
-Spec compliance: PASS
+Spec compliance: PASS (implementation)
 Task quality: NEEDS WORK pending network-enabled focused test execution
 
 ## Concerns
@@ -23,5 +23,7 @@ Task quality: NEEDS WORK pending network-enabled focused test execution
 Local Maven dependency resolution is blocked by sandbox network policy. No Task 1-3, service, frontend, or docs files were modified.
 
 Follow-up adds strict rejection of unknown request fields and trims before validation; padded one-character complaints are covered. Focused network-enabled verification remains pending.
+
+Round 3 adds non-object JSON body guards (`[]`, `null`, string) with 400/no-service-call regression coverage. Network-enabled test execution remains pending; quality is not marked approved without it.
 
 Round 2 fix: imported `com.fasterxml.jackson.databind.node.ObjectNode` after compile failure from wildcard import omission. Focused network-enabled verification is now requested.

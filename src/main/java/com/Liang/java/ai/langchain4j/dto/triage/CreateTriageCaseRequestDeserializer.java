@@ -9,7 +9,9 @@ import java.util.Set;
 
 public class CreateTriageCaseRequestDeserializer extends JsonDeserializer<CreateTriageCaseRequest> {
     @Override public CreateTriageCaseRequest deserialize(JsonParser p, DeserializationContext c) throws IOException {
-        ObjectNode node = p.getCodec().readTree(p);
+        JsonNode parsed = p.getCodec().readTree(p);
+        if (parsed == null || !parsed.isObject()) throw JsonMappingException.from(p, "请求体必须为JSON对象");
+        ObjectNode node = (ObjectNode) parsed;
         Set<String> allowed = Set.of("chiefComplaint");
         var fields = node.fieldNames();
         while (fields.hasNext()) if (!allowed.contains(fields.next()))
