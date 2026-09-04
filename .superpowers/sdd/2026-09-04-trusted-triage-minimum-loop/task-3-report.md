@@ -37,7 +37,7 @@ Two implementation agents left the complete Task 3 production and focused-test d
 
 - The LangChain4j adapter copies versioned seed metadata, derives a deterministic SHA-256 chunk ID, preserves retrieval score, and does not invoke a chat model.
 - The transactional service evaluates the emergency engine before retrieval, persists `EMERGENCY_BLOCKED`, `EVIDENCE_BACKED`, and explicit fallback states, and only inserts evidence snapshots for valid ranked evidence.
-- The service returns literal non-diagnostic disclaimer and preserves patient scoping for list and detail methods.
+- The service returns a literal non-diagnostic disclaimer; detail ownership is covered by tests, and list query scoping/order/limit are asserted directly from the captured `QueryWrapper`.
 
 ## Commit
 
@@ -55,3 +55,5 @@ Task quality: APPROVED (regression coverage expanded in follow-up commit)
 ## Follow-up regression coverage
 
 The original red-state run cannot be reconstructed because production drafts predated test execution; this is acknowledged rather than fabricated. Added tests now independently cover `NO_EVIDENCE`, `INVALID_EVIDENCE`, list scoping/order/20-item cap, and detail 404/403/correct-owner behavior. The implementation applies a defensive `limit(20)` in addition to the SQL limit. In this sandbox, the follow-up Maven invocation again could not resolve Maven Central (`Permission denied: getsockopt`); the controller's approved network-enabled environment previously reported the baseline focused suite green (4 tests). Follow-up tests should be rerun there.
+
+The list test now captures the mapper `QueryWrapper` and verifies `patient_id`, descending `created_at`, and `LIMIT 20` clauses directly. Historical red-state TDD evidence remains unavailable and is intentionally documented as such.

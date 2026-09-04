@@ -24,6 +24,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import org.mockito.ArgumentCaptor;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 
 @ExtendWith(MockitoExtension.class)
 class TriageServiceImplTest {
@@ -124,7 +126,12 @@ class TriageServiceImplTest {
 
         assertThat(result).hasSize(20);
         assertThat(result).extracting(r -> r.id()).containsExactlyElementsOf(rows.stream().limit(20).map(TriageCase::getId).toList());
-        verify(caseMapper).selectList(any());
+        ArgumentCaptor<QueryWrapper<TriageCase>> queryCaptor = ArgumentCaptor.forClass(QueryWrapper.class);
+        verify(caseMapper).selectList(queryCaptor.capture());
+        String sql = queryCaptor.getValue().getSqlSegment().toLowerCase();
+        assertThat(sql).contains("patient_id");
+        assertThat(sql).contains("order by created_at desc");
+        assertThat(sql).contains("limit 20");
     }
 
     @Test
