@@ -1,0 +1,23 @@
+# Task 4 Report: Expose Patient-Scoped Triage APIs
+
+Base commit: `c1e359a`
+
+## Files changed
+
+- `src/main/java/com/Liang/java/ai/langchain4j/dto/triage/CreateTriageCaseRequest.java`
+- `src/main/java/com/Liang/java/ai/langchain4j/controller/TriageController.java`
+- `src/main/java/com/Liang/java/ai/langchain4j/config/WebMvcConfig.java`
+- `src/test/java/com/Liang/java/ai/langchain4j/controller/TriageControllerTest.java`
+
+## Verification
+
+- Initial `mvn -Dtest=TriageControllerTest test`: blocked before compilation by Maven Central sandbox networking (`Permission denied: getsockopt`), establishing environment red evidence.
+- Focused `mvn -Dtest=TriageControllerTest,RoleRequiredInterceptorTest test`: pending approved network-enabled execution.
+- `git diff --check`: PASS.
+
+Spec compliance: PASS
+Task quality: APPROVED pending network-enabled focused test execution
+
+## Concerns
+
+Local Maven dependency resolution is blocked by sandbox network policy. No Task 1-3, service, frontend, or docs files were modified.
