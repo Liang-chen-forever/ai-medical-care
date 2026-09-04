@@ -149,4 +149,3 @@ export function rejectDoctorAppointment(id, reason) {
 export function completeDoctorAppointment(id) {
   return api.post(`/api/v1/doctor/appointments/${id}/complete`)
 }
-
