@@ -26,11 +26,14 @@ final class ExternalValidationEnvironment {
         if (jdbcUrl == null || jdbcUrl.isBlank()) {
             throw new IllegalStateException("RELEASE_VALIDATION_JDBC_URL is required");
         }
-        Matcher matcher = JDBC_DATABASE.matcher(jdbcUrl.trim());
+        if (!jdbcUrl.equals(jdbcUrl.trim())) {
+            throw new IllegalStateException("release validation JDBC URL must not contain surrounding whitespace");
+        }
+        Matcher matcher = JDBC_DATABASE.matcher(jdbcUrl);
         if (!matcher.matches() || !DATABASE_NAME.matcher(matcher.group(1)).matches()) {
             throw new IllegalStateException("release validation JDBC URL must target a temporary validation database");
         }
-        return jdbcUrl.trim();
+        return jdbcUrl;
     }
 
     static String requireDbUser() {

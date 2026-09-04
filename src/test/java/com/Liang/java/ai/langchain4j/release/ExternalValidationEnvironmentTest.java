@@ -22,6 +22,9 @@ class ExternalValidationEnvironmentTest {
         assertThatThrownBy(() -> ExternalValidationEnvironment.requireValidationJdbcUrl(
                 "jdbc:mysql://localhost:3306/ai_medical_care_release_validation_20260905_001122_abcdef12;DROP"))
                 .isInstanceOf(IllegalStateException.class);
+        assertThatThrownBy(() -> ExternalValidationEnvironment.requireValidationJdbcUrl(
+                "  jdbc:mysql://localhost:3306/ai_medical_care_release_validation_20260905_001122_abcdef12  "))
+                .isInstanceOf(IllegalStateException.class);
     }
 
     @Test
