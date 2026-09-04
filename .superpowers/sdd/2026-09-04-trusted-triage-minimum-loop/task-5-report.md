@@ -4,7 +4,7 @@ Base: `7d0ba6e`
 
 Files changed: frontend triage view/API/route access/router/app/chat and triage test.
 
-Verification: red `npm test -- test/triage-api.test.js` (missing test before implementation); green `npm test` (4 passed); `npm run build` (success).
+Verification: red `npm test -- test/triage-api.test.js` (missing test before implementation); green `npm test` (5 passed); `npm run build` (success). Follow-up tests assert exact triage payload/path and view displays risk/relevance/fallback fields safely.
 
 Commit: pending
 
