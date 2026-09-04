@@ -74,6 +74,7 @@ class MigrationScriptContractTest {
                 .contains("[regex]::Escape($ValidationDatabasePrefix)")
                 .contains("$DatabaseName = $ValidationDatabasePrefix + $RunId")
                 .contains("function Assert-ValidationDatabaseName")
+                .contains("$ValidationDatabasePattern")
                 .doesNotContain("guiguxiaozhi", "xiaozhi-index", "langchain4j:vector:xiaozhi:");
         assertThat(countOccurrences(runner, guardInvocation)).isGreaterThanOrEqualTo(2);
         assertThat(runner.indexOf(guardInvocation)).isLessThan(runner.indexOf("CREATE DATABASE"));

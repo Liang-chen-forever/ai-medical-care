@@ -9,7 +9,11 @@ final class ExternalValidationEnvironment {
 
     static final String VALIDATION_PREFIX = "ai_medical_care_release_validation_";
     static final String SAFE_VALIDATION_JDBC_URL = "jdbc:mysql://192.0.2.1:3306/ai_medical_care_release_validation_unconfigured?connectTimeout=100&socketTimeout=100";
-    private static final Pattern JDBC_DATABASE = Pattern.compile("^jdbc:[^:]+://[^/]+/([^?;]+)", Pattern.CASE_INSENSITIVE);
+    private static final Pattern JDBC_DATABASE = Pattern.compile("^jdbc:[^:]+://[^/]+/([^?;]+)(?:\\?[^#;]*)?$", Pattern.CASE_INSENSITIVE);
+    private static final Pattern DATABASE_NAME = Pattern.compile("^" + Pattern.quote(VALIDATION_PREFIX) + "\\d{8}_\\d{6}_[0-9a-f]{8}$");
+    private static final Pattern REDIS_INDEX_NAME = Pattern.compile("^" + Pattern.quote(VALIDATION_PREFIX) + "index_[0-9a-f]{32}$");
+    private static final Pattern REDIS_VECTOR_PREFIX = Pattern.compile("^" + Pattern.quote(VALIDATION_PREFIX) + "vector:[0-9a-f]{32}:$");
+    private static final Pattern TRIGGER_NAME = Pattern.compile("^" + Pattern.quote(VALIDATION_PREFIX) + "trigger_[0-9a-f]{32}$");
 
     private ExternalValidationEnvironment() {
     }
@@ -23,7 +27,7 @@ final class ExternalValidationEnvironment {
             throw new IllegalStateException("RELEASE_VALIDATION_JDBC_URL is required");
         }
         Matcher matcher = JDBC_DATABASE.matcher(jdbcUrl.trim());
-        if (!matcher.find() || !matcher.group(1).startsWith(VALIDATION_PREFIX)) {
+        if (!matcher.matches() || !DATABASE_NAME.matcher(matcher.group(1)).matches()) {
             throw new IllegalStateException("release validation JDBC URL must target a temporary validation database");
         }
         return jdbcUrl.trim();
@@ -73,8 +77,17 @@ final class ExternalValidationEnvironment {
     }
 
     static void requireSafeValidationName(String name) {
-        if (name == null || !name.startsWith(VALIDATION_PREFIX) || name.length() == VALIDATION_PREFIX.length()) {
+        if (name == null || !(DATABASE_NAME.matcher(name).matches()
+                || REDIS_INDEX_NAME.matcher(name).matches()
+                || REDIS_VECTOR_PREFIX.matcher(name).matches()
+                || TRIGGER_NAME.matcher(name).matches())) {
             throw new IllegalStateException("refusing to operate on a non-validation resource");
+        }
+    }
+
+    static void requireSafeTriggerName(String name) {
+        if (name == null || !TRIGGER_NAME.matcher(name).matches()) {
+            throw new IllegalStateException("refusing to operate on a non-validation trigger");
         }
     }
 
@@ -83,8 +96,10 @@ final class ExternalValidationEnvironment {
             throw new IllegalStateException("refusing to operate on a non-validation Redis resource");
         }
         try {
-            requireSafeValidationName(names.indexName());
-            requireSafeValidationName(names.prefix());
+            if (!REDIS_INDEX_NAME.matcher(names.indexName()).matches()
+                    || !REDIS_VECTOR_PREFIX.matcher(names.prefix()).matches()) {
+                throw new IllegalStateException("invalid Redis resource format");
+            }
         } catch (IllegalStateException exception) {
             throw new IllegalStateException("refusing to operate on a non-validation Redis resource");
         }

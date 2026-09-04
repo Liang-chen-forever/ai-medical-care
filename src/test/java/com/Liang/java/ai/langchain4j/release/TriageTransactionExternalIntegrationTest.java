@@ -69,7 +69,7 @@ class TriageTransactionExternalIntegrationTest {
     void installRejectingTrigger() {
         Assumptions.assumeTrue(ExternalValidationEnvironment.isConfigured());
         triggerName = ExternalValidationEnvironment.newValidationTriggerName();
-        ExternalValidationEnvironment.requireSafeValidationName(triggerName);
+        ExternalValidationEnvironment.requireSafeTriggerName(triggerName);
         jdbcTemplate.execute("CREATE TRIGGER " + triggerName
                 + " BEFORE INSERT ON triage_evidence FOR EACH ROW "
                 + "SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'release validation evidence rejection'");
@@ -80,7 +80,7 @@ class TriageTransactionExternalIntegrationTest {
     @AfterEach
     void removeRejectingTrigger() {
         if (ExternalValidationEnvironment.isConfigured()) {
-            ExternalValidationEnvironment.requireSafeValidationName(triggerName);
+            ExternalValidationEnvironment.requireSafeTriggerName(triggerName);
             jdbcTemplate.execute("DROP TRIGGER IF EXISTS " + triggerName);
         }
     }
