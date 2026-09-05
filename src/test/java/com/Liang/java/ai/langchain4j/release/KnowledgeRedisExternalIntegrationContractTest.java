@@ -16,7 +16,8 @@ class KnowledgeRedisExternalIntegrationContractTest {
 
     @Test
     void cleanupBoundaryCoversStoreCreationAndPreservesPrimaryFailure() throws IOException {
-        String source = Files.readString(EXTERNAL_TEST, StandardCharsets.UTF_8);
+        String source = Files.readString(EXTERNAL_TEST, StandardCharsets.UTF_8)
+                .replace("\r\n", "\n");
         int outerTry = source.indexOf("RedisEmbeddingStore store = null;\n        Throwable primaryFailure = null;\n        try {");
         int builder = source.indexOf("RedisEmbeddingStore.builder()");
         int outerFinally = source.indexOf("        } finally {", builder);
