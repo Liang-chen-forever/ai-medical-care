@@ -1,8 +1,11 @@
 package com.Liang.java.ai.langchain4j.triage;
 
+import org.springframework.stereotype.Component;
+
 import java.util.Comparator;
 import java.util.List;
 
+@Component
 public class TriageEvidencePolicy {
 
     private static final double MINIMUM_CONFIDENCE = 0.72;

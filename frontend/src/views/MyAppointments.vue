@@ -35,6 +35,14 @@
             <td><span class="badge" :class="`status-${String(a.status || '').toLowerCase()}`">{{ statusLabel(a.status) }}</span></td>
             <td>
               <button
+                v-if="a.status === 'COMPLETED'"
+                class="btn btn-outline btn-sm"
+                @click="viewEncounter(a)"
+                :disabled="encounterModal.loading && encounterModal.appointment?.id === a.id"
+              >
+                {{ encounterModal.loading && encounterModal.appointment?.id === a.id ? '加载中...' : '查看摘要' }}
+              </button>
+              <button
                 v-if="isCancellable(a.status)"
                 class="btn btn-danger btn-sm"
                 @click="handleCancel(a)"
@@ -51,6 +59,32 @@
     <div v-else-if="searched" class="empty-state">
       <div class="empty-icon">📋</div>
       <p>暂无预约记录</p>
+    </div>
+
+    <div v-if="encounterModal.show" class="modal-overlay" @click.self="closeEncounter">
+      <div class="modal encounter-modal">
+        <div class="modal-header">
+          <h3>就诊摘要</h3>
+          <button class="modal-close" aria-label="关闭" @click="closeEncounter">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="booking-info">
+            <div class="info-row"><span>就诊日期</span><strong>{{ encounterModal.appointment?.date }}</strong></div>
+            <div class="info-row"><span>医生</span><strong>{{ encounterModal.appointment?.doctorName }}</strong></div>
+          </div>
+          <p v-if="encounterModal.loading" class="loading">加载摘要中...</p>
+          <p class="encounter-label">摘要</p>
+          <p v-if="encounterModal.encounter" class="encounter-text">{{ encounterModal.encounter.summary }}</p>
+          <template v-if="encounterModal.encounter?.followUpAdvice">
+            <p class="encounter-label">随访建议</p>
+            <p class="encounter-text">{{ encounterModal.encounter.followUpAdvice }}</p>
+          </template>
+          <p v-if="encounterModal.error" class="error-msg" role="alert">{{ encounterModal.error }}</p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-outline" @click="closeEncounter">关闭</button>
+        </div>
+      </div>
     </div>
 
     <!-- 取消确认弹窗 -->
@@ -89,12 +123,13 @@
 
 <script setup>
 import { onMounted, ref } from 'vue'
-import { getAppointments, cancelAppointment, isAuthenticated } from '../api/index.js'
+import { getAppointments, cancelAppointment, getAppointmentEncounter, isAuthenticated } from '../api/index.js'
 
 const appointments = ref([])
 const loading = ref(false)
 const searched = ref(false)
 const cancellingId = ref(null)
+const encounterModal = ref({ show: false, loading: false, appointment: null, encounter: null, error: '' })
 
 const cancelModal = ref({ show: false, appointment: null })
 const toast = ref({ show: false, type: 'success', message: '' })
@@ -133,6 +168,22 @@ function isCancellable(status) {
 
 function statusLabel(status) {
   return ({ PENDING: '待确认', CONFIRMED: '已确认', COMPLETED: '已完成', CANCELLED: '已取消', REJECTED: '已拒绝', EXPIRED: '已过期', LEGACY: '历史记录' })[status] || status || '未知'
+}
+
+async function viewEncounter(appointment) {
+  encounterModal.value = { show: true, loading: true, appointment, encounter: null, error: '' }
+  try {
+    const response = await getAppointmentEncounter(appointment.id)
+    encounterModal.value.encounter = response.data
+  } catch (error) {
+    encounterModal.value.error = error.message || '摘要加载失败，请稍后重试'
+  } finally {
+    encounterModal.value.loading = false
+  }
+}
+
+function closeEncounter() {
+  encounterModal.value.show = false
 }
 
 async function confirmCancel() {
@@ -228,6 +279,10 @@ async function confirmCancel() {
   font-size: 14px;
   color: #1e293b;
 }
+
+.encounter-label { margin: 14px 0 4px; color: #64748b; font-size: 12px; font-weight: 600; }
+.encounter-text { margin: 0; white-space: pre-wrap; line-height: 1.7; color: #1e293b; }
+.error-msg { margin: 12px 0 0; color: #b91c1c; font-size: 14px; }
 
 .modal-footer {
   display: flex;

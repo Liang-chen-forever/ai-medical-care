@@ -38,6 +38,7 @@ class KnowledgeRedisExternalIntegrationTest {
                     .indexName(names.indexName())
                     .prefix(names.prefix())
                     .dimension(8)
+                    .metadataKeys(KnowledgeSeedCatalog.metadataKeys())
                     .build();
             EmbeddingModel localModel = new DeterministicEightDimensionModel();
             KnowledgeSeedLoader loader = new KnowledgeSeedLoader(new KnowledgeSeedCatalog(), store, localModel);

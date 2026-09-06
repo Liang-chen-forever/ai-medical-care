@@ -132,6 +132,10 @@ export function cancelAppointment(id) {
   return api.delete(`/api/v1/appointments/${id}`)
 }
 
+export function getAppointmentEncounter(id) {
+  return api.get(`/api/v1/appointments/${id}/encounter`)
+}
+
 export function getDoctorAppointments(status) {
   return api.get('/api/v1/doctor/appointments', status ? { params: { status } } : undefined)
 }
@@ -149,4 +153,8 @@ export function rejectDoctorAppointment(id, reason) {
 
 export function completeDoctorAppointment(id) {
   return api.post(`/api/v1/doctor/appointments/${id}/complete`)
+}
+
+export function completeDoctorEncounter(id, summary, followUpAdvice = '') {
+  return api.post(`/api/v1/doctor/appointments/${id}/encounter`, { summary, followUpAdvice })
 }

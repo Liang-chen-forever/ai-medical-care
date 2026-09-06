@@ -32,4 +32,7 @@ public interface AppointmentMapper extends BaseMapper<Appointment> {
 
     List<Appointment> findForDoctor(@Param("doctorUserId") Long doctorUserId,
                                     @Param("status") AppointmentStatus status);
+
+    @Select("SELECT COUNT(*) FROM appointment WHERE status = #{status}")
+    long countByStatus(@Param("status") AppointmentStatus status);
 }

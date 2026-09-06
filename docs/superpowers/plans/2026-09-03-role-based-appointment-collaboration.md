@@ -33,7 +33,6 @@
 - Modify: `src/main/java/com/Liang/java/ai/langchain4j/bean/ChatForm.java`
 - Modify: `src/main/java/com/Liang/java/ai/langchain4j/assistant/XiaozhiAgent.java`
 - Modify: `frontend/src/api/index.js`
-- Modify: `miniprogram/src/api/index.js`
 - Test: `src/test/java/com/Liang/java/ai/langchain4j/controller/XiaozhiControllerTest.java`
 
 **Interfaces:**

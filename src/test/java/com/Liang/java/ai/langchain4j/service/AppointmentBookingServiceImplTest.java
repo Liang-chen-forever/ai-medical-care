@@ -5,10 +5,12 @@ import com.Liang.java.ai.langchain4j.appointment.AppointmentStatus;
 import com.Liang.java.ai.langchain4j.entity.Appointment;
 import com.Liang.java.ai.langchain4j.entity.Doctor;
 import com.Liang.java.ai.langchain4j.entity.Schedule;
+import com.Liang.java.ai.langchain4j.entity.TriageCase;
 import com.Liang.java.ai.langchain4j.entity.User;
 import com.Liang.java.ai.langchain4j.mapper.AppointmentMapper;
 import com.Liang.java.ai.langchain4j.mapper.DoctorMapper;
 import com.Liang.java.ai.langchain4j.mapper.ScheduleMapper;
+import com.Liang.java.ai.langchain4j.mapper.TriageCaseMapper;
 import com.Liang.java.ai.langchain4j.mapper.UserMapper;
 import com.Liang.java.ai.langchain4j.service.impl.AppointmentBookingServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,6 +31,7 @@ class AppointmentBookingServiceImplTest {
     private ScheduleMapper scheduleMapper;
     private AppointmentMapper appointmentMapper;
     private DoctorMapper doctorMapper;
+    private TriageCaseMapper triageCaseMapper;
     private UserMapper userMapper;
     private AppointmentBookingService bookingService;
 
@@ -37,8 +40,10 @@ class AppointmentBookingServiceImplTest {
         scheduleMapper = mock(ScheduleMapper.class);
         appointmentMapper = mock(AppointmentMapper.class);
         doctorMapper = mock(DoctorMapper.class);
+        triageCaseMapper = mock(TriageCaseMapper.class);
         userMapper = mock(UserMapper.class);
-        bookingService = new AppointmentBookingServiceImpl(scheduleMapper, appointmentMapper, doctorMapper, userMapper);
+        bookingService = new AppointmentBookingServiceImpl(scheduleMapper, appointmentMapper, doctorMapper, userMapper,
+                null, null, triageCaseMapper);
     }
 
     @Test
@@ -87,6 +92,23 @@ class AppointmentBookingServiceImplTest {
         assertThat(appointment.getDoctorId()).isEqualTo(42L);
         assertThat(appointment.getStatus()).isEqualTo(AppointmentStatus.PENDING);
         verify(appointmentMapper).insert(appointment);
+    }
+
+    @Test
+    void bookingRejectsATriageCaseOwnedByAnotherPatientBeforeChangingCapacity() {
+        when(userMapper.selectById(7L)).thenReturn(user(7L));
+        when(scheduleMapper.selectById(101L)).thenReturn(schedule(101L, 20, 3));
+        TriageCase triageCase = new TriageCase();
+        triageCase.setId(900L);
+        triageCase.setPatientId(8L);
+        when(triageCaseMapper.selectById(900L)).thenReturn(triageCase);
+
+        assertThatThrownBy(() -> bookingService.book(7L, 101L, 900L))
+                .isInstanceOf(BusinessException.class)
+                .hasMessage("无权使用该分诊记录");
+
+        verify(scheduleMapper, never()).decrementIfAvailable(anyLong());
+        verify(appointmentMapper, never()).insert(any(Appointment.class));
     }
 
     @Test

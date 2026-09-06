@@ -347,7 +347,7 @@ Expected: `BUILD SUCCESS`；覆盖满号、成功预约、重复预约、取消�
 
 - [ ] **Step 1: 搜索废弃接口和明文密码查询**
 
-Run: `rg -n 'api/appointment|eq\(User::getPassword|/api/auth' src/main/java frontend miniprogram`
+Run: `rg -n 'api/appointment|eq\(User::getPassword|/api/auth' src/main/java frontend`
 
 Expected: 后端 Controller 不再有旧 `/api/appointment` 或 `/api/auth` 映射，且没有 `eq(User::getPassword, ...)`；客户端旧引用只记录，不在本阶段静默改写。
 

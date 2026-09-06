@@ -33,6 +33,8 @@ public class Appointment {
 
     private Long scheduleId;
 
+    private Long triageCaseId;
+
     private Long doctorId;
 
     private AppointmentStatus status;

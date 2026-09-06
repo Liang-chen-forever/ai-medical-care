@@ -12,10 +12,6 @@ frontend/nginx-1.20.2/logs/*.log
 frontend/nginx-1.20.2/logs/*.pid
 frontend/nginx-1.20.2/temp/*
 !frontend/nginx-1.20.2/temp/.gitkeep
-miniprogram/node_modules/
-miniprogram/dist/
-miniprogram/package-lock.json
-
 ### Environment and local secrets ###
 .env
 .env.local

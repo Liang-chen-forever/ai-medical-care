@@ -1,8 +1,8 @@
 # 智能医疗助手
 
-面向在线医疗服务场景的 Java 全栈项目：提供 AI 问诊、科室和医生查询、排班查询，以及经过登录鉴权的预约和取消预约流程。Web 端使用 Vue 3，微信小程序使用 uni-app，后端使用 Spring Boot、MyBatis-Plus、MySQL、MongoDB、Redis 和 LangChain4j。
+面向在线医疗服务场景的 Java 全栈项目：提供 AI 问诊、可信分诊、候补挂号、医生就诊摘要、知识库版本治理和可审计预约流程。客户端使用 Vue 3 Web，后端使用 Spring Boot、MyBatis-Plus、MySQL、MongoDB、Redis 和 LangChain4j。
 
-智能分诊流程：患者主诉 -> 高风险规则 -> 带版本的检索证据 -> 分诊卡 / 人工选科降级。分诊仅提供非诊断性指导；高风险规则命中时跳过检索和模型调用。证据阈值 0.72 表示检索相关性，不是医疗置信度。V2-V5 MySQL 迁移完成并经线上数据库验证是发布前置条件。知识重载为 ADMIN-only `POST /api/v1/admin/knowledge/reload`；公开 `/api/knowledge/reload` 已移除。
+智能分诊流程：患者主诉 -> 高风险规则 -> 带版本的检索证据 -> 分诊卡 / 人工选科降级。分诊仅提供非诊断性指导；高风险规则命中时跳过检索和模型调用。证据阈值 0.72 表示检索相关性，不是医疗置信度。V2-V7 MySQL 迁移完成并经真实数据库验证是发布前置条件。知识重载为 ADMIN-only `POST /api/v1/admin/knowledge/reload`；公开 `/api/knowledge/reload` 已移除。
 
 ## 项目结构
 
@@ -17,8 +17,6 @@ ai-medical-care/
 │   └── test/                       # 核心测试和外部集成测试资源
 ├── frontend/                       # Vue 3 Web 客户端
 │   └── nginx-1.20.2/                # Nginx 配置和 Windows 启停脚本（不提交 nginx.exe）
-├── miniprogram/                    # uni-app 微信小程序
-│   └── dist/build/mp-weixin/       # 构建产物，导入微信开发者工具
 ├── deploy/redis/Dockerfile         # 可选的 Redis/RediSearch 镜像构建文件
 ├── secrets.example.txt             # 密钥配置示例
 └── docs/技术栈文档.md               # 技术实现说明
@@ -44,6 +42,21 @@ ai-medical-care/
 - `POST /api/v1/doctor/appointments/{id}/confirm`
 - `POST /api/v1/doctor/appointments/{id}/reject`，请求体为 `{ "reason": "..." }`
 - `POST /api/v1/doctor/appointments/{id}/complete`
+- `POST /api/v1/doctor/appointments/{id}/encounter`，请求体为 `{ "summary": "...", "followUpAdvice": "..." }`
+
+候补与就诊摘要接口：
+
+- `POST /api/v1/waitlist`、`GET /api/v1/waitlist/me`
+- `POST /api/v1/waitlist/{id}/accept`、`POST /api/v1/waitlist/{id}/cancel`
+- `GET /api/v1/appointments/{id}/encounter`
+
+管理员接口：
+
+- `GET/POST /api/v1/admin/knowledge/documents`，以及 `/{id}/publish`、`/{id}/rollback`
+- `POST /api/v1/admin/knowledge/reload`
+- `GET /api/v1/admin/metrics/overview`
+
+知识文档发布或回滚后，调用 `POST /api/v1/admin/knowledge/reload` 会将当前已发布版本与内置种子一起重新写入 Redis。上传文档默认不声明科室元数据，因此可用于通用知识检索，但不会被可信分诊策略当作科室证据；只有带有受控科室元数据的证据才能生成分诊推荐。
 
 角色为 `PATIENT`、`DOCTOR`、`ADMIN`。角色与用户 ID 都来自 JWT，客户端不能提交医生、患者或角色 ID；Web 端仅为 `DOCTOR` 显示“医生工作台”。预约状态按 `PENDING -> CONFIRMED -> COMPLETED` 流转，患者仅能取消 `PENDING`/`CONFIRMED`，医生可拒绝 `PENDING`/`CONFIRMED`；取消或拒绝只回补一次号源。
 
@@ -61,7 +74,7 @@ ai-medical-care/
 mvn spring-boot:run
 ```
 
-已有旧库时，先备份数据，按 `V2__secure_appointments.sql`、`V3__roles_and_doctor_accounts.sql`、`V4__appointment_lifecycle.sql` 的顺序执行迁移。V3 增加用户角色和医生账号映射，不会为旧医生创建登录账号；V4 将旧预约标记为 `LEGACY`，不进入新工作流。不要在已有数据的库中重复执行初始化脚本。
+已有旧库时，先备份数据，按 `V2__secure_appointments.sql`、`V3__roles_and_doctor_accounts.sql`、`V4__appointment_lifecycle.sql`、`V5__triage_cases.sql`、`V6__waitlist_encounter_audit.sql`、`V7__knowledge_documents.sql` 的顺序执行迁移。迁移均为可重复执行的受保护脚本。V3 增加用户角色和医生账号映射，不会为旧医生创建登录账号；V4 将旧预约标记为 `LEGACY`，不进入新工作流。不要在已有数据的库中重复执行初始化脚本。
 
 如需构建带 RediSearch 的 Redis 镜像，在项目根目录执行 `docker build -f deploy/redis/Dockerfile -t ai-medical-care-redis .`。
 
@@ -98,25 +111,6 @@ cd nginx-1.20.2
 
 项目默认使用 `8088`，避免与其他项目常用的 `80` 端口冲突；如需改端口，修改 `frontend/nginx-1.20.2/conf/nginx.conf` 中的 `listen 8088` 后再启动，并使用对应端口访问。Nginx 集成模式要求先构建 `frontend/dist`，后端必须已经监听 `5137`。
 
-## 微信小程序
-
-```powershell
-cd miniprogram
-npm install
-npm run build:mp-weixin
-```
-
-该小程序使用历史 alpha 工具链，项目内已禁用 npm lockfile 生成以兼容 npm 11；安装时出现弃用或历史依赖漏洞提示属于工具链已知风险，当前不执行破坏性升级。
-
-在微信开发者工具中导入 `miniprogram/dist/build/mp-weixin`。本地开发可在项目设置中关闭“校验合法域名、web-view（业务域名）、TLS 版本以及 HTTPS 证书”。真机调试时，在构建前设置电脑的局域网地址，例如：
-
-```powershell
-$env:VITE_API_BASE_URL = 'http://192.168.1.10:5137'
-npm run build:mp-weixin
-```
-
-手机和电脑需要位于同一局域网，且防火墙需允许 `5137` 端口。生产环境必须配置 HTTPS 合法域名，不能关闭域名校验。
-
 ## 验证命令
 
 ```powershell
@@ -124,8 +118,14 @@ mvn -Dtest=DepartmentControllerTest test
 mvn test
 mvn -DskipTests package
 cd frontend; npm run build
-cd ../miniprogram; npm run build:mp-weixin
+cd ..; pwsh -File .\scripts\evaluate-triage.ps1
 ```
+
+离线评估数据位于 `evaluation/triage-cases.jsonl`，全部为合成样例。脚本默认只校验数据集完整性；传入 `-PredictionsPath` 后输出与人工标签的一致率，不将其包装为临床准确率。
+
+### Docker Compose
+
+复制 `secrets.example.txt` 到被 Git 忽略的 `secrets.local.txt`，或在启动前设置 `MYSQL_PASSWORD`、`JWT_USER_SECRET_KEY`、`JWT_ADMIN_SECRET_KEY` 环境变量，然后执行 `docker compose up --build`。Compose 提供 MySQL 8、Redis Stack、MongoDB 和应用四个服务，卷数据可用 `docker compose down -v` 清理。
 
 真实模型、向量库、Mongo CRUD 和旧库演示测试标记为 `external`，默认不执行，避免消耗模型额度或污染本地数据。准备好 DashScope/Ollama/Pinecone、MongoDB，以及完成预约表迁移后，可显式执行：
 

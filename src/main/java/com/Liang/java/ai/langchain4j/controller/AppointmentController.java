@@ -35,7 +35,10 @@ public class AppointmentController {
     @PostMapping
     public ApiResponse<Appointment> book(@LoginUser UserPrincipal user,
                                           @Valid @RequestBody CreateAppointmentRequest request) {
-        return ApiResponse.success(appointmentBookingService.book(user.userId(), request.scheduleId()));
+        Appointment appointment = request.triageCaseId() == null
+                ? appointmentBookingService.book(user.userId(), request.scheduleId())
+                : appointmentBookingService.book(user.userId(), request.scheduleId(), request.triageCaseId());
+        return ApiResponse.success(appointment);
     }
 
     @Operation(summary = "取消预约")

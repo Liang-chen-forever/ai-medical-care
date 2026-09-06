@@ -27,6 +27,7 @@ class KnowledgeRedisExternalIntegrationContractTest {
         assertThat(source)
                 .contains("ExternalValidationEnvironment.requireSafeRedisResources(names);")
                 .contains("isMissingIndex(exception)")
-                .contains("primaryFailure.addSuppressed(cleanupFailure)");
+                .contains("primaryFailure.addSuppressed(cleanupFailure)")
+                .contains(".metadataKeys(KnowledgeSeedCatalog.metadataKeys())");
     }
 }

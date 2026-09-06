@@ -17,6 +17,11 @@ public class KnowledgeSeedCatalog {
     public static final String DEPARTMENT = "department";
     public static final String KNOWLEDGE_VERSION = "knowledgeVersion";
 
+    /** Metadata fields that must survive the vector-store round trip for traceable triage evidence. */
+    public static List<String> metadataKeys() {
+        return List.of(DOCUMENT_ID, DEPARTMENT, KNOWLEDGE_VERSION);
+    }
+
     private static final List<KnowledgeSeed> SEEDS = List.of(
             new KnowledgeSeed("hospital-overview", "knowledge/医院信息.md", "", "2026.09"),
             new KnowledgeSeed("department-overview", "knowledge/科室信息.md", "", "2026.09"),

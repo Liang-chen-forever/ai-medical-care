@@ -13,6 +13,8 @@ public interface AppointmentBookingService {
 
     Appointment book(Long userId, Long scheduleId);
 
+    Appointment book(Long userId, Long scheduleId, Long triageCaseId);
+
     List<Appointment> listMine(Long userId);
 
     void cancel(Long userId, Long appointmentId);

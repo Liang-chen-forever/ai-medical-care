@@ -21,13 +21,17 @@ class MigrationScriptContractTest {
             "db/migration/V2__secure_appointments.sql",
             "db/migration/V3__roles_and_doctor_accounts.sql",
             "db/migration/V4__appointment_lifecycle.sql",
-            "db/migration/V5__triage_cases.sql"
+            "db/migration/V5__triage_cases.sql",
+            "db/migration/V6__waitlist_encounter_audit.sql",
+            "db/migration/V7__knowledge_documents.sql"
     );
 
     private static final List<String> SCHEMA_AWARE_MIGRATIONS = List.of(
             "db/migration/V2__secure_appointments.sql",
             "db/migration/V3__roles_and_doctor_accounts.sql",
-            "db/migration/V4__appointment_lifecycle.sql"
+            "db/migration/V4__appointment_lifecycle.sql",
+            "db/migration/V6__waitlist_encounter_audit.sql",
+            "db/migration/V7__knowledge_documents.sql"
     );
 
     private static final List<String> EXPECTED_INDEXES = List.of(
@@ -38,7 +42,15 @@ class MigrationScriptContractTest {
             "idx_appointment_doctor_status",
             "idx_appointment_user_status",
             "idx_triage_case_patient_created",
-            "uk_triage_evidence_case_rank"
+            "uk_triage_evidence_case_rank",
+            "idx_appointment_triage_case",
+            "idx_waitlist_schedule_status_priority",
+            "idx_waitlist_patient_created",
+            "uk_encounter_appointment",
+            "idx_encounter_patient_completed",
+            "idx_audit_trace_created",
+            "uk_knowledge_document_hash",
+            "uk_knowledge_document_key_version"
     );
 
     @Test
@@ -117,7 +129,8 @@ class MigrationScriptContractTest {
                 .contains("RELEASE_VALIDATION_DB_PASSWORD =")
                 .contains("RELEASE_VALIDATION_REDIS_HOST =")
                 .contains("RELEASE_VALIDATION_REDIS_PORT =")
-                .contains("docs/verification/runs/");
+                .contains("docs/verification/runs/")
+                .contains("${DatabaseName}?useSSL=false");
     }
 
     @Test

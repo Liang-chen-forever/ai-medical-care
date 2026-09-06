@@ -1,5 +1,6 @@
 package com.Liang.java.ai.langchain4j.config;
 
+import com.Liang.java.ai.langchain4j.knowledge.KnowledgeSeedCatalog;
 import dev.langchain4j.community.store.embedding.redis.RedisEmbeddingStore;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.store.embedding.EmbeddingStore;
@@ -21,6 +22,7 @@ public class RedisEmbeddingStoreConfig {
                 .indexName(properties.getIndexName())
                 .prefix(properties.getPrefix())
                 .dimension(properties.getDimension())
+                .metadataKeys(KnowledgeSeedCatalog.metadataKeys())
                 .build();
     }
 }

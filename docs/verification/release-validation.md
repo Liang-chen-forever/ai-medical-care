@@ -1,6 +1,6 @@
 # Reproducible Release Validation
 
-The release runner provisions an isolated MySQL schema, applies migrations V2 through V5 twice, checks the resulting indexes, and runs the release-only external integration tests against that schema and a dedicated Redis namespace. It removes the temporary schema in a `finally` block and refuses to create or drop a name that does not match the validation prefix.
+The release runner provisions an isolated MySQL schema, applies migrations V2 through V7 twice, checks the resulting indexes, and runs the release-only external integration tests against that schema and a dedicated Redis namespace. It removes the temporary schema in a `finally` block and refuses to create or drop a name that does not match the validation prefix.
 
 ## Prerequisites
 
@@ -25,6 +25,6 @@ $env:RELEASE_VALIDATION_DB_PASSWORD = '<password>'
 pwsh -File .\scripts\release-validation.ps1
 ```
 
-The command prints only the evidence-file path. Each run writes a timestamped Markdown record under `docs/verification/runs/`, including status, migration pass count, cleanup status, index verification, and external-test profile. Those generated records are ignored by Git because they contain environment-specific run metadata and should not become production documentation.
+The command prints only the evidence-file path. Each run writes a timestamped Markdown record under `docs/verification/runs/`, including status, migration pass count, cleanup status, index verification, and external-test profile. Those generated records are ignored by Git because they contain environment-specific run metadata and should not become production documentation. The default suite does not replace populated-data verification, evidence-write rollback checks, or live Redis vector isolation; the runner is the release prerequisite for those checks.
 
 The runner uses only names beginning with `ai_medical_care_release_validation_`, validates the complete generated name immediately before create and drop, and never alters application data outside that namespace.

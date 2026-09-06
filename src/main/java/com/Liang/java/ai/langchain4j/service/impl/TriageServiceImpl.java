@@ -1,6 +1,9 @@
 package com.Liang.java.ai.langchain4j.service.impl;
 
 import com.Liang.java.ai.langchain4j.common.BusinessException;
+import com.Liang.java.ai.langchain4j.audit.AuditService;
+import com.Liang.java.ai.langchain4j.auth.UserPrincipal;
+import com.Liang.java.ai.langchain4j.auth.UserRole;
 import com.Liang.java.ai.langchain4j.dto.triage.*;
 import com.Liang.java.ai.langchain4j.entity.TriageCase;
 import com.Liang.java.ai.langchain4j.entity.TriageEvidence;
@@ -27,15 +30,24 @@ public class TriageServiceImpl implements TriageService {
     private final EmergencyRiskRuleEngine riskRuleEngine;
     private final TriageEvidencePolicy policy;
     private final TriageEvidenceRetriever evidenceRetriever;
+    private final AuditService auditService;
 
     public TriageServiceImpl(TriageCaseMapper caseMapper, TriageEvidenceMapper evidenceMapper,
                              EmergencyRiskRuleEngine riskRuleEngine, TriageEvidencePolicy policy,
                              TriageEvidenceRetriever evidenceRetriever) {
+        this(caseMapper, evidenceMapper, riskRuleEngine, policy, evidenceRetriever, null);
+    }
+
+    @org.springframework.beans.factory.annotation.Autowired
+    public TriageServiceImpl(TriageCaseMapper caseMapper, TriageEvidenceMapper evidenceMapper,
+                             EmergencyRiskRuleEngine riskRuleEngine, TriageEvidencePolicy policy,
+                             TriageEvidenceRetriever evidenceRetriever, AuditService auditService) {
         this.caseMapper = caseMapper;
         this.evidenceMapper = evidenceMapper;
         this.riskRuleEngine = riskRuleEngine;
         this.policy = policy;
         this.evidenceRetriever = evidenceRetriever;
+        this.auditService = auditService;
     }
 
     @Override
@@ -46,6 +58,7 @@ public class TriageServiceImpl implements TriageService {
             TriageCase entity = base(patientId, chiefComplaint, TriageRiskLevel.EMERGENCY, TriageCaseStatus.EMERGENCY_BLOCKED);
             entity.setRuleCode(emergency.ruleCode());
             insert(entity);
+            audit(patientId, "TRIAGE_CREATE", entity.getId(), "SUCCESS", "emergency rule=" + emergency.ruleCode());
             return response(entity, List.of(), EMERGENCY_INSTRUCTION);
         }
         List<RetrievedEvidence> raw;
@@ -74,6 +87,7 @@ public class TriageServiceImpl implements TriageService {
             evidenceMapper.insert(row);
             snapshots.add(new TriageEvidenceResponse(item.documentId(), item.chunkId(), item.excerpt(), item.score(), rank++, item.knowledgeVersion()));
         }
+        audit(patientId, "TRIAGE_CREATE", entity.getId(), "SUCCESS", "evidence_count=" + ranked.size());
         return response(entity, snapshots, CARE_TIMING);
     }
 
@@ -81,6 +95,7 @@ public class TriageServiceImpl implements TriageService {
         TriageCase entity = base(patientId, complaint, TriageRiskLevel.UNKNOWN, TriageCaseStatus.FALLBACK);
         entity.setFallbackReason(reason);
         insert(entity);
+        audit(patientId, "TRIAGE_CREATE", entity.getId(), "FALLBACK", "reason=" + reason.name());
         return response(entity, List.of(), CARE_TIMING);
     }
 
@@ -88,6 +103,13 @@ public class TriageServiceImpl implements TriageService {
         TriageCase e = new TriageCase(); e.setPatientId(patientId); e.setChiefComplaint(complaint); e.setRiskLevel(risk); e.setStatus(status); e.setCreatedAt(LocalDateTime.now()); return e;
     }
     private void insert(TriageCase e) { caseMapper.insert(e); }
+
+    private void audit(Long patientId, String action, Long caseId, String result, String detail) {
+        if (auditService != null) {
+            auditService.record(new UserPrincipal(patientId, null, UserRole.PATIENT), action, "TRIAGE_CASE",
+                    caseId == null ? null : caseId.toString(), result, detail);
+        }
+    }
 
     @Override
     public List<TriageCaseSummaryResponse> listMine(Long patientId) {

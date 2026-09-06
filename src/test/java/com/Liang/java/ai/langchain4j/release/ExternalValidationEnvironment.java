@@ -13,7 +13,8 @@ final class ExternalValidationEnvironment {
     private static final Pattern DATABASE_NAME = Pattern.compile("^" + Pattern.quote(VALIDATION_PREFIX) + "\\d{8}_\\d{6}_[0-9a-f]{8}$");
     private static final Pattern REDIS_INDEX_NAME = Pattern.compile("^" + Pattern.quote(VALIDATION_PREFIX) + "index_[0-9a-f]{32}$");
     private static final Pattern REDIS_VECTOR_PREFIX = Pattern.compile("^" + Pattern.quote(VALIDATION_PREFIX) + "vector:[0-9a-f]{32}:$");
-    private static final Pattern TRIGGER_NAME = Pattern.compile("^" + Pattern.quote(VALIDATION_PREFIX) + "trigger_[0-9a-f]{32}$");
+    // MySQL limits trigger identifiers to 64 characters; this format is 63 characters.
+    private static final Pattern TRIGGER_NAME = Pattern.compile("^" + Pattern.quote(VALIDATION_PREFIX) + "trigger_[0-9a-f]{20}$");
 
     private ExternalValidationEnvironment() {
     }
@@ -76,7 +77,7 @@ final class ExternalValidationEnvironment {
     }
 
     static String newValidationTriggerName() {
-        return VALIDATION_PREFIX + "trigger_" + UUID.randomUUID().toString().replace("-", "");
+        return VALIDATION_PREFIX + "trigger_" + UUID.randomUUID().toString().replace("-", "").substring(0, 20);
     }
 
     static void requireSafeValidationName(String name) {

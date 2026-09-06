@@ -62,11 +62,19 @@ class ExternalValidationEnvironmentTest {
     }
 
     @Test
+    void generatedTriggerNamesFitMySqlIdentifierLimit() {
+        String name = ExternalValidationEnvironment.newValidationTriggerName();
+
+        assertThat(name).hasSizeLessThanOrEqualTo(64);
+        ExternalValidationEnvironment.requireSafeTriggerName(name);
+    }
+
+    @Test
     void acceptsStrictDatabaseAndTriggerFormats() {
         assertThat(ExternalValidationEnvironment.requireValidationJdbcUrl(
                 "jdbc:mysql://localhost:3306/ai_medical_care_release_validation_20260905_001122_abcdef12"))
                 .contains("ai_medical_care_release_validation_20260905_001122_abcdef12");
         ExternalValidationEnvironment.requireSafeValidationName(
-                "ai_medical_care_release_validation_trigger_0123456789abcdef0123456789abcdef");
+                "ai_medical_care_release_validation_trigger_0123456789abcdef0123");
     }
 }

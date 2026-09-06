@@ -74,9 +74,14 @@ function Invoke-ChildProcess {
     }
     $process.WaitForExit()
     $stdout = $stdoutTask.GetAwaiter().GetResult()
-    $null = $stderrTask.GetAwaiter().GetResult()
+    $stderr = $stderrTask.GetAwaiter().GetResult()
     if ($process.ExitCode -ne 0) {
-        throw "Child process failed with exit code $($process.ExitCode): $FilePath"
+        $diagnostic = (($stderr + [Environment]::NewLine + $stdout).Trim())
+        if ([string]::IsNullOrWhiteSpace($diagnostic)) {
+            throw "Child process failed with exit code $($process.ExitCode): $FilePath"
+        }
+        if ($diagnostic.Length -gt 2000) { $diagnostic = $diagnostic.Substring(0, 2000) + '...' }
+        throw "Child process failed with exit code $($process.ExitCode): $FilePath`n$diagnostic"
     }
     return $stdout.Trim()
 }
@@ -90,7 +95,7 @@ $RedisPort = Get-OptionalEnvironmentValue -Name 'RELEASE_VALIDATION_REDIS_PORT' 
 $MysqlExecutable = Get-OptionalEnvironmentValue -Name 'RELEASE_VALIDATION_MYSQL_BIN' -Default 'mysql'
 $MavenDefault = if ($IsWindows) { 'mvn.cmd' } else { 'mvn' }
 $MavenExecutable = Get-OptionalEnvironmentValue -Name 'RELEASE_VALIDATION_MAVEN_BIN' -Default $MavenDefault
-$JdbcUrl = "jdbc:mysql://$DbHost`:$DbPort/$DatabaseName?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
+$JdbcUrl = "jdbc:mysql://$DbHost`:$DbPort/${DatabaseName}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
 $MysqlEnvironment = @{ MYSQL_PWD = $DbPassword }
 $MavenEnvironment = @{
     MYSQL_PWD = $DbPassword
@@ -135,7 +140,9 @@ try {
         'V2__secure_appointments.sql',
         'V3__roles_and_doctor_accounts.sql',
         'V4__appointment_lifecycle.sql',
-        'V5__triage_cases.sql'
+        'V5__triage_cases.sql',
+        'V6__waitlist_encounter_audit.sql',
+        'V7__knowledge_documents.sql'
     )
     for ($Pass = 1; $Pass -le 2; $Pass++) {
         foreach ($migrationFile in $migrationFiles) {
@@ -147,7 +154,10 @@ try {
     $expectedIndexes = @(
         'uk_appointment_user_schedule', 'idx_appointment_user_id', 'idx_appointment_schedule_id',
         'uk_doctor_user_id', 'idx_appointment_doctor_status', 'idx_appointment_user_status',
-        'idx_triage_case_patient_created', 'uk_triage_evidence_case_rank'
+        'idx_triage_case_patient_created', 'uk_triage_evidence_case_rank', 'idx_appointment_triage_case',
+        'idx_waitlist_schedule_status_priority', 'idx_waitlist_patient_created', 'uk_encounter_appointment',
+        'idx_encounter_patient_completed', 'idx_audit_trace_created', 'uk_knowledge_document_hash',
+        'uk_knowledge_document_key_version'
     )
     $indexSql = @"
 SELECT index_name
@@ -193,7 +203,7 @@ finally {
         "- Timestamp (UTC): $RunTimestamp"
         ('- Temporary database: `{0}`' -f $DatabaseName)
         "- Database cleanup: $(if ($DatabaseDropped) { 'dropped' } else { 'not applicable or failed' })"
-        "- Migration passes: V2 through V5, 2 passes"
+        "- Migration passes: V2 through V7, 2 passes"
         "- MySQL indexes: $IndexStatus"
         '- External tests: Maven profile `external-integration-tests`'
     )
