@@ -7,11 +7,11 @@ target/
 ### Frontend ###
 frontend/node_modules/
 frontend/dist/
-frontend/nginx-1.20.2/nginx.exe
-frontend/nginx-1.20.2/logs/*.log
-frontend/nginx-1.20.2/logs/*.pid
-frontend/nginx-1.20.2/temp/*
-!frontend/nginx-1.20.2/temp/.gitkeep
+deploy/nginx/nginx.exe
+deploy/nginx/logs/*.log
+deploy/nginx/logs/*.pid
+deploy/nginx/temp/*
+!deploy/nginx/temp/.gitkeep
 ### Environment and local secrets ###
 .env
 .env.local
@@ -19,6 +19,7 @@ secrets.local.txt
 docs/verification/runs/
 
 ### IntelliJ IDEA ###
+/ai-medical-care/.idea/
 .idea/workspace.xml
 .idea/modules.xml
 .idea/jarRepositories.xml
@@ -52,3 +53,8 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+### Global caches / tool dirs ###
+.pnpm-store/
+.superpowers/
+.directory

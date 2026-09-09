@@ -24,14 +24,14 @@
 
 **Files:**
 - Create: `src/main/resources/db/migration/V6__waitlist_encounter_audit.sql`
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/waitlist/WaitlistStatus.java`
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/entity/WaitlistEntry.java`
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/entity/Encounter.java`
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/entity/AuditLog.java`
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/mapper/WaitlistEntryMapper.java`
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/mapper/EncounterMapper.java`
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/mapper/AuditLogMapper.java`
-- Test: `src/test/java/com/Liang/java/ai/langchain4j/waitlist/WaitlistPriorityTest.java`
+- Create: `src/main/java/com/liang/medical/waitlist/WaitlistStatus.java`
+- Create: `src/main/java/com/liang/medical/entity/WaitlistEntry.java`
+- Create: `src/main/java/com/liang/medical/entity/Encounter.java`
+- Create: `src/main/java/com/liang/medical/entity/AuditLog.java`
+- Create: `src/main/java/com/liang/medical/mapper/WaitlistEntryMapper.java`
+- Create: `src/main/java/com/liang/medical/mapper/EncounterMapper.java`
+- Create: `src/main/java/com/liang/medical/mapper/AuditLogMapper.java`
+- Test: `src/test/java/com/liang/medical/waitlist/WaitlistPriorityTest.java`
 
 **Interfaces:**
 - Produces `WaitlistStatus`, `WaitlistEntry`, `Encounter`, and `AuditLog` persistence contracts.
@@ -46,13 +46,13 @@
 ### Task 2: Waitlist service and APIs
 
 **Files:**
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/service/WaitlistService.java`
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/service/impl/WaitlistServiceImpl.java`
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/controller/WaitlistController.java`
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/dto/waitlist/*`
-- Modify: `src/main/java/com/Liang/java/ai/langchain4j/service/impl/AppointmentBookingServiceImpl.java`
-- Modify: `src/main/java/com/Liang/java/ai/langchain4j/controller/AppointmentController.java`
-- Test: `src/test/java/com/Liang/java/ai/langchain4j/service/WaitlistServiceImplTest.java`
+- Create: `src/main/java/com/liang/medical/service/WaitlistService.java`
+- Create: `src/main/java/com/liang/medical/service/impl/WaitlistServiceImpl.java`
+- Create: `src/main/java/com/liang/medical/controller/WaitlistController.java`
+- Create: `src/main/java/com/liang/medical/dto/waitlist/*`
+- Modify: `src/main/java/com/liang/medical/service/impl/AppointmentBookingServiceImpl.java`
+- Modify: `src/main/java/com/liang/medical/controller/AppointmentController.java`
+- Test: `src/test/java/com/liang/medical/service/WaitlistServiceImplTest.java`
 
 **Interfaces:**
 - `POST /api/v1/waitlist` joins the current patient.
@@ -69,12 +69,12 @@
 ### Task 3: Encounter workflow and patient view
 
 **Files:**
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/service/EncounterService.java`
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/service/impl/EncounterServiceImpl.java`
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/controller/EncounterController.java`
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/dto/encounter/*`
-- Modify: `src/main/java/com/Liang/java/ai/langchain4j/controller/DoctorAppointmentController.java`
-- Test: `src/test/java/com/Liang/java/ai/langchain4j/service/EncounterServiceImplTest.java`
+- Create: `src/main/java/com/liang/medical/service/EncounterService.java`
+- Create: `src/main/java/com/liang/medical/service/impl/EncounterServiceImpl.java`
+- Create: `src/main/java/com/liang/medical/controller/EncounterController.java`
+- Create: `src/main/java/com/liang/medical/dto/encounter/*`
+- Modify: `src/main/java/com/liang/medical/controller/DoctorAppointmentController.java`
+- Test: `src/test/java/com/liang/medical/service/EncounterServiceImplTest.java`
 
 **Interfaces:**
 - `POST /api/v1/doctor/appointments/{id}/encounter` confirms a doctor-owned confirmed appointment and writes summary.
@@ -90,14 +90,14 @@
 
 **Files:**
 - Create: `src/main/resources/db/migration/V7__knowledge_documents.sql`
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/knowledge/KnowledgeDocumentStatus.java`
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/entity/KnowledgeDocument.java`
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/mapper/KnowledgeDocumentMapper.java`
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/service/KnowledgeDocumentService.java`
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/service/impl/KnowledgeDocumentServiceImpl.java`
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/controller/KnowledgeDocumentController.java`
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/dto/knowledge/*`
-- Test: `src/test/java/com/Liang/java/ai/langchain4j/service/KnowledgeDocumentServiceImplTest.java`
+- Create: `src/main/java/com/liang/medical/knowledge/KnowledgeDocumentStatus.java`
+- Create: `src/main/java/com/liang/medical/entity/KnowledgeDocument.java`
+- Create: `src/main/java/com/liang/medical/mapper/KnowledgeDocumentMapper.java`
+- Create: `src/main/java/com/liang/medical/service/KnowledgeDocumentService.java`
+- Create: `src/main/java/com/liang/medical/service/impl/KnowledgeDocumentServiceImpl.java`
+- Create: `src/main/java/com/liang/medical/controller/KnowledgeDocumentController.java`
+- Create: `src/main/java/com/liang/medical/dto/knowledge/*`
+- Test: `src/test/java/com/liang/medical/service/KnowledgeDocumentServiceImplTest.java`
 
 **Interfaces:**
 - `GET /api/v1/admin/knowledge/documents`
@@ -114,12 +114,12 @@
 ### Task 5: Trace ID, audit events, and metrics
 
 **Files:**
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/audit/TraceIdFilter.java`
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/audit/AuditService.java`
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/audit/impl/AuditServiceImpl.java`
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/controller/AdminMetricsController.java`
+- Create: `src/main/java/com/liang/medical/audit/TraceIdFilter.java`
+- Create: `src/main/java/com/liang/medical/audit/AuditService.java`
+- Create: `src/main/java/com/liang/medical/audit/impl/AuditServiceImpl.java`
+- Create: `src/main/java/com/liang/medical/controller/AdminMetricsController.java`
 - Modify: business services and `WebMvcConfig`.
-- Test: `src/test/java/com/Liang/java/ai/langchain4j/audit/TraceIdFilterTest.java`
+- Test: `src/test/java/com/liang/medical/audit/TraceIdFilterTest.java`
 
 - [ ] **Step 1:** Write tests for generated/preserved trace IDs and redacted audit payloads.
 - [ ] **Step 2:** Run focused tests and confirm RED.
@@ -132,10 +132,10 @@
 **Files:**
 - Create: `evaluation/triage-cases.jsonl`
 - Create: `scripts/evaluate-triage.ps1`
-- Create: `docker-compose.yml`
+- Create: `deploy/docker-compose.yml`
 - Create: `.github/workflows/ci.yml`
-- Modify: `README.md`, `docs/技术栈文档.md`, release validation runner.
-- Test: `src/test/java/com/Liang/java/ai/langchain4j/release/MigrationScriptContractTest.java`
+- Modify: `README.md`, `docs/tech-stack.md`, release validation runner.
+- Test: `src/test/java/com/liang/medical/release/MigrationScriptContractTest.java`
 
 - [ ] **Step 1:** Add at least 30 synthetic, non-sensitive evaluation rows and a deterministic scoring script.
 - [ ] **Step 2:** Add Compose services for MySQL, Redis Stack, MongoDB and the application with environment-only secrets.

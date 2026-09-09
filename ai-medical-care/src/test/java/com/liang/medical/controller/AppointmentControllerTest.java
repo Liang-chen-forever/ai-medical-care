@@ -1,0 +1,156 @@
+package com.liang.medical.controller;
+
+import com.liang.medical.auth.JwtTokenService;
+import com.liang.medical.auth.LoginRequiredInterceptor;
+import com.liang.medical.auth.LoginUserArgumentResolver;
+import com.liang.medical.auth.RequireRole;
+import com.liang.medical.auth.RoleRequiredInterceptor;
+import com.liang.medical.auth.UserPrincipal;
+import com.liang.medical.auth.UserRole;
+import com.liang.medical.common.GlobalExceptionHandler;
+import com.liang.medical.config.WebMvcConfig;
+import com.liang.medical.appointment.controller.AppointmentController;
+import com.liang.medical.appointment.entity.Appointment;
+import com.liang.medical.appointment.service.AppointmentBookingService;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@WebMvcTest(controllers = {AppointmentController.class, AppointmentControllerTest.DoctorRouteController.class})
+@Import({GlobalExceptionHandler.class, WebMvcConfig.class, LoginRequiredInterceptor.class,
+        LoginUserArgumentResolver.class, RoleRequiredInterceptor.class, AppointmentControllerTest.JwtTestConfig.class,
+        AppointmentControllerTest.DoctorRouteTestConfig.class})
+class AppointmentControllerTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private JwtTokenService jwtTokenService;
+
+    @MockBean
+    private AppointmentBookingService appointmentBookingService;
+
+    @Test
+    void requiresAuthenticationBeforeListingAppointments() throws Exception {
+        mockMvc.perform(get("/api/v1/appointments/me"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.code").value(401))
+                .andExpect(jsonPath("$.message").value("请先登录"));
+    }
+
+    @Test
+    void acceptsUserTokenFromAuthenticationHeader() throws Exception {
+        when(appointmentBookingService.listMine(7L)).thenReturn(List.of());
+
+        mockMvc.perform(get("/api/v1/appointments/me")
+                        .header("authentication", bearerForUser7().substring(7)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200));
+
+        verify(appointmentBookingService).listMine(7L);
+    }
+
+    @Test
+    void bookingUsesTheUserIdFromBearerToken() throws Exception {
+        Appointment appointment = new Appointment();
+        appointment.setId(9L);
+        appointment.setUserId(7L);
+        appointment.setScheduleId(101L);
+        when(appointmentBookingService.book(7L, 101L)).thenReturn(appointment);
+
+        mockMvc.perform(post("/api/v1/appointments")
+                        .header(HttpHeaders.AUTHORIZATION, bearerForUser7())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"scheduleId\":101}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.data.userId").value(7))
+                .andExpect(jsonPath("$.data.scheduleId").value(101));
+
+        verify(appointmentBookingService).book(7L, 101L);
+    }
+
+    @Test
+    void bookingRejectsARequestWithoutScheduleId() throws Exception {
+        mockMvc.perform(post("/api/v1/appointments")
+                        .header(HttpHeaders.AUTHORIZATION, bearerForUser7())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value(400))
+                .andExpect(jsonPath("$.message").value("scheduleId不能为空"));
+    }
+
+    @Test
+    void cancellationUsesTheRestfulAppointmentPath() throws Exception {
+        mockMvc.perform(delete("/api/v1/appointments/55")
+                        .header(HttpHeaders.AUTHORIZATION, bearerForUser7()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200));
+
+        verify(appointmentBookingService).cancel(7L, 55L);
+    }
+
+    @Test
+    void patientIsForbiddenBeforeDoctorRouteControllerRuns() throws Exception {
+        mockMvc.perform(get("/api/v1/doctor/test")
+                        .header(HttpHeaders.AUTHORIZATION, bearerForUser7()))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.code").value(403))
+                .andExpect(jsonPath("$.message").value("无权访问该资源"));
+    }
+
+    private String bearerForUser7() {
+        return "Bearer " + jwtTokenService.createToken(new UserPrincipal(7L, "alice", UserRole.PATIENT));
+    }
+
+    @TestConfiguration
+    static class JwtTestConfig {
+
+        @Bean
+        JwtTokenService jwtTokenService() {
+            return new JwtTokenService("01234567890123456789012345678901", 3600);
+        }
+    }
+
+    @TestConfiguration
+    static class DoctorRouteTestConfig {
+
+        @Bean
+        DoctorRouteController doctorRouteController() {
+            return new DoctorRouteController();
+        }
+    }
+
+    @RestController
+    @RequestMapping("/api/v1/doctor/test")
+    @RequireRole(UserRole.DOCTOR)
+    static class DoctorRouteController {
+
+        @GetMapping
+        void queue() {
+            throw new AssertionError("role interceptor must reject the request before controller execution");
+        }
+    }
+}

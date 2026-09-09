@@ -7,19 +7,17 @@
 ## 项目结构
 
 ```text
-ai-medical-care/
-├── src/                            # Spring Boot 后端源码、资源和测试
-│   ├── main/java/                  # 业务、鉴权和 AI Agent
-│   ├── main/resources/
-│   │   ├── application.properties  # 服务、数据库和模型配置
-│   │   ├── db/                     # 初始化、迁移和演示排班脚本
-│   │   └── knowledge/              # 运行时加载的医疗 Markdown
-│   └── test/                       # 核心测试和外部集成测试资源
+Intelligent-Healthcare-System/
+├── ai-medical-care/                # Spring Boot 后端（Maven 单体）
+│   ├── pom.xml
+│   ├── src/                        # 业务、鉴权、AI Agent、资源和测试
+│   ├── Dockerfile
+│   └── secrets.example.txt         # 密钥配置示例
 ├── frontend/                       # Vue 3 Web 客户端
-│   └── nginx-1.20.2/                # Nginx 配置和 Windows 启停脚本（不提交 nginx.exe）
-├── deploy/redis/Dockerfile         # 可选的 Redis/RediSearch 镜像构建文件
-├── secrets.example.txt             # 密钥配置示例
-└── docs/技术栈文档.md               # 技术实现说明
+├── deploy/                         # Compose、Redis 与 Nginx 部署资源
+├── docs/                           # 技术实现说明
+├── scripts/                        # 验证和运维脚本
+└── evaluation/                     # 离线评估数据
 ```
 
 ## 核心接口
@@ -66,11 +64,12 @@ ai-medical-care/
 
 前置条件：JDK 17、Maven、MySQL 8、MongoDB、Redis。服务默认端口为 `5137`。
 
-1. 创建数据库 `guiguxiaozhi`，首次运行执行 `src/main/resources/db/init-data.sql`。
-2. 复制 `secrets.example.txt` 为 `secrets.local.txt`，填写本机的 `DASH_SCOPE_API_KEY`、`MYSQL_PASSWORD` 与至少 32 位的 `JWT_USER_SECRET_KEY`、`JWT_ADMIN_SECRET_KEY`。该文件已被 Git 忽略，不能提交。
+1. 创建数据库 `guiguxiaozhi`，首次运行执行 `ai-medical-care/src/main/resources/db/init-data.sql`。
+2. 复制 `ai-medical-care/secrets.example.txt` 为 `ai-medical-care/secrets.local.txt`，填写本机的 `DASH_SCOPE_API_KEY`、`MYSQL_PASSWORD` 与至少 32 位的 `JWT_USER_SECRET_KEY`、`JWT_ADMIN_SECRET_KEY`。该文件已被 Git 忽略，不能提交。
 3. 启动依赖服务后执行：
 
 ```powershell
+cd ai-medical-care
 mvn spring-boot:run
 ```
 
@@ -78,7 +77,7 @@ mvn spring-boot:run
 
 如需构建带 RediSearch 的 Redis 镜像，在项目根目录执行 `docker build -f deploy/redis/Dockerfile -t ai-medical-care-redis .`。
 
-如果已有演示数据库中的排班日期已经过期，执行 `src/main/resources/db/refresh-demo-schedules.sql`。执行时指定 `utf8mb4`，例如 `mysql --default-character-set=utf8mb4 -uroot -p guiguxiaozhi -e "source src/main/resources/db/refresh-demo-schedules.sql"`。该脚本只补充今天起未来 7 天缺失的上午/下午排班，不删除历史预约，可重复执行。
+如果已有演示数据库中的排班日期已经过期，执行 `ai-medical-care/src/main/resources/db/refresh-demo-schedules.sql`。执行时指定 `utf8mb4`，例如 `mysql --default-character-set=utf8mb4 -uroot -p guiguxiaozhi -e "source ai-medical-care/src/main/resources/db/refresh-demo-schedules.sql"`。该脚本只补充今天起未来 7 天缺失的上午/下午排班，不删除历史预约，可重复执行。
 
 ## Web 端
 
@@ -94,29 +93,31 @@ npm run dev
 
 项目提供了类似 Sky-Delivery 的 Nginx 目录结构。Nginx 负责提供 `frontend/dist` 静态文件，并将 `/api/`、`/xiaozhi/` 反向代理到 Spring Boot 的 `5137` 端口，因此浏览器访问时前后端使用同一个来源，不需要额外配置跨域。
 
-仓库不提交 Nginx 二进制文件。可以将 Windows 版 Nginx 解压到 `frontend/nginx-1.20.2`，使 `nginx.exe` 与 `conf` 目录同级；也可以直接复用本机已有的 Nginx，并通过 `-NginxExe` 指定路径。
+仓库不提交 Nginx 二进制文件。可以将 Windows 版 Nginx 解压到 `deploy/nginx`，使 `nginx.exe` 与 `conf` 目录同级；也可以直接复用本机已有的 Nginx，并通过 `-NginxExe` 指定路径。
 
 ```powershell
 cd frontend
 npm run build
-cd nginx-1.20.2
-.\start-nginx.ps1 -NginxExe 'D:\Resume-Projects\Sky-Delivery\frontend\nginx-1.20.2\nginx.exe'
+cd ..\deploy\nginx
+.\start-nginx.ps1 -NginxExe 'D:\Resume-Projects\Intelligent-Healthcare-System\deploy\nginx\nginx.exe'
 ```
 
 启动后访问 `http://localhost:8088/`，刷新 `http://localhost:8088/chat`、`http://localhost:8088/department` 等 Vue 路由也会返回前端页面。`http://localhost:8088/api/v1/departments` 可用于确认 Nginx 已经代理到后端。停止服务：
 
 ```powershell
-.\stop-nginx.ps1 -NginxExe 'D:\Resume-Projects\Sky-Delivery\frontend\nginx-1.20.2\nginx.exe'
+.\stop-nginx.ps1 -NginxExe 'D:\Resume-Projects\Intelligent-Healthcare-System\deploy\nginx\nginx.exe'
 ```
 
-项目默认使用 `8088`，避免与其他项目常用的 `80` 端口冲突；如需改端口，修改 `frontend/nginx-1.20.2/conf/nginx.conf` 中的 `listen 8088` 后再启动，并使用对应端口访问。Nginx 集成模式要求先构建 `frontend/dist`，后端必须已经监听 `5137`。
+项目默认使用 `8088`，避免与其他项目常用的 `80` 端口冲突；如需改端口，修改 `deploy/nginx/conf/nginx.conf` 中的 `listen 8088` 后再启动，并使用对应端口访问。Nginx 集成模式要求先构建 `frontend/dist`，后端必须已经监听 `5137`。
 
 ## 验证命令
 
 ```powershell
+cd ai-medical-care
 mvn -Dtest=DepartmentControllerTest test
 mvn test
 mvn -DskipTests package
+cd ..
 cd frontend; npm run build
 cd ..; pwsh -File .\scripts\evaluate-triage.ps1
 ```
@@ -125,7 +126,7 @@ cd ..; pwsh -File .\scripts\evaluate-triage.ps1
 
 ### Docker Compose
 
-复制 `secrets.example.txt` 到被 Git 忽略的 `secrets.local.txt`，或在启动前设置 `MYSQL_PASSWORD`、`JWT_USER_SECRET_KEY`、`JWT_ADMIN_SECRET_KEY` 环境变量，然后执行 `docker compose up --build`。Compose 提供 MySQL 8、Redis Stack、MongoDB 和应用四个服务，卷数据可用 `docker compose down -v` 清理。
+复制 `ai-medical-care/secrets.example.txt` 到被 Git 忽略的 `ai-medical-care/secrets.local.txt`，或在启动前设置 `MYSQL_PASSWORD`、`JWT_USER_SECRET_KEY`、`JWT_ADMIN_SECRET_KEY` 环境变量，然后执行 `docker compose -f deploy/docker-compose.yml up --build`。Compose 提供 MySQL 8、Redis Stack、MongoDB 和应用四个服务，卷数据可用 `docker compose -f deploy/docker-compose.yml down -v` 清理。
 
 真实模型、向量库、Mongo CRUD 和旧库演示测试标记为 `external`，默认不执行，避免消耗模型额度或污染本地数据。准备好 DashScope/Ollama/Pinecone、MongoDB，以及完成预约表迁移后，可显式执行：
 

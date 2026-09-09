@@ -4,6 +4,7 @@ param()
 
 $ErrorActionPreference = 'Stop'
 $ProjectRoot = Split-Path -Parent $PSScriptRoot
+$BackendRoot = Join-Path $ProjectRoot 'ai-medical-care'
 $ValidationDatabasePrefix = 'ai_medical_care_release_validation_'
 $ValidationDatabasePattern = '^' + [regex]::Escape($ValidationDatabasePrefix) + '\d{8}_\d{6}_[0-9a-f]{8}$'
 $RunTimestamp = [DateTime]::UtcNow.ToString('yyyyMMdd_HHmmss')
@@ -146,7 +147,7 @@ try {
     )
     for ($Pass = 1; $Pass -le 2; $Pass++) {
         foreach ($migrationFile in $migrationFiles) {
-            $migrationPath = Join-Path $ProjectRoot ('src/main/resources/db/migration/' + $migrationFile)
+            $migrationPath = Join-Path $BackendRoot ('src/main/resources/db/migration/' + $migrationFile)
             Invoke-MySqlSql -Database $DatabaseName -Sql (Get-Content -Raw $migrationPath) | Out-Null
         }
     }
@@ -173,7 +174,7 @@ ORDER BY index_name;
     if ($missingIndexes.Count -gt 0) { throw ('Missing expected MySQL indexes: ' + ($missingIndexes -join ', ')) }
     $IndexStatus = "verified $($expectedIndexes.Count) indexes"
 
-    Invoke-ChildProcess -FilePath $MavenExecutable -Arguments @('-Pexternal-integration-tests', '-Dtest=com.Liang.java.ai.langchain4j.release.*ExternalIntegrationTest', 'test') -Environment $MavenEnvironment | Out-Null
+    Invoke-ChildProcess -FilePath $MavenExecutable -Arguments @('-f', (Join-Path $BackendRoot 'pom.xml'), '-Pexternal-integration-tests', '-Dtest=com.liang.medical.release.*ExternalIntegrationTest', 'test') -Environment $MavenEnvironment | Out-Null
 }
 catch {
     $Status = 'FAIL'
