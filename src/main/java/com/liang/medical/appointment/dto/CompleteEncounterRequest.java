@@ -1,4 +1,4 @@
-package com.liang.medical.dto.encounter;
+package com.liang.medical.appointment.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

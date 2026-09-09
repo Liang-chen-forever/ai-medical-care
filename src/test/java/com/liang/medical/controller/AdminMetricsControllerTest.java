@@ -1,6 +1,6 @@
 package com.liang.medical.controller;
 
-import com.liang.medical.appointment.AppointmentStatus;
+import com.liang.medical.appointment.entity.AppointmentStatus;
 import com.liang.medical.auth.JwtTokenService;
 import com.liang.medical.auth.LoginRequiredInterceptor;
 import com.liang.medical.auth.LoginUserArgumentResolver;
@@ -9,7 +9,7 @@ import com.liang.medical.auth.UserPrincipal;
 import com.liang.medical.auth.UserRole;
 import com.liang.medical.common.GlobalExceptionHandler;
 import com.liang.medical.config.WebMvcConfig;
-import com.liang.medical.mapper.AppointmentMapper;
+import com.liang.medical.appointment.mapper.AppointmentMapper;
 import com.liang.medical.mapper.TriageCaseMapper;
 import com.liang.medical.mapper.WaitlistEntryMapper;
 import com.liang.medical.triage.TriageCaseStatus;

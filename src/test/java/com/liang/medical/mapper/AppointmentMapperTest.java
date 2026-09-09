@@ -1,6 +1,6 @@
 package com.liang.medical.mapper;
 
-import com.liang.medical.appointment.AppointmentStatus;
+import com.liang.medical.appointment.entity.AppointmentStatus;
 import org.apache.ibatis.builder.xml.XMLMapperBuilder;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.mapping.BoundSql;
@@ -24,7 +24,7 @@ class AppointmentMapperTest {
         }
 
         BoundSql boundSql = configuration
-                .getMappedStatement("com.liang.medical.mapper.AppointmentMapper.findForDoctor")
+                .getMappedStatement("com.liang.medical.appointment.mapper.AppointmentMapper.findForDoctor")
                 .getBoundSql(Map.of("doctorUserId", 17L, "status", AppointmentStatus.PENDING));
 
         String sql = boundSql.getSql().replaceAll("\\s+", " ").trim();

@@ -1,10 +1,11 @@
 package com.liang.medical.controller;
 
-import com.liang.medical.entity.Doctor;
-import com.liang.medical.entity.Schedule;
+import com.liang.medical.appointment.controller.DepartmentController;
+import com.liang.medical.appointment.entity.Doctor;
+import com.liang.medical.appointment.entity.Schedule;
 import com.liang.medical.auth.JwtTokenService;
-import com.liang.medical.service.DoctorService;
-import com.liang.medical.service.ScheduleService;
+import com.liang.medical.appointment.service.DoctorService;
+import com.liang.medical.appointment.service.ScheduleService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;

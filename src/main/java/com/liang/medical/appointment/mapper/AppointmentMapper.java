@@ -1,7 +1,7 @@
-package com.liang.medical.mapper;
+package com.liang.medical.appointment.mapper;
 
-import com.liang.medical.appointment.AppointmentStatus;
-import com.liang.medical.entity.Appointment;
+import com.liang.medical.appointment.entity.AppointmentStatus;
+import com.liang.medical.appointment.entity.Appointment;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;

@@ -1,6 +1,6 @@
 package com.liang.medical.service;
 
-import com.liang.medical.entity.Appointment;
+import com.liang.medical.appointment.entity.Appointment;
 import com.liang.medical.entity.WaitlistEntry;
 
 import java.util.List;

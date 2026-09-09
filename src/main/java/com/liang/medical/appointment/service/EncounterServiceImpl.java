@@ -1,16 +1,16 @@
-package com.liang.medical.service.impl;
+package com.liang.medical.appointment.service;
 
-import com.liang.medical.appointment.AppointmentStatus;
+import com.liang.medical.appointment.entity.AppointmentStatus;
 import com.liang.medical.audit.AuditService;
 import com.liang.medical.auth.UserRole;
 import com.liang.medical.common.BusinessException;
-import com.liang.medical.entity.Appointment;
-import com.liang.medical.entity.Doctor;
-import com.liang.medical.entity.Encounter;
-import com.liang.medical.mapper.AppointmentMapper;
-import com.liang.medical.mapper.DoctorMapper;
-import com.liang.medical.mapper.EncounterMapper;
-import com.liang.medical.service.EncounterService;
+import com.liang.medical.appointment.entity.Appointment;
+import com.liang.medical.appointment.entity.Doctor;
+import com.liang.medical.appointment.entity.Encounter;
+import com.liang.medical.appointment.mapper.AppointmentMapper;
+import com.liang.medical.appointment.mapper.DoctorMapper;
+import com.liang.medical.appointment.mapper.EncounterMapper;
+import com.liang.medical.appointment.service.EncounterService;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

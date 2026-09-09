@@ -1,8 +1,8 @@
-package com.liang.medical.service;
+package com.liang.medical.appointment.service;
 
-import com.liang.medical.entity.Appointment;
-import com.liang.medical.appointment.AppointmentStatus;
-import com.liang.medical.dto.doctor.DoctorAppointmentResponse;
+import com.liang.medical.appointment.entity.Appointment;
+import com.liang.medical.appointment.entity.AppointmentStatus;
+import com.liang.medical.appointment.dto.DoctorAppointmentResponse;
 
 import java.util.List;
 

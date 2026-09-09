@@ -1,6 +1,6 @@
 package com.liang.medical.dto.waitlist;
 
-import com.liang.medical.appointment.AppointmentStatus;
+import com.liang.medical.appointment.entity.AppointmentStatus;
 
 public record WaitlistAcceptedResponse(
         Long appointmentId,

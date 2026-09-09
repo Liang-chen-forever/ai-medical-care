@@ -1,14 +1,14 @@
-package com.liang.medical.controller;
+package com.liang.medical.appointment.controller;
 
-import com.liang.medical.appointment.AppointmentStatus;
+import com.liang.medical.appointment.entity.AppointmentStatus;
 import com.liang.medical.auth.LoginUser;
 import com.liang.medical.auth.RequireRole;
 import com.liang.medical.auth.UserPrincipal;
 import com.liang.medical.auth.UserRole;
 import com.liang.medical.common.ApiResponse;
-import com.liang.medical.dto.doctor.DoctorAppointmentResponse;
-import com.liang.medical.dto.doctor.RejectAppointmentRequest;
-import com.liang.medical.service.AppointmentBookingService;
+import com.liang.medical.appointment.dto.DoctorAppointmentResponse;
+import com.liang.medical.appointment.dto.RejectAppointmentRequest;
+import com.liang.medical.appointment.service.AppointmentBookingService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import org.springframework.web.bind.annotation.*;

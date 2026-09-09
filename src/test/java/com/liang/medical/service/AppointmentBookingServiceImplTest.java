@@ -1,18 +1,19 @@
 package com.liang.medical.service;
 
 import com.liang.medical.common.BusinessException;
-import com.liang.medical.appointment.AppointmentStatus;
-import com.liang.medical.entity.Appointment;
-import com.liang.medical.entity.Doctor;
-import com.liang.medical.entity.Schedule;
+import com.liang.medical.appointment.entity.AppointmentStatus;
+import com.liang.medical.appointment.entity.Appointment;
+import com.liang.medical.appointment.entity.Doctor;
+import com.liang.medical.appointment.entity.Schedule;
 import com.liang.medical.entity.TriageCase;
 import com.liang.medical.entity.User;
-import com.liang.medical.mapper.AppointmentMapper;
-import com.liang.medical.mapper.DoctorMapper;
-import com.liang.medical.mapper.ScheduleMapper;
+import com.liang.medical.appointment.mapper.AppointmentMapper;
+import com.liang.medical.appointment.mapper.DoctorMapper;
+import com.liang.medical.appointment.mapper.ScheduleMapper;
 import com.liang.medical.mapper.TriageCaseMapper;
 import com.liang.medical.mapper.UserMapper;
-import com.liang.medical.service.impl.AppointmentBookingServiceImpl;
+import com.liang.medical.appointment.service.AppointmentBookingServiceImpl;
+import com.liang.medical.appointment.service.AppointmentBookingService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

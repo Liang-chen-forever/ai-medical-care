@@ -1,6 +1,6 @@
-package com.liang.medical.service;
+package com.liang.medical.appointment.service;
 
-import com.liang.medical.entity.Doctor;
+import com.liang.medical.appointment.entity.Doctor;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 import java.util.List;

@@ -1,6 +1,6 @@
-package com.liang.medical.dto.doctor;
+package com.liang.medical.appointment.dto;
 
-import com.liang.medical.appointment.AppointmentStatus;
+import com.liang.medical.appointment.entity.AppointmentStatus;
 
 public record DoctorAppointmentResponse(
         Long id,

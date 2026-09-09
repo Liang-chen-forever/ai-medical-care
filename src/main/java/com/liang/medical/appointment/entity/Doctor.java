@@ -1,4 +1,4 @@
-package com.liang.medical.entity;
+package com.liang.medical.appointment.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -9,22 +9,20 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Schedule {
+public class Doctor {
 
     @TableId(type = IdType.AUTO)
     private Long id;
 
-    private Long doctorId;
+    private Long userId;
 
-    private String doctorName;
+    private String name;
+
+    private String title;
 
     private String department;
 
-    private String date;
+    private String specialty;
 
-    private String time;
-
-    private Integer totalSlots;
-
-    private Integer bookedSlots;
+    private String description;
 }

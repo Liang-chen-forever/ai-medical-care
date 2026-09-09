@@ -8,7 +8,7 @@ import com.liang.medical.common.ApiResponse;
 import com.liang.medical.dto.waitlist.JoinWaitlistRequest;
 import com.liang.medical.dto.waitlist.WaitlistAcceptedResponse;
 import com.liang.medical.dto.waitlist.WaitlistEntryResponse;
-import com.liang.medical.entity.Appointment;
+import com.liang.medical.appointment.entity.Appointment;
 import com.liang.medical.entity.WaitlistEntry;
 import com.liang.medical.service.WaitlistService;
 import jakarta.validation.Valid;

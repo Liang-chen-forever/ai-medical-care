@@ -1,4 +1,4 @@
-package com.liang.medical.appointment;
+package com.liang.medical.appointment.entity;
 
 public enum AppointmentStatus {
     PENDING,

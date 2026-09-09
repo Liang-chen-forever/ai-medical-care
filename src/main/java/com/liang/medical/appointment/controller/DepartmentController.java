@@ -1,12 +1,12 @@
-package com.liang.medical.controller;
+package com.liang.medical.appointment.controller;
 
 import com.liang.medical.bean.Result;
 import com.liang.medical.common.ApiResponse;
 import com.liang.medical.common.BusinessException;
-import com.liang.medical.entity.Doctor;
-import com.liang.medical.entity.Schedule;
-import com.liang.medical.service.DoctorService;
-import com.liang.medical.service.ScheduleService;
+import com.liang.medical.appointment.entity.Doctor;
+import com.liang.medical.appointment.entity.Schedule;
+import com.liang.medical.appointment.service.DoctorService;
+import com.liang.medical.appointment.service.ScheduleService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;

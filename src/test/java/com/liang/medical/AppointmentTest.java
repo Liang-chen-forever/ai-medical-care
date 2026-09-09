@@ -1,7 +1,7 @@
 package com.liang.medical;
 
-import com.liang.medical.entity.Appointment;
-import com.liang.medical.service.AppointmentService;
+import com.liang.medical.appointment.entity.Appointment;
+import com.liang.medical.appointment.service.AppointmentService;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,8 +1,8 @@
-package com.liang.medical.service.impl;
+package com.liang.medical.appointment.service;
 
-import com.liang.medical.entity.Schedule;
-import com.liang.medical.mapper.ScheduleMapper;
-import com.liang.medical.service.ScheduleService;
+import com.liang.medical.appointment.entity.Schedule;
+import com.liang.medical.appointment.mapper.ScheduleMapper;
+import com.liang.medical.appointment.service.ScheduleService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;

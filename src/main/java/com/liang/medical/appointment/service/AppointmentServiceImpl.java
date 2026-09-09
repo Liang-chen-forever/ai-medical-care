@@ -1,8 +1,8 @@
-package com.liang.medical.service.impl;
+package com.liang.medical.appointment.service;
 
-import com.liang.medical.entity.Appointment;
-import com.liang.medical.mapper.AppointmentMapper;
-import com.liang.medical.service.AppointmentService;
+import com.liang.medical.appointment.entity.Appointment;
+import com.liang.medical.appointment.mapper.AppointmentMapper;
+import com.liang.medical.appointment.service.AppointmentService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.slf4j.Logger;

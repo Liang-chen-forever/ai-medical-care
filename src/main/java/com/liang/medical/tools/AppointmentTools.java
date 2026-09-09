@@ -1,9 +1,9 @@
 package com.liang.medical.tools;
 
-import com.liang.medical.entity.Doctor;
-import com.liang.medical.entity.Schedule;
-import com.liang.medical.service.DoctorService;
-import com.liang.medical.service.ScheduleService;
+import com.liang.medical.appointment.entity.Doctor;
+import com.liang.medical.appointment.entity.Schedule;
+import com.liang.medical.appointment.service.DoctorService;
+import com.liang.medical.appointment.service.ScheduleService;
 import dev.langchain4j.agent.tool.P;
 import dev.langchain4j.agent.tool.Tool;
 import org.springframework.beans.factory.annotation.Autowired;

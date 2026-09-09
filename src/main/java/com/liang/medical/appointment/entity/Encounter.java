@@ -1,4 +1,4 @@
-package com.liang.medical.entity;
+package com.liang.medical.appointment.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;

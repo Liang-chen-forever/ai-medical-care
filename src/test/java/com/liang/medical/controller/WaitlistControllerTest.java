@@ -8,7 +8,7 @@ import com.liang.medical.auth.UserPrincipal;
 import com.liang.medical.auth.UserRole;
 import com.liang.medical.common.GlobalExceptionHandler;
 import com.liang.medical.config.WebMvcConfig;
-import com.liang.medical.entity.Appointment;
+import com.liang.medical.appointment.entity.Appointment;
 import com.liang.medical.entity.WaitlistEntry;
 import com.liang.medical.service.WaitlistService;
 import com.liang.medical.waitlist.WaitlistStatus;

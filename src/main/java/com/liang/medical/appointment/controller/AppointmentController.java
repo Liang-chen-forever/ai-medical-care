@@ -1,11 +1,11 @@
-package com.liang.medical.controller;
+package com.liang.medical.appointment.controller;
 
 import com.liang.medical.auth.LoginUser;
 import com.liang.medical.auth.UserPrincipal;
 import com.liang.medical.common.ApiResponse;
-import com.liang.medical.dto.appointment.CreateAppointmentRequest;
-import com.liang.medical.entity.Appointment;
-import com.liang.medical.service.AppointmentBookingService;
+import com.liang.medical.appointment.dto.CreateAppointmentRequest;
+import com.liang.medical.appointment.entity.Appointment;
+import com.liang.medical.appointment.service.AppointmentBookingService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;

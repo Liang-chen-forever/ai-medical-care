@@ -1,4 +1,4 @@
-package com.liang.medical.dto.appointment;
+package com.liang.medical.appointment.dto;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
