@@ -136,37 +136,35 @@
 ## 项目结构
 
 ```
-ai-medical-care/
-├── pom.xml                          # Maven 依赖管理和构建入口
-├── src/
-│   ├── main/java/.../langchain4j/   # Controller/Service/Mapper、鉴权和 AI Agent
-│   ├── main/resources/
-│   │   ├── application.properties   # 应用配置
-│   │   ├── db/                      # 初始化、迁移和演示排班脚本
-│   │   ├── knowledge/               # 运行时加载的四份 Markdown
-│   │   └── *-prompt-template.txt    # AI 系统提示词
-│   └── test/                        # 核心单元/接口测试和 external 实验资源
-├── frontend/                        # Vue 3 Web 项目
-│   └── src/                         # 页面、路由、状态和 API 封装
-├── deploy/                          # Compose、Redis 与 Nginx 部署资源
-│   ├── docker-compose.yml
-│   ├── Dockerfile.redis
-│   ├── nginx/                       # Nginx 配置和 Windows 启停脚本
-│   └── redis/Dockerfile             # 可选的 Redis/RediSearch 镜像
-├── secrets.example.txt              # 配置模板，真实配置使用被忽略的 secrets.local.txt
-└── docs/                            # 技术栈与向量库说明
+Intelligent-Healthcare-System/
+├── ai-medical-care/                 # Maven 后端
+│   ├── pom.xml                       # Maven 依赖管理和构建入口
+│   ├── src/
+│   │   ├── main/java/.../langchain4j/ # Controller/Service/Mapper、鉴权和 AI Agent
+│   │   ├── main/resources/
+│   │   │   ├── application.properties # 应用配置
+│   │   │   ├── db/                   # 初始化、迁移和演示排班脚本
+│   │   │   ├── knowledge/             # 运行时加载的四份 Markdown
+│   │   │   └── *-prompt-template.txt  # AI 系统提示词
+│   │   └── test/                     # 核心单元/接口测试和 external 实验资源
+│   └── secrets.example.txt           # 配置模板，真实配置使用被忽略的 secrets.local.txt
+├── frontend/                         # Vue 3 Web 项目
+├── deploy/                           # Compose、Redis 与 Nginx 部署资源
+├── docs/                             # 技术栈与向量库说明
+├── scripts/                          # 验证和运维脚本
+└── evaluation/                       # 离线评估数据
 ```
 
 ---
 
 ## 本地运行
 
-1. 新建 MySQL 数据库 `guiguxiaozhi`，首次初始化只执行 `src/main/resources/db/init-data.sql`。
-2. 复制 `secrets.example.txt` 为被 Git 忽略的 `secrets.local.txt`，填写 `DASH_SCOPE_API_KEY`、`MYSQL_PASSWORD`、`JWT_USER_SECRET_KEY` 和 `JWT_ADMIN_SECRET_KEY`（JWT 值至少 32 位）。也可以改用同名环境变量。
-3. 启动 MySQL、MongoDB、Redis 后，在项目根目录执行 `mvn spring-boot:run`，服务默认监听 `5137` 端口。需要构建带 RediSearch 的 Redis 镜像时执行 `docker build -f deploy/redis/Dockerfile -t ai-medical-care-redis .`。
+1. 新建 MySQL 数据库 `guiguxiaozhi`，首次初始化只执行 `ai-medical-care/src/main/resources/db/init-data.sql`。
+2. 复制 `ai-medical-care/secrets.example.txt` 为被 Git 忽略的 `ai-medical-care/secrets.local.txt`，填写 `DASH_SCOPE_API_KEY`、`MYSQL_PASSWORD`、`JWT_USER_SECRET_KEY` 和 `JWT_ADMIN_SECRET_KEY`（JWT 值至少 32 位）。也可以改用同名环境变量。
+3. 启动 MySQL、MongoDB、Redis 后，在 `ai-medical-care` 目录执行 `mvn spring-boot:run`，服务默认监听 `5137` 端口。需要构建带 RediSearch 的 Redis 镜像时执行 `docker build -f deploy/redis/Dockerfile -t ai-medical-care-redis .`。
 4. Web 端在 `frontend` 目录执行 `npm install`、`npm run dev`，通过 Vite 代理访问后端 `5137` 端口。
 
-已有旧库先备份数据并按顺序执行 `V2__secure_appointments.sql`、`V3__roles_and_doctor_accounts.sql`、`V4__appointment_lifecycle.sql`、`V5__triage_cases.sql`、`V6__waitlist_encounter_audit.sql`、`V7__knowledge_documents.sql`。V2 补充预约用户/排班归属，V3 增加角色与医生账号映射，V4 增加状态和医生快照并将历史记录标为 `LEGACY`，V5-V7 分别增加可信分诊、候补/摘要/审计和知识版本表。迁移可重复执行，不创建旧医生的登录账号。真实凭据只通过 `DASH_SCOPE_API_KEY`、`MYSQL_PASSWORD`、JWT secret 等环境变量或被忽略的 `secrets.local.txt` 提供；本项目不会修改本机 MySQL root 原密码。已有演示数据库如果只有历史日期排班，再使用 `mysql --default-character-set=utf8mb4 -uroot -p guiguxiaozhi -e "source src/main/resources/db/refresh-demo-schedules.sql"` 补充今天起未来 7 天的缺失排班。新数据库仍使用 `src/main/resources/db/init-data.sql`。
+已有旧库先备份数据并按顺序执行 `ai-medical-care/src/main/resources/db/migration/V2__secure_appointments.sql`、`ai-medical-care/src/main/resources/db/migration/V3__roles_and_doctor_accounts.sql`、`ai-medical-care/src/main/resources/db/migration/V4__appointment_lifecycle.sql`、`ai-medical-care/src/main/resources/db/migration/V5__triage_cases.sql`、`ai-medical-care/src/main/resources/db/migration/V6__waitlist_encounter_audit.sql`、`ai-medical-care/src/main/resources/db/migration/V7__knowledge_documents.sql`。V2 补充预约用户/排班归属，V3 增加角色与医生账号映射，V4 增加状态和医生快照并将历史记录标为 `LEGACY`，V5-V7 分别增加可信分诊、候补/摘要/审计和知识版本表。迁移可重复执行，不创建旧医生的登录账号。真实凭据只通过 `DASH_SCOPE_API_KEY`、`MYSQL_PASSWORD`、JWT secret 等环境变量或被忽略的 `secrets.local.txt` 提供；本项目不会修改本机 MySQL root 原密码。已有演示数据库如果只有历史日期排班，再使用 `mysql --default-character-set=utf8mb4 -uroot -p guiguxiaozhi -e "source ai-medical-care/src/main/resources/db/refresh-demo-schedules.sql"` 补充今天起未来 7 天的缺失排班。新数据库仍使用 `ai-medical-care/src/main/resources/db/init-data.sql`。
 
 ### Web 与 Nginx 交互
 
