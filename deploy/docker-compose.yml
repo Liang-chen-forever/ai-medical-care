@@ -36,7 +36,7 @@ services:
 
   app:
     build:
-      context: ..
+      context: ../ai-medical-care
       dockerfile: Dockerfile
     depends_on:
       mysql:
