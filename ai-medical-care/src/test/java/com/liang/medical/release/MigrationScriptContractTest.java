@@ -14,8 +14,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class MigrationScriptContractTest {
 
-    private static final Path RELEASE_RUNNER = Path.of("scripts", "release-validation.ps1");
-    private static final Path SCHEMA_BASELINE = Path.of("scripts", "release-validation", "schema-baseline.sql");
+    private static final Path RELEASE_RUNNER = Path.of("..", "scripts", "release-validation.ps1");
+    private static final Path SCHEMA_BASELINE = Path.of("..", "scripts", "release-validation", "schema-baseline.sql");
 
     private static final List<String> MIGRATION_FILES = List.of(
             "db/migration/V2__secure_appointments.sql",

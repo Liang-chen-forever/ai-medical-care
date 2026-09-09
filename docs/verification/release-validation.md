@@ -18,7 +18,7 @@ The runner passes `RELEASE_VALIDATION_JDBC_URL`, database credentials, and Redis
 
 ## Invocation
 
-From the `ai-medical-care` project root:
+From the `Intelligent-Healthcare-System` repository root:
 
 ```powershell
 $env:RELEASE_VALIDATION_DB_PASSWORD = '<password>'

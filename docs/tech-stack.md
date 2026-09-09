@@ -114,7 +114,7 @@
 
 ### 4. 知识库管理
 - 生产知识库加载医院、科室、神经内科和口腔科四份 Markdown 文档
-- PDF、TXT 解析示例仅保留在 `src/test/resources/knowledge`，供标记为 `external` 的实验测试使用
+- PDF、TXT 解析示例仅保留在 `ai-medical-care/src/test/resources/knowledge`，供标记为 `external` 的实验测试使用
 - 一键重新加载知识库到向量存储
 
 ---
