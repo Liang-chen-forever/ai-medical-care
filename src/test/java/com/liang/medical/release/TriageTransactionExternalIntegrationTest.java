@@ -1,7 +1,7 @@
 package com.liang.medical.release;
 
-import com.liang.medical.service.TriageService;
-import com.liang.medical.store.MongoChatMemoryStore;
+import com.liang.medical.triage.service.TriageService;
+import com.liang.medical.assistant.store.MongoChatMemoryStore;
 import dev.langchain4j.data.document.Metadata;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.rag.content.Content;

@@ -1,5 +1,6 @@
 package com.liang.medical.controller;
 
+import com.liang.medical.audit.controller.AdminMetricsController;
 import com.liang.medical.appointment.entity.AppointmentStatus;
 import com.liang.medical.auth.JwtTokenService;
 import com.liang.medical.auth.LoginRequiredInterceptor;
@@ -10,10 +11,10 @@ import com.liang.medical.auth.UserRole;
 import com.liang.medical.common.GlobalExceptionHandler;
 import com.liang.medical.config.WebMvcConfig;
 import com.liang.medical.appointment.mapper.AppointmentMapper;
-import com.liang.medical.mapper.TriageCaseMapper;
-import com.liang.medical.mapper.WaitlistEntryMapper;
+import com.liang.medical.triage.mapper.TriageCaseMapper;
+import com.liang.medical.waitlist.mapper.WaitlistEntryMapper;
 import com.liang.medical.triage.TriageCaseStatus;
-import com.liang.medical.waitlist.WaitlistStatus;
+import com.liang.medical.waitlist.entity.WaitlistStatus;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;

@@ -1,5 +1,6 @@
 package com.liang.medical.controller;
 
+import com.liang.medical.triage.controller.TriageController;
 import com.liang.medical.auth.JwtTokenService;
 import com.liang.medical.auth.LoginRequiredInterceptor;
 import com.liang.medical.auth.LoginUserArgumentResolver;
@@ -8,9 +9,9 @@ import com.liang.medical.auth.UserPrincipal;
 import com.liang.medical.auth.UserRole;
 import com.liang.medical.common.GlobalExceptionHandler;
 import com.liang.medical.config.WebMvcConfig;
-import com.liang.medical.dto.triage.TriageCaseResponse;
-import com.liang.medical.dto.triage.TriageCaseSummaryResponse;
-import com.liang.medical.service.TriageService;
+import com.liang.medical.triage.dto.TriageCaseResponse;
+import com.liang.medical.triage.dto.TriageCaseSummaryResponse;
+import com.liang.medical.triage.service.TriageService;
 import com.liang.medical.triage.TriageCaseStatus;
 import com.liang.medical.triage.TriageRiskLevel;
 import org.junit.jupiter.api.Test;

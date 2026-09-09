@@ -1,19 +1,20 @@
 package com.liang.medical.service;
 
+import com.liang.medical.waitlist.service.WaitlistService;
 import com.liang.medical.appointment.entity.AppointmentStatus;
 import com.liang.medical.common.BusinessException;
 import com.liang.medical.appointment.entity.Appointment;
 import com.liang.medical.appointment.entity.Schedule;
-import com.liang.medical.entity.User;
-import com.liang.medical.entity.WaitlistEntry;
+import com.liang.medical.auth.entity.User;
+import com.liang.medical.waitlist.entity.WaitlistEntry;
 import com.liang.medical.appointment.mapper.AppointmentMapper;
 import com.liang.medical.appointment.mapper.ScheduleMapper;
-import com.liang.medical.mapper.TriageCaseMapper;
-import com.liang.medical.mapper.UserMapper;
-import com.liang.medical.mapper.WaitlistEntryMapper;
-import com.liang.medical.service.impl.WaitlistServiceImpl;
+import com.liang.medical.triage.mapper.TriageCaseMapper;
+import com.liang.medical.auth.mapper.UserMapper;
+import com.liang.medical.waitlist.mapper.WaitlistEntryMapper;
+import com.liang.medical.waitlist.service.WaitlistServiceImpl;
 import com.liang.medical.triage.TriageRiskLevel;
-import com.liang.medical.waitlist.WaitlistStatus;
+import com.liang.medical.waitlist.entity.WaitlistStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

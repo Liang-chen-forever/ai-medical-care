@@ -1,10 +1,11 @@
 package com.liang.medical.service;
 
+import com.liang.medical.knowledge.service.KnowledgeDocumentService;
 import com.liang.medical.common.BusinessException;
-import com.liang.medical.entity.KnowledgeDocument;
+import com.liang.medical.knowledge.entity.KnowledgeDocument;
 import com.liang.medical.knowledge.KnowledgeDocumentStatus;
-import com.liang.medical.mapper.KnowledgeDocumentMapper;
-import com.liang.medical.service.impl.KnowledgeDocumentServiceImpl;
+import com.liang.medical.knowledge.mapper.KnowledgeDocumentMapper;
+import com.liang.medical.knowledge.service.KnowledgeDocumentServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockMultipartFile;

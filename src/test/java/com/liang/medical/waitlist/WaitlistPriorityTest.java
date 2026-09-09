@@ -1,7 +1,8 @@
 package com.liang.medical.waitlist;
 
+import com.liang.medical.waitlist.entity.WaitlistStatus;
 import com.liang.medical.triage.TriageRiskLevel;
-import com.liang.medical.entity.WaitlistEntry;
+import com.liang.medical.waitlist.entity.WaitlistEntry;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;

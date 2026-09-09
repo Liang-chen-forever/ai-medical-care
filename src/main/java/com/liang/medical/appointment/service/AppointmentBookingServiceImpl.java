@@ -1,22 +1,22 @@
 package com.liang.medical.appointment.service;
 
 import com.liang.medical.appointment.entity.AppointmentStatus;
-import com.liang.medical.audit.AuditService;
+import com.liang.medical.audit.service.AuditService;
 import com.liang.medical.auth.UserPrincipal;
 import com.liang.medical.auth.UserRole;
 import com.liang.medical.common.BusinessException;
 import com.liang.medical.appointment.entity.Appointment;
 import com.liang.medical.appointment.entity.Doctor;
 import com.liang.medical.appointment.entity.Schedule;
-import com.liang.medical.entity.User;
+import com.liang.medical.auth.entity.User;
 import com.liang.medical.appointment.dto.DoctorAppointmentResponse;
 import com.liang.medical.appointment.mapper.AppointmentMapper;
 import com.liang.medical.appointment.mapper.DoctorMapper;
 import com.liang.medical.appointment.mapper.ScheduleMapper;
-import com.liang.medical.mapper.TriageCaseMapper;
-import com.liang.medical.mapper.UserMapper;
+import com.liang.medical.triage.mapper.TriageCaseMapper;
+import com.liang.medical.auth.mapper.UserMapper;
 import com.liang.medical.appointment.service.AppointmentBookingService;
-import com.liang.medical.service.WaitlistService;
+import com.liang.medical.waitlist.service.WaitlistService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -126,7 +126,7 @@ public class AppointmentBookingServiceImpl implements AppointmentBookingService 
         if (triageCaseMapper == null) {
             throw new IllegalStateException("分诊记录校验未配置");
         }
-        com.liang.medical.entity.TriageCase triageCase = triageCaseMapper.selectById(triageCaseId);
+        com.liang.medical.triage.entity.TriageCase triageCase = triageCaseMapper.selectById(triageCaseId);
         if (triageCase == null) {
             throw new BusinessException(HttpStatus.NOT_FOUND, 404, "分诊记录不存在");
         }

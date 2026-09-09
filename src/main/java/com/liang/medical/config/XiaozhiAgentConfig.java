@@ -1,7 +1,7 @@
 package com.liang.medical.config;
 
 
-import com.liang.medical.store.MongoChatMemoryStore;
+import com.liang.medical.assistant.store.MongoChatMemoryStore;
 import dev.langchain4j.data.document.Document;
 import dev.langchain4j.data.document.loader.FileSystemDocumentLoader;
 import dev.langchain4j.data.segment.TextSegment;

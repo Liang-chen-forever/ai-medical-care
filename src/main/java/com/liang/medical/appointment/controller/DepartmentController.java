@@ -1,6 +1,6 @@
 package com.liang.medical.appointment.controller;
 
-import com.liang.medical.bean.Result;
+import com.liang.medical.assistant.model.Result;
 import com.liang.medical.common.ApiResponse;
 import com.liang.medical.common.BusinessException;
 import com.liang.medical.appointment.entity.Doctor;

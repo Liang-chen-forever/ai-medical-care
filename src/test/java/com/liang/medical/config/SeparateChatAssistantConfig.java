@@ -1,7 +1,7 @@
 package com.liang.medical.config;
 
 
-import com.liang.medical.store.MongoChatMemoryStore;
+import com.liang.medical.assistant.store.MongoChatMemoryStore;
 import dev.langchain4j.memory.chat.ChatMemoryProvider;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import org.springframework.beans.factory.annotation.Autowired;

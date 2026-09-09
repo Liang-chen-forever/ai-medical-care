@@ -1,7 +1,7 @@
 package com.liang.medical.appointment.service;
 
 import com.liang.medical.appointment.entity.AppointmentStatus;
-import com.liang.medical.audit.AuditService;
+import com.liang.medical.audit.service.AuditService;
 import com.liang.medical.auth.UserRole;
 import com.liang.medical.common.BusinessException;
 import com.liang.medical.appointment.entity.Appointment;

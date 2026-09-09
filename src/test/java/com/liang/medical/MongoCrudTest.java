@@ -1,7 +1,7 @@
 package com.liang.medical;
 
 
-import com.liang.medical.bean.ChatMessages;
+import com.liang.medical.assistant.model.ChatMessages;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

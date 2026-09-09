@@ -1,5 +1,6 @@
 package com.liang.medical.controller;
 
+import com.liang.medical.assistant.controller.XiaozhiController;
 import com.liang.medical.assistant.XiaozhiAgent;
 import com.liang.medical.auth.JwtTokenService;
 import com.liang.medical.auth.LoginRequiredInterceptor;

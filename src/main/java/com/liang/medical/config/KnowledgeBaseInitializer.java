@@ -1,6 +1,6 @@
 package com.liang.medical.config;
 
-import com.liang.medical.dto.knowledge.KnowledgeReloadResponse;
+import com.liang.medical.knowledge.dto.KnowledgeReloadResponse;
 import com.liang.medical.knowledge.KnowledgeSeedLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

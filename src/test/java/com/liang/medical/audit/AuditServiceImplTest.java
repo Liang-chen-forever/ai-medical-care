@@ -1,10 +1,11 @@
 package com.liang.medical.audit;
 
-import com.liang.medical.audit.impl.AuditServiceImpl;
+import com.liang.medical.audit.service.AuditService;
+import com.liang.medical.audit.service.AuditServiceImpl;
 import com.liang.medical.auth.UserPrincipal;
 import com.liang.medical.auth.UserRole;
-import com.liang.medical.entity.AuditLog;
-import com.liang.medical.mapper.AuditLogMapper;
+import com.liang.medical.audit.entity.AuditLog;
+import com.liang.medical.audit.mapper.AuditLogMapper;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

@@ -8,9 +8,9 @@ import dev.langchain4j.store.embedding.EmbeddingSearchRequest;
 import dev.langchain4j.store.embedding.EmbeddingMatch;
 import dev.langchain4j.store.embedding.inmemory.InMemoryEmbeddingStore;
 import org.junit.jupiter.api.Test;
-import com.liang.medical.entity.KnowledgeDocument;
+import com.liang.medical.knowledge.entity.KnowledgeDocument;
 import com.liang.medical.knowledge.KnowledgeDocumentStatus;
-import com.liang.medical.mapper.KnowledgeDocumentMapper;
+import com.liang.medical.knowledge.mapper.KnowledgeDocumentMapper;
 
 import java.util.List;
 

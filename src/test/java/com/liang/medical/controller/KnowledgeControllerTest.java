@@ -1,5 +1,6 @@
 package com.liang.medical.controller;
 
+import com.liang.medical.knowledge.controller.KnowledgeController;
 import com.liang.medical.auth.JwtTokenService;
 import com.liang.medical.auth.LoginRequiredInterceptor;
 import com.liang.medical.auth.LoginUserArgumentResolver;
@@ -8,7 +9,7 @@ import com.liang.medical.auth.UserPrincipal;
 import com.liang.medical.auth.UserRole;
 import com.liang.medical.common.GlobalExceptionHandler;
 import com.liang.medical.config.WebMvcConfig;
-import com.liang.medical.dto.knowledge.KnowledgeReloadResponse;
+import com.liang.medical.knowledge.dto.KnowledgeReloadResponse;
 import com.liang.medical.knowledge.KnowledgeSeedLoader;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

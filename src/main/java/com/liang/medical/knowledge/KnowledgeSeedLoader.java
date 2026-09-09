@@ -1,6 +1,6 @@
 package com.liang.medical.knowledge;
 
-import com.liang.medical.dto.knowledge.KnowledgeReloadResponse;
+import com.liang.medical.knowledge.dto.KnowledgeReloadResponse;
 import dev.langchain4j.data.document.Document;
 import dev.langchain4j.data.document.Metadata;
 import dev.langchain4j.data.segment.TextSegment;
@@ -9,8 +9,8 @@ import dev.langchain4j.store.embedding.EmbeddingStore;
 import dev.langchain4j.store.embedding.EmbeddingStoreIngestor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import com.liang.medical.mapper.KnowledgeDocumentMapper;
-import com.liang.medical.entity.KnowledgeDocument;
+import com.liang.medical.knowledge.mapper.KnowledgeDocumentMapper;
+import com.liang.medical.knowledge.entity.KnowledgeDocument;
 
 import java.util.List;
 import java.util.ArrayList;

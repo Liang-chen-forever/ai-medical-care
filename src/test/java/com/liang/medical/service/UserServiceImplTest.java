@@ -1,12 +1,13 @@
 package com.liang.medical.service;
 
+import com.liang.medical.auth.service.UserService;
 import com.liang.medical.common.BusinessException;
 import com.liang.medical.auth.UserRole;
-import com.liang.medical.dto.auth.LoginRequest;
-import com.liang.medical.dto.auth.RegisterRequest;
-import com.liang.medical.entity.User;
-import com.liang.medical.mapper.UserMapper;
-import com.liang.medical.service.impl.UserServiceImpl;
+import com.liang.medical.auth.dto.LoginRequest;
+import com.liang.medical.auth.dto.RegisterRequest;
+import com.liang.medical.auth.entity.User;
+import com.liang.medical.auth.mapper.UserMapper;
+import com.liang.medical.auth.service.UserServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;

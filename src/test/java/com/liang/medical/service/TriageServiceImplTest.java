@@ -1,13 +1,13 @@
 package com.liang.medical.service;
 
-import com.liang.medical.dto.triage.TriageCaseResponse;
-import com.liang.medical.dto.triage.TriageEvidenceResponse;
+import com.liang.medical.triage.dto.TriageCaseResponse;
+import com.liang.medical.triage.dto.TriageEvidenceResponse;
 import com.liang.medical.common.BusinessException;
-import com.liang.medical.entity.TriageCase;
-import com.liang.medical.entity.TriageEvidence;
-import com.liang.medical.mapper.TriageCaseMapper;
-import com.liang.medical.mapper.TriageEvidenceMapper;
-import com.liang.medical.service.impl.TriageServiceImpl;
+import com.liang.medical.triage.entity.TriageCase;
+import com.liang.medical.triage.entity.TriageEvidence;
+import com.liang.medical.triage.mapper.TriageCaseMapper;
+import com.liang.medical.triage.mapper.TriageEvidenceMapper;
+import com.liang.medical.triage.service.TriageServiceImpl;
 import com.liang.medical.triage.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
