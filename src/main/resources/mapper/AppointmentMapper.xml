@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.Liang.java.ai.langchain4j.mapper.AppointmentMapper">
+<mapper namespace="com.liang.medical.mapper.AppointmentMapper">
 
     <!-- 查询用户指定科室在7天内的已有预约，用于冲突检测 -->
-    <select id="findRecentByDepartment" resultType="com.Liang.java.ai.langchain4j.entity.Appointment">
+    <select id="findRecentByDepartment" resultType="com.liang.medical.entity.Appointment">
         SELECT *
         FROM appointment
         WHERE id_card = #{idCard}
@@ -12,7 +12,7 @@
         ORDER BY date DESC, id DESC
     </select>
 
-    <select id="findForDoctor" resultType="com.Liang.java.ai.langchain4j.entity.Appointment">
+    <select id="findForDoctor" resultType="com.liang.medical.entity.Appointment">
         SELECT a.id, a.schedule_id, a.department, a.date, a.time, a.doctor_name,
                a.status, a.cancel_reason
         FROM appointment a

@@ -61,14 +61,14 @@
 ### Task 1: Version Knowledge Seeds And Protect Reload
 
 **Files:**
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/knowledge/KnowledgeSeed.java`
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/knowledge/KnowledgeSeedCatalog.java`
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/knowledge/KnowledgeSeedLoader.java`
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/dto/knowledge/KnowledgeReloadResponse.java`
-- Modify: `src/main/java/com/Liang/java/ai/langchain4j/config/KnowledgeBaseInitializer.java`
-- Modify: `src/main/java/com/Liang/java/ai/langchain4j/controller/KnowledgeController.java`
-- Create: `src/test/java/com/Liang/java/ai/langchain4j/knowledge/KnowledgeSeedCatalogTest.java`
-- Create: `src/test/java/com/Liang/java/ai/langchain4j/controller/KnowledgeControllerTest.java`
+- Create: `src/main/java/com/liang/medical/knowledge/KnowledgeSeed.java`
+- Create: `src/main/java/com/liang/medical/knowledge/KnowledgeSeedCatalog.java`
+- Create: `src/main/java/com/liang/medical/knowledge/KnowledgeSeedLoader.java`
+- Create: `src/main/java/com/liang/medical/dto/knowledge/KnowledgeReloadResponse.java`
+- Modify: `src/main/java/com/liang/medical/config/KnowledgeBaseInitializer.java`
+- Modify: `src/main/java/com/liang/medical/controller/KnowledgeController.java`
+- Create: `src/test/java/com/liang/medical/knowledge/KnowledgeSeedCatalogTest.java`
+- Create: `src/test/java/com/liang/medical/controller/KnowledgeControllerTest.java`
 
 **Interfaces:**
 - Produces: `KnowledgeSeed(String documentId, String resourcePath, String department, String knowledgeVersion)`.
@@ -180,28 +180,28 @@ Expected: PASS; the catalog returns versioned metadata, patient receives `403`, 
 - [ ] **Step 5: Commit the knowledge boundary**
 
 ```bash
-git add src/main/java/com/Liang/java/ai/langchain4j/knowledge \
-  src/main/java/com/Liang/java/ai/langchain4j/dto/knowledge/KnowledgeReloadResponse.java \
-  src/main/java/com/Liang/java/ai/langchain4j/config/KnowledgeBaseInitializer.java \
-  src/main/java/com/Liang/java/ai/langchain4j/controller/KnowledgeController.java \
-  src/test/java/com/Liang/java/ai/langchain4j/knowledge/KnowledgeSeedCatalogTest.java \
-  src/test/java/com/Liang/java/ai/langchain4j/controller/KnowledgeControllerTest.java
+git add src/main/java/com/liang/medical/knowledge \
+  src/main/java/com/liang/medical/dto/knowledge/KnowledgeReloadResponse.java \
+  src/main/java/com/liang/medical/config/KnowledgeBaseInitializer.java \
+  src/main/java/com/liang/medical/controller/KnowledgeController.java \
+  src/test/java/com/liang/medical/knowledge/KnowledgeSeedCatalogTest.java \
+  src/test/java/com/liang/medical/controller/KnowledgeControllerTest.java
 git commit -m "feat: version knowledge seeds and protect reload"
 ```
 
 ### Task 2: Add Deterministic Risk And Evidence Policy
 
 **Files:**
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/triage/EmergencyRiskRuleEngine.java`
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/triage/RiskRuleMatch.java`
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/triage/RetrievedEvidence.java`
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/triage/TriageEvidencePolicy.java`
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/triage/TriageRecommendation.java`
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/triage/TriageRiskLevel.java`
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/triage/TriageCaseStatus.java`
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/triage/TriageFallbackReason.java`
-- Create: `src/test/java/com/Liang/java/ai/langchain4j/triage/EmergencyRiskRuleEngineTest.java`
-- Create: `src/test/java/com/Liang/java/ai/langchain4j/triage/TriageEvidencePolicyTest.java`
+- Create: `src/main/java/com/liang/medical/triage/EmergencyRiskRuleEngine.java`
+- Create: `src/main/java/com/liang/medical/triage/RiskRuleMatch.java`
+- Create: `src/main/java/com/liang/medical/triage/RetrievedEvidence.java`
+- Create: `src/main/java/com/liang/medical/triage/TriageEvidencePolicy.java`
+- Create: `src/main/java/com/liang/medical/triage/TriageRecommendation.java`
+- Create: `src/main/java/com/liang/medical/triage/TriageRiskLevel.java`
+- Create: `src/main/java/com/liang/medical/triage/TriageCaseStatus.java`
+- Create: `src/main/java/com/liang/medical/triage/TriageFallbackReason.java`
+- Create: `src/test/java/com/liang/medical/triage/EmergencyRiskRuleEngineTest.java`
+- Create: `src/test/java/com/liang/medical/triage/TriageEvidencePolicyTest.java`
 
 **Interfaces:**
 - Produces: `Optional<RiskRuleMatch> EmergencyRiskRuleEngine#match(String chiefComplaint)`.
@@ -306,8 +306,8 @@ Expected: PASS; all emergency categories return stable codes and only valid evid
 - [ ] **Step 5: Commit the deterministic decision layer**
 
 ```bash
-git add src/main/java/com/Liang/java/ai/langchain4j/triage \
-  src/test/java/com/Liang/java/ai/langchain4j/triage
+git add src/main/java/com/liang/medical/triage \
+  src/test/java/com/liang/medical/triage
 git commit -m "feat: add rule based triage policy"
 ```
 
@@ -315,19 +315,19 @@ git commit -m "feat: add rule based triage policy"
 
 **Files:**
 - Create: `src/main/resources/db/migration/V5__triage_cases.sql`
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/entity/TriageCase.java`
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/entity/TriageEvidence.java`
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/mapper/TriageCaseMapper.java`
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/mapper/TriageEvidenceMapper.java`
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/triage/TriageEvidenceRetriever.java`
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/triage/LangChain4jTriageEvidenceRetriever.java`
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/dto/triage/TriageCaseResponse.java`
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/dto/triage/TriageEvidenceResponse.java`
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/dto/triage/TriageCaseSummaryResponse.java`
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/service/TriageService.java`
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/service/impl/TriageServiceImpl.java`
-- Create: `src/test/java/com/Liang/java/ai/langchain4j/service/TriageServiceImplTest.java`
-- Create: `src/test/java/com/Liang/java/ai/langchain4j/triage/LangChain4jTriageEvidenceRetrieverTest.java`
+- Create: `src/main/java/com/liang/medical/entity/TriageCase.java`
+- Create: `src/main/java/com/liang/medical/entity/TriageEvidence.java`
+- Create: `src/main/java/com/liang/medical/mapper/TriageCaseMapper.java`
+- Create: `src/main/java/com/liang/medical/mapper/TriageEvidenceMapper.java`
+- Create: `src/main/java/com/liang/medical/triage/TriageEvidenceRetriever.java`
+- Create: `src/main/java/com/liang/medical/triage/LangChain4jTriageEvidenceRetriever.java`
+- Create: `src/main/java/com/liang/medical/dto/triage/TriageCaseResponse.java`
+- Create: `src/main/java/com/liang/medical/dto/triage/TriageEvidenceResponse.java`
+- Create: `src/main/java/com/liang/medical/dto/triage/TriageCaseSummaryResponse.java`
+- Create: `src/main/java/com/liang/medical/service/TriageService.java`
+- Create: `src/main/java/com/liang/medical/service/impl/TriageServiceImpl.java`
+- Create: `src/test/java/com/liang/medical/service/TriageServiceImplTest.java`
+- Create: `src/test/java/com/liang/medical/triage/LangChain4jTriageEvidenceRetrieverTest.java`
 
 **Interfaces:**
 - Consumes: Task 1 metadata keys and Task 2 risk/policy APIs.
@@ -522,27 +522,27 @@ Expected: PASS; the adapter derives a deterministic fingerprint, emergency cases
 
 ```bash
 git add src/main/resources/db/migration/V5__triage_cases.sql \
-  src/main/java/com/Liang/java/ai/langchain4j/entity/TriageCase.java \
-  src/main/java/com/Liang/java/ai/langchain4j/entity/TriageEvidence.java \
-  src/main/java/com/Liang/java/ai/langchain4j/mapper/TriageCaseMapper.java \
-  src/main/java/com/Liang/java/ai/langchain4j/mapper/TriageEvidenceMapper.java \
-  src/main/java/com/Liang/java/ai/langchain4j/triage/LangChain4jTriageEvidenceRetriever.java \
-  src/main/java/com/Liang/java/ai/langchain4j/triage/TriageEvidenceRetriever.java \
-  src/main/java/com/Liang/java/ai/langchain4j/dto/triage \
-  src/main/java/com/Liang/java/ai/langchain4j/service/TriageService.java \
-  src/main/java/com/Liang/java/ai/langchain4j/service/impl/TriageServiceImpl.java \
-  src/test/java/com/Liang/java/ai/langchain4j/service/TriageServiceImplTest.java \
-  src/test/java/com/Liang/java/ai/langchain4j/triage/LangChain4jTriageEvidenceRetrieverTest.java
+  src/main/java/com/liang/medical/entity/TriageCase.java \
+  src/main/java/com/liang/medical/entity/TriageEvidence.java \
+  src/main/java/com/liang/medical/mapper/TriageCaseMapper.java \
+  src/main/java/com/liang/medical/mapper/TriageEvidenceMapper.java \
+  src/main/java/com/liang/medical/triage/LangChain4jTriageEvidenceRetriever.java \
+  src/main/java/com/liang/medical/triage/TriageEvidenceRetriever.java \
+  src/main/java/com/liang/medical/dto/triage \
+  src/main/java/com/liang/medical/service/TriageService.java \
+  src/main/java/com/liang/medical/service/impl/TriageServiceImpl.java \
+  src/test/java/com/liang/medical/service/TriageServiceImplTest.java \
+  src/test/java/com/liang/medical/triage/LangChain4jTriageEvidenceRetrieverTest.java
 git commit -m "feat: add evidence backed triage cases"
 ```
 
 ### Task 4: Expose Patient-Scoped Triage APIs
 
 **Files:**
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/dto/triage/CreateTriageCaseRequest.java`
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/controller/TriageController.java`
-- Modify: `src/main/java/com/Liang/java/ai/langchain4j/config/WebMvcConfig.java`
-- Create: `src/test/java/com/Liang/java/ai/langchain4j/controller/TriageControllerTest.java`
+- Create: `src/main/java/com/liang/medical/dto/triage/CreateTriageCaseRequest.java`
+- Create: `src/main/java/com/liang/medical/controller/TriageController.java`
+- Modify: `src/main/java/com/liang/medical/config/WebMvcConfig.java`
+- Create: `src/test/java/com/liang/medical/controller/TriageControllerTest.java`
 
 **Interfaces:**
 - Consumes: Task 3 `TriageService#create`, `listMine`, and `getMine` plus `@LoginUser UserPrincipal`.
@@ -635,10 +635,10 @@ Expected: PASS; anonymous requests receive JSON `401`, a doctor receives `403` b
 - [ ] **Step 5: Commit the patient API**
 
 ```bash
-git add src/main/java/com/Liang/java/ai/langchain4j/dto/triage/CreateTriageCaseRequest.java \
-  src/main/java/com/Liang/java/ai/langchain4j/controller/TriageController.java \
-  src/main/java/com/Liang/java/ai/langchain4j/config/WebMvcConfig.java \
-  src/test/java/com/Liang/java/ai/langchain4j/controller/TriageControllerTest.java
+git add src/main/java/com/liang/medical/dto/triage/CreateTriageCaseRequest.java \
+  src/main/java/com/liang/medical/controller/TriageController.java \
+  src/main/java/com/liang/medical/config/WebMvcConfig.java \
+  src/test/java/com/liang/medical/controller/TriageControllerTest.java
 git commit -m "feat: expose patient triage cases"
 ```
 

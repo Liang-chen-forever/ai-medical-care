@@ -173,7 +173,7 @@ ORDER BY index_name;
     if ($missingIndexes.Count -gt 0) { throw ('Missing expected MySQL indexes: ' + ($missingIndexes -join ', ')) }
     $IndexStatus = "verified $($expectedIndexes.Count) indexes"
 
-    Invoke-ChildProcess -FilePath $MavenExecutable -Arguments @('-Pexternal-integration-tests', '-Dtest=com.Liang.java.ai.langchain4j.release.*ExternalIntegrationTest', 'test') -Environment $MavenEnvironment | Out-Null
+    Invoke-ChildProcess -FilePath $MavenExecutable -Arguments @('-Pexternal-integration-tests', '-Dtest=com.liang.medical.release.*ExternalIntegrationTest', 'test') -Environment $MavenEnvironment | Out-Null
 }
 catch {
     $Status = 'FAIL'

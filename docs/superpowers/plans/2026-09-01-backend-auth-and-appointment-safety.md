@@ -82,14 +82,14 @@ Expected: `BUILD SUCCESS`。
 ### Task 2: 统一响应、请求 DTO 和异常处理
 
 **Files:**
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/common/ApiResponse.java`
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/common/BusinessException.java`
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/common/GlobalExceptionHandler.java`
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/dto/auth/LoginRequest.java`
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/dto/auth/RegisterRequest.java`
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/dto/auth/AuthResponse.java`
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/dto/appointment/CreateAppointmentRequest.java`
-- Test: `src/test/java/com/Liang/java/ai/langchain4j/controller/AppointmentControllerTest.java`
+- Create: `src/main/java/com/liang/medical/common/ApiResponse.java`
+- Create: `src/main/java/com/liang/medical/common/BusinessException.java`
+- Create: `src/main/java/com/liang/medical/common/GlobalExceptionHandler.java`
+- Create: `src/main/java/com/liang/medical/dto/auth/LoginRequest.java`
+- Create: `src/main/java/com/liang/medical/dto/auth/RegisterRequest.java`
+- Create: `src/main/java/com/liang/medical/dto/auth/AuthResponse.java`
+- Create: `src/main/java/com/liang/medical/dto/appointment/CreateAppointmentRequest.java`
+- Test: `src/test/java/com/liang/medical/controller/AppointmentControllerTest.java`
 
 **Interfaces:**
 - `ApiResponse.success(T data)` 返回 `code=200`。
@@ -137,16 +137,16 @@ Expected: 在 Task 5 添加 Controller 后，HTTP 400、code 400、错误信息�
 ### Task 3: BCrypt 注册登录与 JWT 令牌
 
 **Files:**
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/auth/UserPrincipal.java`
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/auth/JwtProperties.java`
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/auth/JwtTokenService.java`
-- Modify: `src/main/java/com/Liang/java/ai/langchain4j/MedicalCareApp.java`
-- Modify: `src/main/java/com/Liang/java/ai/langchain4j/service/UserService.java`
-- Modify: `src/main/java/com/Liang/java/ai/langchain4j/service/impl/UserServiceImpl.java`
-- Modify: `src/main/java/com/Liang/java/ai/langchain4j/controller/AuthController.java`
-- Modify: `src/main/java/com/Liang/java/ai/langchain4j/config/CorsConfig.java`
-- Test: `src/test/java/com/Liang/java/ai/langchain4j/auth/JwtTokenServiceTest.java`
-- Test: `src/test/java/com/Liang/java/ai/langchain4j/service/UserServiceImplTest.java`
+- Create: `src/main/java/com/liang/medical/auth/UserPrincipal.java`
+- Create: `src/main/java/com/liang/medical/auth/JwtProperties.java`
+- Create: `src/main/java/com/liang/medical/auth/JwtTokenService.java`
+- Modify: `src/main/java/com/liang/medical/MedicalCareApp.java`
+- Modify: `src/main/java/com/liang/medical/service/UserService.java`
+- Modify: `src/main/java/com/liang/medical/service/impl/UserServiceImpl.java`
+- Modify: `src/main/java/com/liang/medical/controller/AuthController.java`
+- Modify: `src/main/java/com/liang/medical/config/CorsConfig.java`
+- Test: `src/test/java/com/liang/medical/auth/JwtTokenServiceTest.java`
+- Test: `src/test/java/com/liang/medical/service/UserServiceImplTest.java`
 
 **Interfaces:**
 - `UserService.register(RegisterRequest): User`
@@ -206,12 +206,12 @@ Expected: `BUILD SUCCESS`；密码捕获值为 BCrypt 哈希，token 往返可�
 ### Task 4: JWT 拦截和当前用户注入
 
 **Files:**
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/auth/LoginUser.java`
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/auth/CurrentUser.java`
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/auth/LoginRequiredInterceptor.java`
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/auth/LoginUserArgumentResolver.java`
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/config/WebMvcConfig.java`
-- Test: `src/test/java/com/Liang/java/ai/langchain4j/controller/AppointmentControllerTest.java`
+- Create: `src/main/java/com/liang/medical/auth/LoginUser.java`
+- Create: `src/main/java/com/liang/medical/auth/CurrentUser.java`
+- Create: `src/main/java/com/liang/medical/auth/LoginRequiredInterceptor.java`
+- Create: `src/main/java/com/liang/medical/auth/LoginUserArgumentResolver.java`
+- Create: `src/main/java/com/liang/medical/config/WebMvcConfig.java`
+- Test: `src/test/java/com/liang/medical/controller/AppointmentControllerTest.java`
 
 **Interfaces:**
 - `@LoginUser UserPrincipal` 只在验证 Bearer JWT 后解析。
@@ -256,14 +256,14 @@ Expected: `/api/v1/appointments/me` 以标准 JSON 返回 HTTP 401。
 ### Task 5: 事务预约、取消回补和 v1 Controller
 
 **Files:**
-- Modify: `src/main/java/com/Liang/java/ai/langchain4j/entity/Appointment.java`
-- Modify: `src/main/java/com/Liang/java/ai/langchain4j/mapper/AppointmentMapper.java`
-- Modify: `src/main/java/com/Liang/java/ai/langchain4j/mapper/ScheduleMapper.java`
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/service/AppointmentBookingService.java`
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/service/impl/AppointmentBookingServiceImpl.java`
-- Modify: `src/main/java/com/Liang/java/ai/langchain4j/controller/AppointmentController.java`
-- Test: `src/test/java/com/Liang/java/ai/langchain4j/service/AppointmentBookingServiceImplTest.java`
-- Test: `src/test/java/com/Liang/java/ai/langchain4j/controller/AppointmentControllerTest.java`
+- Modify: `src/main/java/com/liang/medical/entity/Appointment.java`
+- Modify: `src/main/java/com/liang/medical/mapper/AppointmentMapper.java`
+- Modify: `src/main/java/com/liang/medical/mapper/ScheduleMapper.java`
+- Create: `src/main/java/com/liang/medical/service/AppointmentBookingService.java`
+- Create: `src/main/java/com/liang/medical/service/impl/AppointmentBookingServiceImpl.java`
+- Modify: `src/main/java/com/liang/medical/controller/AppointmentController.java`
+- Test: `src/test/java/com/liang/medical/service/AppointmentBookingServiceImplTest.java`
+- Test: `src/test/java/com/liang/medical/controller/AppointmentControllerTest.java`
 
 **Interfaces:**
 - `ScheduleMapper.decrementIfAvailable(Long): int`
@@ -337,7 +337,7 @@ Expected: `BUILD SUCCESS`；覆盖满号、成功预约、重复预约、取消�
 ### Task 6: 阶段验证与小程序交接
 
 **Files:**
-- Modify: `src/main/java/com/Liang/java/ai/langchain4j/tools/AppointmentTools.java`（仅解决新字段造成的编译兼容）
+- Modify: `src/main/java/com/liang/medical/tools/AppointmentTools.java`（仅解决新字段造成的编译兼容）
 - Modify: `src/main/resources/mapper/AppointmentMapper.xml`（没有调用后移除旧查询）
 - Modify: `docs/tech-stack.md`
 

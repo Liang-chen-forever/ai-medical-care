@@ -24,7 +24,7 @@
 
 **Files:**
 - Modify: `src/main/resources/db/migration/V2__secure_appointments.sql`
-- Create: `src/test/java/com/Liang/java/ai/langchain4j/release/MigrationScriptContractTest.java`
+- Create: `src/test/java/com/liang/medical/release/MigrationScriptContractTest.java`
 
 **Interfaces:**
 - Consumes: migration files V2--V5 as classpath resources.
@@ -53,19 +53,19 @@ Expected: PASS.
 - [ ] **Step 5: Commit**
 
 ```powershell
-git add src/main/resources/db/migration/V2__secure_appointments.sql src/test/java/com/Liang/java/ai/langchain4j/release/MigrationScriptContractTest.java
+git add src/main/resources/db/migration/V2__secure_appointments.sql src/test/java/com/liang/medical/release/MigrationScriptContractTest.java
 git commit -m "fix: make appointment migration schema neutral"
 ```
 
 ### Task 2: Bind Knowledge Reload to the Configured Embedding Model
 
 **Files:**
-- Modify: `src/main/java/com/Liang/java/ai/langchain4j/knowledge/KnowledgeSeedLoader.java`
-- Modify: `src/main/java/com/Liang/java/ai/langchain4j/config/RedisEmbeddingStoreConfig.java`
+- Modify: `src/main/java/com/liang/medical/knowledge/KnowledgeSeedLoader.java`
+- Modify: `src/main/java/com/liang/medical/config/RedisEmbeddingStoreConfig.java`
 - Modify: `src/main/resources/application.properties`
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/config/KnowledgeRedisProperties.java`
-- Create: `src/test/java/com/Liang/java/ai/langchain4j/knowledge/KnowledgeSeedLoaderTest.java`
-- Create: `src/test/java/com/Liang/java/ai/langchain4j/config/KnowledgeRedisPropertiesTest.java`
+- Create: `src/main/java/com/liang/medical/config/KnowledgeRedisProperties.java`
+- Create: `src/test/java/com/liang/medical/knowledge/KnowledgeSeedLoaderTest.java`
+- Create: `src/test/java/com/liang/medical/config/KnowledgeRedisPropertiesTest.java`
 
 **Interfaces:**
 - Consumes: `EmbeddingModel`, `EmbeddingStore<TextSegment>`, `app.knowledge.redis.host`, `.port`, `.index-name`, `.prefix`, `.dimension`.
@@ -92,16 +92,16 @@ Keep `xiaozhi-index`, `langchain4j:vector:xiaozhi:`, `localhost`, `6379`, and `1
 - [ ] **Step 5: Commit**
 
 ```powershell
-git add src/main/java/com/Liang/java/ai/langchain4j/knowledge/KnowledgeSeedLoader.java src/main/java/com/Liang/java/ai/langchain4j/config/RedisEmbeddingStoreConfig.java src/main/java/com/Liang/java/ai/langchain4j/config/KnowledgeRedisProperties.java src/main/resources/application.properties src/test/java/com/Liang/java/ai/langchain4j/knowledge/KnowledgeSeedLoaderTest.java src/test/java/com/Liang/java/ai/langchain4j/config/KnowledgeRedisPropertiesTest.java
+git add src/main/java/com/liang/medical/knowledge/KnowledgeSeedLoader.java src/main/java/com/liang/medical/config/RedisEmbeddingStoreConfig.java src/main/java/com/liang/medical/config/KnowledgeRedisProperties.java src/main/resources/application.properties src/test/java/com/liang/medical/knowledge/KnowledgeSeedLoaderTest.java src/test/java/com/liang/medical/config/KnowledgeRedisPropertiesTest.java
 git commit -m "fix: bind knowledge reload to configured embeddings"
 ```
 
 ### Task 3: Add Isolated External Integration Tests
 
 **Files:**
-- Create: `src/test/java/com/Liang/java/ai/langchain4j/release/ExternalValidationEnvironment.java`
-- Create: `src/test/java/com/Liang/java/ai/langchain4j/release/TriageTransactionExternalIntegrationTest.java`
-- Create: `src/test/java/com/Liang/java/ai/langchain4j/release/KnowledgeRedisExternalIntegrationTest.java`
+- Create: `src/test/java/com/liang/medical/release/ExternalValidationEnvironment.java`
+- Create: `src/test/java/com/liang/medical/release/TriageTransactionExternalIntegrationTest.java`
+- Create: `src/test/java/com/liang/medical/release/KnowledgeRedisExternalIntegrationTest.java`
 
 **Interfaces:**
 - Consumes: `RELEASE_VALIDATION_JDBC_URL`, `RELEASE_VALIDATION_DB_USER`, `RELEASE_VALIDATION_DB_PASSWORD`, `RELEASE_VALIDATION_REDIS_HOST`, and `RELEASE_VALIDATION_REDIS_PORT`.
@@ -130,7 +130,7 @@ Expected: PASS without requiring running MySQL/Redis.
 - [ ] **Step 5: Commit**
 
 ```powershell
-git add src/test/java/com/Liang/java/ai/langchain4j/release
+git add src/test/java/com/liang/medical/release
 git commit -m "test: add isolated release integration checks"
 ```
 
@@ -177,7 +177,7 @@ Expected: all commands PASS.
 - [ ] **Step 6: Commit**
 
 ```powershell
-git add scripts/release-validation.ps1 scripts/release-validation/schema-baseline.sql docs/verification/release-validation.md .gitignore src/test/java/com/Liang/java/ai/langchain4j/release/MigrationScriptContractTest.java
+git add scripts/release-validation.ps1 scripts/release-validation/schema-baseline.sql docs/verification/release-validation.md .gitignore src/test/java/com/liang/medical/release/MigrationScriptContractTest.java
 git commit -m "docs: add reproducible release validation runner"
 ```
 

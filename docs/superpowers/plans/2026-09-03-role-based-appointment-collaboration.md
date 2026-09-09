@@ -28,12 +28,12 @@
 - Modify: `src/main/resources/application.properties`
 - Modify: `secrets.example.txt`
 - Modify: `.gitignore`
-- Modify: `src/main/java/com/Liang/java/ai/langchain4j/config/WebMvcConfig.java`
-- Modify: `src/main/java/com/Liang/java/ai/langchain4j/controller/XiaozhiController.java`
-- Modify: `src/main/java/com/Liang/java/ai/langchain4j/bean/ChatForm.java`
-- Modify: `src/main/java/com/Liang/java/ai/langchain4j/assistant/XiaozhiAgent.java`
+- Modify: `src/main/java/com/liang/medical/config/WebMvcConfig.java`
+- Modify: `src/main/java/com/liang/medical/controller/XiaozhiController.java`
+- Modify: `src/main/java/com/liang/medical/bean/ChatForm.java`
+- Modify: `src/main/java/com/liang/medical/assistant/XiaozhiAgent.java`
 - Modify: `frontend/src/api/index.js`
-- Test: `src/test/java/com/Liang/java/ai/langchain4j/controller/XiaozhiControllerTest.java`
+- Test: `src/test/java/com/liang/medical/controller/XiaozhiControllerTest.java`
 
 **Interfaces:**
 - Produces: `POST /api/v1/chat/conversations/{conversationId}/messages`.
@@ -110,22 +110,22 @@ Stage only Task 1 files, then commit with message `security: isolate chat sessio
 ### Task 2: Add roles to users and JWT claims
 
 **Files:**
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/auth/UserRole.java`
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/auth/RequireRole.java`
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/auth/RoleRequiredInterceptor.java`
-- Modify: `src/main/java/com/Liang/java/ai/langchain4j/auth/UserPrincipal.java`
-- Modify: `src/main/java/com/Liang/java/ai/langchain4j/auth/JwtTokenService.java`
-- Modify: `src/main/java/com/Liang/java/ai/langchain4j/entity/User.java`
-- Modify: `src/main/java/com/Liang/java/ai/langchain4j/entity/Doctor.java`
-- Modify: `src/main/java/com/Liang/java/ai/langchain4j/service/impl/UserServiceImpl.java`
-- Modify: `src/main/java/com/Liang/java/ai/langchain4j/controller/AuthController.java`
-- Modify: `src/main/java/com/Liang/java/ai/langchain4j/dto/auth/AuthResponse.java`
-- Modify: `src/main/java/com/Liang/java/ai/langchain4j/config/WebMvcConfig.java`
+- Create: `src/main/java/com/liang/medical/auth/UserRole.java`
+- Create: `src/main/java/com/liang/medical/auth/RequireRole.java`
+- Create: `src/main/java/com/liang/medical/auth/RoleRequiredInterceptor.java`
+- Modify: `src/main/java/com/liang/medical/auth/UserPrincipal.java`
+- Modify: `src/main/java/com/liang/medical/auth/JwtTokenService.java`
+- Modify: `src/main/java/com/liang/medical/entity/User.java`
+- Modify: `src/main/java/com/liang/medical/entity/Doctor.java`
+- Modify: `src/main/java/com/liang/medical/service/impl/UserServiceImpl.java`
+- Modify: `src/main/java/com/liang/medical/controller/AuthController.java`
+- Modify: `src/main/java/com/liang/medical/dto/auth/AuthResponse.java`
+- Modify: `src/main/java/com/liang/medical/config/WebMvcConfig.java`
 - Modify: `src/main/resources/db/init-data.sql`
 - Create: `src/main/resources/db/migration/V3__roles_and_doctor_accounts.sql`
-- Test: `src/test/java/com/Liang/java/ai/langchain4j/auth/JwtTokenServiceTest.java`
-- Test: `src/test/java/com/Liang/java/ai/langchain4j/auth/RoleRequiredInterceptorTest.java`
-- Test: `src/test/java/com/Liang/java/ai/langchain4j/service/UserServiceImplTest.java`
+- Test: `src/test/java/com/liang/medical/auth/JwtTokenServiceTest.java`
+- Test: `src/test/java/com/liang/medical/auth/RoleRequiredInterceptorTest.java`
+- Test: `src/test/java/com/liang/medical/service/UserServiceImplTest.java`
 
 **Interfaces:**
 - Produces: `enum UserRole { PATIENT, DOCTOR, ADMIN }`.
@@ -177,15 +177,15 @@ Stage only Task 2 files, then commit with message `feat: add role-based API acce
 ### Task 3: Implement doctor-owned appointment lifecycle transitions
 
 **Files:**
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/appointment/AppointmentStatus.java`
-- Modify: `src/main/java/com/Liang/java/ai/langchain4j/entity/Appointment.java`
-- Modify: `src/main/java/com/Liang/java/ai/langchain4j/mapper/AppointmentMapper.java`
-- Modify: `src/main/java/com/Liang/java/ai/langchain4j/mapper/DoctorMapper.java`
-- Modify: `src/main/java/com/Liang/java/ai/langchain4j/service/AppointmentBookingService.java`
-- Modify: `src/main/java/com/Liang/java/ai/langchain4j/service/impl/AppointmentBookingServiceImpl.java`
+- Create: `src/main/java/com/liang/medical/appointment/AppointmentStatus.java`
+- Modify: `src/main/java/com/liang/medical/entity/Appointment.java`
+- Modify: `src/main/java/com/liang/medical/mapper/AppointmentMapper.java`
+- Modify: `src/main/java/com/liang/medical/mapper/DoctorMapper.java`
+- Modify: `src/main/java/com/liang/medical/service/AppointmentBookingService.java`
+- Modify: `src/main/java/com/liang/medical/service/impl/AppointmentBookingServiceImpl.java`
 - Modify: `src/main/resources/db/init-data.sql`
 - Create: `src/main/resources/db/migration/V4__appointment_lifecycle.sql`
-- Test: `src/test/java/com/Liang/java/ai/langchain4j/service/AppointmentBookingServiceImplTest.java`
+- Test: `src/test/java/com/liang/medical/service/AppointmentBookingServiceImplTest.java`
 
 **Interfaces:**
 - Produces: `AppointmentStatus { PENDING, CONFIRMED, COMPLETED, CANCELLED, REJECTED, EXPIRED, LEGACY }`.
@@ -260,18 +260,18 @@ Stage only Task 3 files, then commit with message `feat: add doctor appointment 
 ### Task 4: Expose doctor APIs and a role-aware Web work queue
 
 **Files:**
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/dto/doctor/RejectAppointmentRequest.java`
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/dto/doctor/DoctorAppointmentResponse.java`
-- Create: `src/main/java/com/Liang/java/ai/langchain4j/controller/DoctorAppointmentController.java`
-- Modify: `src/main/java/com/Liang/java/ai/langchain4j/service/AppointmentBookingService.java`
-- Modify: `src/main/java/com/Liang/java/ai/langchain4j/service/impl/AppointmentBookingServiceImpl.java`
+- Create: `src/main/java/com/liang/medical/dto/doctor/RejectAppointmentRequest.java`
+- Create: `src/main/java/com/liang/medical/dto/doctor/DoctorAppointmentResponse.java`
+- Create: `src/main/java/com/liang/medical/controller/DoctorAppointmentController.java`
+- Modify: `src/main/java/com/liang/medical/service/AppointmentBookingService.java`
+- Modify: `src/main/java/com/liang/medical/service/impl/AppointmentBookingServiceImpl.java`
 - Modify: `frontend/src/api/index.js`
 - Modify: `frontend/src/router/index.js`
 - Modify: `frontend/src/App.vue`
 - Modify: `frontend/src/views/MyAppointments.vue`
 - Create: `frontend/src/views/DoctorAppointments.vue`
 - Create: `frontend/test/doctor-appointments.test.js`
-- Test: `src/test/java/com/Liang/java/ai/langchain4j/controller/DoctorAppointmentControllerTest.java`
+- Test: `src/test/java/com/liang/medical/controller/DoctorAppointmentControllerTest.java`
 
 **Interfaces:**
 - Produces: `GET /api/v1/doctor/appointments?status=PENDING` and doctor `confirm`, `reject`, `complete` actions.
