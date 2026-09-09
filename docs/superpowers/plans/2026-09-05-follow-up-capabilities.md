@@ -132,9 +132,9 @@
 **Files:**
 - Create: `evaluation/triage-cases.jsonl`
 - Create: `scripts/evaluate-triage.ps1`
-- Create: `docker-compose.yml`
+- Create: `deploy/docker-compose.yml`
 - Create: `.github/workflows/ci.yml`
-- Modify: `README.md`, `docs/技术栈文档.md`, release validation runner.
+- Modify: `README.md`, `docs/tech-stack.md`, release validation runner.
 - Test: `src/test/java/com/Liang/java/ai/langchain4j/release/MigrationScriptContractTest.java`
 
 - [ ] **Step 1:** Add at least 30 synthetic, non-sensitive evaluation rows and a deterministic scoring script.

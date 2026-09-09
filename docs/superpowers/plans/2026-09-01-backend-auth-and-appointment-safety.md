@@ -339,7 +339,7 @@ Expected: `BUILD SUCCESS`；覆盖满号、成功预约、重复预约、取消�
 **Files:**
 - Modify: `src/main/java/com/Liang/java/ai/langchain4j/tools/AppointmentTools.java`（仅解决新字段造成的编译兼容）
 - Modify: `src/main/resources/mapper/AppointmentMapper.xml`（没有调用后移除旧查询）
-- Modify: `docs/技术栈文档.md`
+- Modify: `docs/tech-stack.md`
 
 **Interfaces:**
 - `/api/v1/appointments` 是唯一面向用户的预约写入口。
@@ -373,4 +373,4 @@ Expected: 仅出现计划内文件和原有用户未提交改动；不暂存、�
 
 - [ ] **Step 4: 更新项目技术文档**
 
-在 `docs/技术栈文档.md` 写明：认证使用 BCrypt + JWT；预约利用 MySQL 条件更新和事务保证号源；小程序下一阶段需在 `Authorization` 头传 Bearer token，并改为 `POST /api/v1/appointments`、`{ "scheduleId": 101 }`。
+在 `docs/tech-stack.md` 写明：认证使用 BCrypt + JWT；预约利用 MySQL 条件更新和事务保证号源；小程序下一阶段需在 `Authorization` 头传 Bearer token，并改为 `POST /api/v1/appointments`、`{ "scheduleId": 101 }`。

@@ -10,7 +10,7 @@ if (-not $NginxExe) {
 }
 
 if (-not $NginxExe -or -not (Test-Path $NginxExe)) {
-    throw '未找到 frontend/nginx-1.20.2/nginx.exe。'
+    throw '未找到 deploy/nginx/nginx.exe。'
 }
 
 & $NginxExe -p "$nginxHome/" -c 'conf/nginx.conf' -s quit

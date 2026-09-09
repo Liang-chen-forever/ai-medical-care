@@ -346,13 +346,13 @@ Expected: Vite build succeeds from `frontend`.
 
 - [ ] **Step 5: Document and commit the workflow**
 
-Update `README.md` and `docs/技术栈文档.md` with roles, migration order, state transition rules, and external credential setup. Stage only Task 4 files, then commit with message `feat: add role-aware appointment workflows`.
+Update `README.md` and `docs/tech-stack.md` with roles, migration order, state transition rules, and external credential setup. Stage only Task 4 files, then commit with message `feat: add role-aware appointment workflows`.
 
 ### Task 5: Verify and publish the first subproject boundary
 
 **Files:**
 - Modify: `README.md`
-- Modify: `docs/技术栈文档.md`
+- Modify: `docs/tech-stack.md`
 
 **Interfaces:**
 - Consumes: Tasks 1-4.

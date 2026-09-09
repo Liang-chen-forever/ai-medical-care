@@ -7,11 +7,11 @@ target/
 ### Frontend ###
 frontend/node_modules/
 frontend/dist/
-frontend/nginx-1.20.2/nginx.exe
-frontend/nginx-1.20.2/logs/*.log
-frontend/nginx-1.20.2/logs/*.pid
-frontend/nginx-1.20.2/temp/*
-!frontend/nginx-1.20.2/temp/.gitkeep
+deploy/nginx/nginx.exe
+deploy/nginx/logs/*.log
+deploy/nginx/logs/*.pid
+deploy/nginx/temp/*
+!deploy/nginx/temp/.gitkeep
 ### Environment and local secrets ###
 .env
 .env.local

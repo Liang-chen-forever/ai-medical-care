@@ -16,10 +16,13 @@ ai-medical-care/
 │   │   └── knowledge/              # 运行时加载的医疗 Markdown
 │   └── test/                       # 核心测试和外部集成测试资源
 ├── frontend/                       # Vue 3 Web 客户端
-│   └── nginx-1.20.2/                # Nginx 配置和 Windows 启停脚本（不提交 nginx.exe）
-├── deploy/redis/Dockerfile         # 可选的 Redis/RediSearch 镜像构建文件
+├── deploy/                         # Compose、Redis 与 Nginx 部署资源
+│   ├── docker-compose.yml
+│   ├── Dockerfile.redis
+│   ├── nginx/                       # Nginx 配置和 Windows 启停脚本（不提交 nginx.exe）
+│   └── redis/Dockerfile             # 可选的 Redis/RediSearch 镜像构建文件
 ├── secrets.example.txt             # 密钥配置示例
-└── docs/技术栈文档.md               # 技术实现说明
+└── docs/tech-stack.md               # 技术实现说明
 ```
 
 ## 核心接口
@@ -94,22 +97,22 @@ npm run dev
 
 项目提供了类似 Sky-Delivery 的 Nginx 目录结构。Nginx 负责提供 `frontend/dist` 静态文件，并将 `/api/`、`/xiaozhi/` 反向代理到 Spring Boot 的 `5137` 端口，因此浏览器访问时前后端使用同一个来源，不需要额外配置跨域。
 
-仓库不提交 Nginx 二进制文件。可以将 Windows 版 Nginx 解压到 `frontend/nginx-1.20.2`，使 `nginx.exe` 与 `conf` 目录同级；也可以直接复用本机已有的 Nginx，并通过 `-NginxExe` 指定路径。
+仓库不提交 Nginx 二进制文件。可以将 Windows 版 Nginx 解压到 `deploy/nginx`，使 `nginx.exe` 与 `conf` 目录同级；也可以直接复用本机已有的 Nginx，并通过 `-NginxExe` 指定路径。
 
 ```powershell
 cd frontend
 npm run build
-cd nginx-1.20.2
-.\start-nginx.ps1 -NginxExe 'D:\Resume-Projects\Sky-Delivery\frontend\nginx-1.20.2\nginx.exe'
+cd ..\deploy\nginx
+.\start-nginx.ps1 -NginxExe 'D:\Resume-Projects\Intelligent-Healthcare-System\ai-medical-care\deploy\nginx\nginx.exe'
 ```
 
 启动后访问 `http://localhost:8088/`，刷新 `http://localhost:8088/chat`、`http://localhost:8088/department` 等 Vue 路由也会返回前端页面。`http://localhost:8088/api/v1/departments` 可用于确认 Nginx 已经代理到后端。停止服务：
 
 ```powershell
-.\stop-nginx.ps1 -NginxExe 'D:\Resume-Projects\Sky-Delivery\frontend\nginx-1.20.2\nginx.exe'
+.\stop-nginx.ps1 -NginxExe 'D:\Resume-Projects\Intelligent-Healthcare-System\ai-medical-care\deploy\nginx\nginx.exe'
 ```
 
-项目默认使用 `8088`，避免与其他项目常用的 `80` 端口冲突；如需改端口，修改 `frontend/nginx-1.20.2/conf/nginx.conf` 中的 `listen 8088` 后再启动，并使用对应端口访问。Nginx 集成模式要求先构建 `frontend/dist`，后端必须已经监听 `5137`。
+项目默认使用 `8088`，避免与其他项目常用的 `80` 端口冲突；如需改端口，修改 `deploy/nginx/conf/nginx.conf` 中的 `listen 8088` 后再启动，并使用对应端口访问。Nginx 集成模式要求先构建 `frontend/dist`，后端必须已经监听 `5137`。
 
 ## 验证命令
 

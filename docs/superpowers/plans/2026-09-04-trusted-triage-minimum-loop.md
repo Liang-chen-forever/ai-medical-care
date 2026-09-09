@@ -653,7 +653,7 @@ git commit -m "feat: expose patient triage cases"
 - Modify: `frontend/src/views/ChatView.vue`
 - Create: `frontend/test/triage-api.test.js`
 - Modify: `README.md`
-- Modify: `docs/技术栈文档.md`
+- Modify: `docs/tech-stack.md`
 
 **Interfaces:**
 - Consumes: Task 4 response fields `status`, `riskLevel`, `recommendedDepartment`, `careTiming`, `retrievalConfidence`, `disclaimer`, `emergencyInstruction`, `fallbackReason`, and `evidence`.
@@ -775,7 +775,7 @@ Expected: Vite production build succeeds with the patient route and no unresolve
 
 - [ ] **Step 5: Update delivery documentation**
 
-Add to `README.md` and `docs/技术栈文档.md`:
+Add to `README.md` and `docs/tech-stack.md`:
 
 ```text
 患者主诉 -> 高风险规则 -> 带版本的检索证据 -> 分诊卡 / 人工选科降级
@@ -788,7 +788,7 @@ State explicitly that the system provides non-diagnostic department guidance, hi
 ```bash
 git add frontend/src/views/TriageView.vue frontend/src/api/index.js \
   frontend/src/router/index.js frontend/src/utils/routeAccess.js frontend/src/App.vue frontend/src/views/ChatView.vue \
-  frontend/test/triage-api.test.js README.md "docs/技术栈文档.md"
+  frontend/test/triage-api.test.js README.md "docs/tech-stack.md"
 git commit -m "feat: add patient triage experience"
 ```
 
@@ -796,7 +796,7 @@ git commit -m "feat: add patient triage experience"
 
 **Files:**
 - Modify: `README.md`
-- Modify: `docs/技术栈文档.md`
+- Modify: `docs/tech-stack.md`
 
 **Interfaces:**
 - Consumes: Tasks 1-5.
@@ -843,7 +843,7 @@ Update both docs to list these as not yet completed in the local default suite: 
 - [ ] **Step 5: Commit verification documentation**
 
 ```bash
-git add README.md "docs/技术栈文档.md"
+git add README.md "docs/tech-stack.md"
 git commit -m "docs: verify trusted triage delivery"
 ```
 

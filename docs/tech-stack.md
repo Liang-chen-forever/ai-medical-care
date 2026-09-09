@@ -147,9 +147,12 @@ ai-medical-care/
 │   │   └── *-prompt-template.txt    # AI 系统提示词
 │   └── test/                        # 核心单元/接口测试和 external 实验资源
 ├── frontend/                        # Vue 3 Web 项目
-│   ├── src/                         # 页面、路由、状态和 API 封装
-│   └── nginx-1.20.2/                # Nginx 配置和 Windows 启停脚本
-├── deploy/redis/Dockerfile          # 可选的 Redis/RediSearch 镜像
+│   └── src/                         # 页面、路由、状态和 API 封装
+├── deploy/                          # Compose、Redis 与 Nginx 部署资源
+│   ├── docker-compose.yml
+│   ├── Dockerfile.redis
+│   ├── nginx/                       # Nginx 配置和 Windows 启停脚本
+│   └── redis/Dockerfile             # 可选的 Redis/RediSearch 镜像
 ├── secrets.example.txt              # 配置模板，真实配置使用被忽略的 secrets.local.txt
 └── docs/                            # 技术栈与向量库说明
 ```
@@ -170,7 +173,7 @@ ai-medical-care/
 Web 有两种运行模式：
 
 1. 开发模式：`frontend` 执行 `npm run dev`，Vite 使用 `localhost:3000`，并把 `/api`、`/xiaozhi` 转发到后端 `5137`。
-2. 集成模式：先执行 `npm run build`，再运行 `frontend/nginx-1.20.2/start-nginx.ps1`。Nginx 默认监听 `8088`，静态根目录为 `frontend/dist`，并把 `/api/`、`/xiaozhi/` 原路径代理到 `127.0.0.1:5137`。访问 `http://localhost:8088/` 即可同时使用网页和后端 API。
+2. 集成模式：先执行 `npm run build`，再运行 `deploy/nginx/start-nginx.ps1`。Nginx 默认监听 `8088`，静态根目录为 `frontend/dist`，并把 `/api/`、`/xiaozhi/` 原路径代理到 `127.0.0.1:5137`。访问 `http://localhost:8088/` 即可同时使用网页和后端 API。
 
 Nginx 配置中的 `try_files $uri $uri/ /index.html` 用于支持 Vue Router history 模式刷新；AI 接口配置了 `proxy_buffering off` 和较长读取超时，用于保留流式响应。仓库不提交 `nginx.exe`，脚本支持 `-NginxExe` 指向本机已有的 Nginx。
 

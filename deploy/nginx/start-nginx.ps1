@@ -5,16 +5,18 @@ param(
 $ErrorActionPreference = 'Stop'
 $nginxHome = (Resolve-Path (Join-Path $PSScriptRoot '.')).Path
 $configPath = Join-Path $nginxHome 'conf/nginx.conf'
+$repositoryRoot = (Resolve-Path (Join-Path $nginxHome '..\..')).Path
+$distPath = Join-Path $repositoryRoot 'frontend\dist'
 
 if (-not $NginxExe) {
     $NginxExe = Join-Path $nginxHome 'nginx.exe'
 }
 
 if (-not $NginxExe -or -not (Test-Path $NginxExe)) {
-    throw '未找到 frontend/nginx-1.20.2/nginx.exe。请将 Nginx 解压到该目录。'
+    throw '未找到 deploy/nginx/nginx.exe。请将 Nginx 解压到该目录。'
 }
 
-if (-not (Test-Path (Join-Path (Split-Path $nginxHome -Parent) 'dist'))) {
+if (-not (Test-Path $distPath)) {
     throw '未找到 frontend/dist。请先在 frontend 目录执行 npm run build。'
 }
 
