@@ -203,6 +203,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>${spring-boot.version}</version>
                 <configuration>
+                    <mainClass>com.liang.medical.MedicalCareApp</mainClass>
                     <excludes>
                         <exclude>
                             <groupId>org.projectlombok</groupId>

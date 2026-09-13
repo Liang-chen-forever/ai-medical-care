@@ -19,6 +19,7 @@ secrets.local.txt
 docs/verification/runs/
 
 ### IntelliJ IDEA ###
+/.idea/
 /ai-medical-care/.idea/
 .idea/workspace.xml
 .idea/modules.xml
