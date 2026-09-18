@@ -59,3 +59,8 @@ build/
 .pnpm-store/
 .superpowers/
 .directory
+
+### Local agent plans (kept on disk, never published) ###
+docs/superpowers/
+LAYOUT_RESTRUCTURE_PLAN.md
+REFACTOR_PLAN.md
