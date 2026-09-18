@@ -99,13 +99,13 @@ npm run dev
 cd frontend
 npm run build
 cd ..\deploy\nginx
-.\start-nginx.ps1 -NginxExe 'D:\Resume-Projects\Intelligent-Healthcare-System\deploy\nginx\nginx.exe'
+.\start-nginx.ps1 -NginxExe '.\nginx.exe'
 ```
 
 启动后访问 `http://localhost:8088/`，刷新 `http://localhost:8088/chat`、`http://localhost:8088/department` 等 Vue 路由也会返回前端页面。`http://localhost:8088/api/v1/departments` 可用于确认 Nginx 已经代理到后端。停止服务：
 
 ```powershell
-.\stop-nginx.ps1 -NginxExe 'D:\Resume-Projects\Intelligent-Healthcare-System\deploy\nginx\nginx.exe'
+.\stop-nginx.ps1 -NginxExe '.\nginx.exe'
 ```
 
 项目默认使用 `8088`，避免与其他项目常用的 `80` 端口冲突；如需改端口，修改 `deploy/nginx/conf/nginx.conf` 中的 `listen 8088` 后再启动，并使用对应端口访问。Nginx 集成模式要求先构建 `frontend/dist`，后端必须已经监听 `5137`。
